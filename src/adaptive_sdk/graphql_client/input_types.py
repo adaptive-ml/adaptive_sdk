@@ -1,0 +1,507 @@
+from typing import Any, List, Optional
+from pydantic import Field
+from .base_model import BaseModel
+from .enums import AbcampaignStatus, CompletionSource, ExternalModelProviderName, FeedbackType, FeedbackTypeInput, MetricAggregation, MetricKind, MetricScoringType, ModelKindFilter, OpenAIModel, SelectionTypeInput, SortDirection, TimeseriesInterval, TrainingMetadataInputAlignmentMethod, TrainingMetadataInputTrainingType, UnitPosition
+
+
+class AbCampaignFilter(BaseModel):
+    """@private"""
+    active: Optional[bool] = None
+    status: Optional[AbcampaignStatus] = None
+    use_case: Optional[str] = Field(alias='useCase', default=None)
+
+
+class AbcampaignCreate(BaseModel):
+    """@private"""
+    key: str
+    name: Optional[str] = None
+    metric: str
+    use_case: str = Field(alias='useCase')
+    model_services: List[str] = Field(alias='modelServices')
+    auto_deploy: bool = Field(alias='autoDeploy')
+    traffic_split: float = Field(alias='trafficSplit')
+    feedback_type: FeedbackType = Field(alias='feedbackType', default=
+        FeedbackType.DIRECT)
+
+
+class AdaptRequestConfigInput(BaseModel):
+    """@private"""
+    output_name: str = Field(alias='outputName')
+    sample_config: 'SampleConfigInput' = Field(alias='sampleConfig')
+    training_config: 'TrainingConfigInput' = Field(alias='trainingConfig')
+
+
+class AddExternalModelInput(BaseModel):
+    """@private"""
+    name: str
+    provider: ExternalModelProviderName
+    provider_data: Optional['ModelProviderDataInput'] = Field(alias=
+        'providerData', default=None)
+    description: Optional[str] = None
+
+
+class AddHFModelInput(BaseModel):
+    """@private"""
+    model_id: str = Field(alias='modelId')
+    output_model_key: str = Field(alias='outputModelKey')
+    hf_token: str = Field(alias='hfToken')
+
+
+class AddModelInput(BaseModel):
+    """@private"""
+    path: str
+    name: str
+    key: Optional[str] = None
+
+
+class AijudgeEvaluation(BaseModel):
+    """@private"""
+    datasource: 'EvaluationDatasource'
+    judge: str
+    recipe: 'EvaluationRecipeInput'
+
+
+class ApiKeyCreate(BaseModel):
+    """@private"""
+    user: str
+
+
+class AttachModel(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    model: str
+    attached: bool = True
+    wait: bool = False
+
+
+class BaseTrainingParamsInput(BaseModel):
+    """@private"""
+    learning_rate: float = Field(alias='learningRate')
+    num_epochs: int = Field(alias='numEpochs')
+    batch_size: int = Field(alias='batchSize')
+    num_validations: int = Field(alias='numValidations')
+
+
+class CompletionComparisonFilterInput(BaseModel):
+    """@private"""
+    metric: str
+
+
+class CompletionFeedbackFilterInput(BaseModel):
+    """@private"""
+    metric: str
+    gt: Optional[float] = None
+    gte: Optional[float] = None
+    eq: Optional[float] = None
+    neq: Optional[float] = None
+    lt: Optional[float] = None
+    lte: Optional[float] = None
+    reasons: Optional[List[str]] = None
+    user: Optional[Any] = None
+
+
+class CompletionLabelFilter(BaseModel):
+    """@private"""
+    key: str
+    value: Optional[List[str]] = None
+
+
+class CursorPageInput(BaseModel):
+    """@private"""
+    first: Optional[int] = None
+    after: Optional[str] = None
+    before: Optional[str] = None
+    last: Optional[int] = None
+
+
+class CustomRecipe(BaseModel):
+    """@private"""
+    guidelines: str
+    metric: 'MetricGetOrCreate'
+
+
+class DatasetCreate(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    name: str
+    key: Optional[str] = None
+
+
+class DpotrainingParamsInput(BaseModel):
+    """@private"""
+    kl_div_coeff: float = Field(alias='klDivCoeff')
+
+
+class EmojiInput(BaseModel):
+    """@private"""
+    native: str
+
+
+class EvaluationCreate(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    name: Optional[str] = None
+    kind: 'EvaluationKind'
+    model_services: List[str] = Field(alias='modelServices')
+
+
+class EvaluationDatasource(BaseModel):
+    """@private"""
+    dataset: Optional[str] = None
+    completions: Optional['EvaluationDatasourceCompletions'] = None
+
+
+class EvaluationDatasourceCompletions(BaseModel):
+    """@private"""
+    filter: 'ListCompletionsFilterInput'
+    replay_interactions: bool = Field(alias='replayInteractions')
+
+
+class EvaluationKind(BaseModel):
+    """@private"""
+    aijudge: Optional['AijudgeEvaluation'] = None
+
+
+class EvaluationRecipeInput(BaseModel):
+    """@private"""
+    faithfulness: Optional['FaithfulnessRecipe'] = None
+    custom: Optional['CustomRecipe'] = None
+
+
+class FaithfulnessRecipe(BaseModel):
+    """@private"""
+    misc: Optional[str] = None
+
+
+class FeedbackAddInput(BaseModel):
+    """@private"""
+    value: Any
+    details: Optional[str] = None
+    reason: Optional[str] = None
+    user_id: Optional[Any] = Field(alias='userId', default=None)
+
+
+class FeedbackUpdateInput(BaseModel):
+    """@private"""
+    value: Optional[Any] = None
+    details: Optional[str] = None
+
+
+class GoogleProviderDataInput(BaseModel):
+    """@private"""
+    api_key: str = Field(alias='apiKey')
+    external_model_id: str = Field(alias='externalModelId')
+
+
+class GuidelinesTrainingParamsInput(BaseModel):
+    """@private"""
+    judge_model: str = Field(alias='judgeModel')
+    judge_model_prompt: str = Field(alias='judgeModelPrompt')
+
+
+class ListCompletionsFilterInput(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    models: Optional[List[str]] = None
+    timerange: Optional['TimeRange'] = None
+    session_id: Optional[Any] = Field(alias='sessionId', default=None)
+    user_id: Optional[Any] = Field(alias='userId', default=None)
+    feedbacks: Optional[List['CompletionFeedbackFilterInput']] = None
+    comparisons: Optional[List['CompletionComparisonFilterInput']] = None
+    labels: Optional[List['CompletionLabelFilter']] = None
+    prompt_hash: Optional[str] = Field(alias='promptHash', default=None)
+    completion_id: Optional[Any] = Field(alias='completionId', default=None)
+    tags: Optional[List[str]] = None
+    source: Optional[List[CompletionSource]] = None
+
+
+class MetricCreate(BaseModel):
+    """@private"""
+    name: str
+    key: Optional[str] = None
+    kind: MetricKind
+    scoring_type: MetricScoringType = Field(alias='scoringType', default=
+        MetricScoringType.HIGHER_IS_BETTER)
+    description: Optional[str] = None
+
+
+class MetricGetOrCreate(BaseModel):
+    """@private"""
+    existing: Optional[str] = None
+    new: Optional['MetricCreate'] = None
+
+
+class MetricLink(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    metric: str
+
+
+class MetricTrainingParamsInput(BaseModel):
+    """@private"""
+    metric_key: str = Field(alias='metricKey')
+    metric_metadata: Optional['MetricTrainingParamsMetadata'] = Field(alias
+        ='metricMetadata', default=None)
+
+
+class MetricTrainingParamsMetadata(BaseModel):
+    """@private"""
+    scalar_metric: Optional['ScalarMetricConfigInput'] = Field(alias=
+        'scalarMetric', default=None)
+
+
+class MetricTrendInput(BaseModel):
+    """@private"""
+    timerange: Optional['TimeRange'] = None
+    aggregation: MetricAggregation = MetricAggregation.AVERAGE
+
+
+class MetricUnlink(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    metric: str
+
+
+class ModelFilter(BaseModel):
+    """@private"""
+    in_storage: Optional[bool] = Field(alias='inStorage', default=None)
+    available: Optional[bool] = None
+    trainable: Optional[bool] = None
+    kind: Optional[List[ModelKindFilter]] = None
+    view_all: Optional[bool] = Field(alias='viewAll', default=None)
+
+
+class ModelProviderDataInput(BaseModel):
+    """@private"""
+    open_ai: Optional['OpenAIProviderDataInput'] = Field(alias='openAI',
+        default=None)
+    google: Optional['GoogleProviderDataInput'] = None
+
+
+class ModelServiceDisconnect(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    model_service: str = Field(alias='modelService')
+
+
+class ModelServiceFilter(BaseModel):
+    """@private"""
+    model: Optional[str] = None
+    kind: Optional[List[ModelKindFilter]] = None
+
+
+class OpenAIProviderDataInput(BaseModel):
+    """@private"""
+    api_key: str = Field(alias='apiKey')
+    external_model_id: OpenAIModel = Field(alias='externalModelId')
+
+
+class OrderPair(BaseModel):
+    """@private"""
+    field: str
+    order: SortDirection
+
+
+class PpotrainingParamsInput(BaseModel):
+    """@private"""
+    kl_div_coeff: float = Field(alias='klDivCoeff')
+
+
+class SampleConfigInput(BaseModel):
+    """@private"""
+    feedback_type: Optional[FeedbackTypeInput] = Field(alias='feedbackType',
+        default=None)
+    selection_type: SelectionTypeInput = Field(alias='selectionType')
+    max_samples: Optional[int] = Field(alias='maxSamples', default=None)
+    filter: Optional['ListCompletionsFilterInput'] = None
+
+
+class ScalarMetricConfigInput(BaseModel):
+    """@private"""
+    threshold: Optional[float] = None
+
+
+class SystemPromptTemplateCreate(BaseModel):
+    """@private"""
+    name: str
+    template: str
+
+
+class SystemPromptTemplateUpdate(BaseModel):
+    """@private"""
+    system_prompt_template: Any = Field(alias='systemPromptTemplate')
+    name: Optional[str] = None
+    template: str
+    update_model_services: bool = Field(alias='updateModelServices',
+        default=False)
+
+
+class TeamMemberRemove(BaseModel):
+    """@private"""
+    user: str
+    team: str
+
+
+class TeamMemberSet(BaseModel):
+    """@private"""
+    user: str
+    team: str
+    role: str
+
+
+class TimeRange(BaseModel):
+    """@private"""
+    from_: int | str = Field(alias='from')
+    to: int | str
+
+
+class TimeseriesInput(BaseModel):
+    """@private"""
+    interval: TimeseriesInterval
+    timerange: Optional['TimeRange'] = None
+    timezone: Optional[str] = None
+    by_model: bool = Field(alias='byModel', default=False)
+    aggregation: MetricAggregation = MetricAggregation.AVERAGE
+
+
+class TrainingConfigInput(BaseModel):
+    """@private"""
+    base_training_params: 'BaseTrainingParamsInput' = Field(alias=
+        'baseTrainingParams')
+    training_metadata: 'TrainingMetadataInput' = Field(alias='trainingMetadata'
+        )
+    training_objective: 'TrainingObjectiveInput' = Field(alias=
+        'trainingObjective')
+
+
+class TrainingJobInput(BaseModel):
+    """@private"""
+    model: str
+    use_case: str = Field(alias='useCase')
+    name: Optional[str] = None
+    config: 'AdaptRequestConfigInput'
+    wait: bool = False
+
+
+class TrainingMetadataInput(BaseModel):
+    """@private"""
+    training_type: TrainingMetadataInputTrainingType = Field(alias=
+        'trainingType')
+    alignment_method: TrainingMetadataInputAlignmentMethod = Field(alias=
+        'alignmentMethod')
+    parameters: Optional['TrainingMetadataInputParameters'] = None
+
+
+class TrainingMetadataInputParameters(BaseModel):
+    """@private"""
+    dpo: Optional['DpotrainingParamsInput'] = None
+    ppo: Optional['PpotrainingParamsInput'] = None
+
+
+class TrainingObjectiveInput(BaseModel):
+    """@private"""
+    metric: Optional['MetricTrainingParamsInput'] = None
+    guidelines: Optional['GuidelinesTrainingParamsInput'] = None
+
+
+class UnitConfigInput(BaseModel):
+    """@private"""
+    symbol: str
+    position: UnitPosition
+
+
+class UpdateModelService(BaseModel):
+    """@private"""
+    use_case: str = Field(alias='useCase')
+    model_service: str = Field(alias='modelService')
+    is_default: Optional[bool] = Field(alias='isDefault', default=None)
+    attached: Optional[bool] = None
+    desired_online: Optional[bool] = Field(alias='desiredOnline', default=None)
+    name: Optional[str] = None
+    system_prompt_template: Optional[Any] = Field(alias=
+        'systemPromptTemplate', default=None)
+
+
+class UseCaseCreate(BaseModel):
+    """@private"""
+    name: str
+    team: Optional[str] = None
+    key: Optional[str] = None
+    description: Optional[str] = None
+    gradient_color: Optional[str] = Field(alias='gradientColor', default=None)
+    metadata: Optional['UseCaseMetadataInput'] = None
+    settings: Optional['UseCaseSettingsInput'] = None
+
+
+class UseCaseFilter(BaseModel):
+    """@private"""
+    is_archived: Optional[bool] = Field(alias='isArchived', default=None)
+
+
+class UseCaseMetadataInput(BaseModel):
+    """@private"""
+    emoji: Optional['EmojiInput'] = None
+
+
+class UseCaseSettingsInput(BaseModel):
+    """@private"""
+    default_metric: Optional[str] = Field(alias='defaultMetric', default=None)
+
+
+class UseCaseShareInput(BaseModel):
+    """@private"""
+    team: str
+    role: str
+    is_owner: bool = Field(alias='isOwner')
+
+
+class UseCaseShares(BaseModel):
+    """@private"""
+    shares: List['UseCaseShareInput']
+
+
+class UseCaseUpdate(BaseModel):
+    """@private"""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    widgets: Optional[List['WidgetInput']] = None
+    metadata: Optional['UseCaseMetadataInput'] = None
+    settings: Optional['UseCaseSettingsInput'] = None
+    is_archived: Optional[bool] = Field(alias='isArchived', default=None)
+
+
+class WidgetInput(BaseModel):
+    """@private"""
+    title: str
+    metric: str
+    aggregation: MetricAggregation
+    unit: 'UnitConfigInput'
+
+
+AdaptRequestConfigInput.model_rebuild()
+AddExternalModelInput.model_rebuild()
+AijudgeEvaluation.model_rebuild()
+CustomRecipe.model_rebuild()
+EvaluationCreate.model_rebuild()
+EvaluationDatasource.model_rebuild()
+EvaluationDatasourceCompletions.model_rebuild()
+EvaluationKind.model_rebuild()
+EvaluationRecipeInput.model_rebuild()
+ListCompletionsFilterInput.model_rebuild()
+MetricGetOrCreate.model_rebuild()
+MetricTrainingParamsInput.model_rebuild()
+MetricTrainingParamsMetadata.model_rebuild()
+MetricTrendInput.model_rebuild()
+ModelProviderDataInput.model_rebuild()
+SampleConfigInput.model_rebuild()
+TimeseriesInput.model_rebuild()
+TrainingConfigInput.model_rebuild()
+TrainingJobInput.model_rebuild()
+TrainingMetadataInput.model_rebuild()
+TrainingMetadataInputParameters.model_rebuild()
+TrainingObjectiveInput.model_rebuild()
+UseCaseCreate.model_rebuild()
+UseCaseMetadataInput.model_rebuild()
+UseCaseShares.model_rebuild()
+UseCaseUpdate.model_rebuild()
+WidgetInput.model_rebuild()

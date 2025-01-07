@@ -1,0 +1,1317 @@
+schema {
+  query: QueryRoot
+  mutation: MutationRoot
+}
+
+# Indicates that an Input Object is a OneOf Input Object (and thus requires
+#                         exactly one of its field be provided)
+directive @oneOf on INPUT_OBJECT
+
+input AbCampaignFilter {
+  active: Boolean
+  status: AbcampaignStatus
+  useCase: IdOrKey
+}
+
+type AbReport {
+  pValue: Float
+  variants: [AbVariantReport!]!
+}
+
+type AbVariantReport {
+  variant: ModelService!
+  interval: Interval!
+  feedbacks: Int!
+  comparisons: [AbVariantReportComparison!]
+}
+
+type AbVariantReportComparison {
+  variant: ModelService!
+  feedbacks: Int!
+  wins: Int!
+  losses: Int!
+  tiesGood: Int!
+  tiesBad: Int!
+}
+
+type Abcampaign {
+  id: UUID!
+  key: String!
+  name: String
+  metric: Metric
+  useCase: UseCase
+  autoDeploy: Boolean!
+  status: AbcampaignStatus!
+  feedbackType: FeedbackType!
+  trafficSplit: Float!
+  beginDate: Timestamp!
+  endDate: Timestamp
+  createdAt: Timestamp!
+  report: AbReport!
+  models: [ModelService!]!
+  feedbacks: Int!
+  hasEnoughFeedbacks: Boolean!
+}
+
+input AbcampaignCreate {
+  key: String!
+  name: String
+  metric: IdOrKey!
+  useCase: IdOrKey!
+  modelServices: [IdOrKey!]!
+  autoDeploy: Boolean!
+  trafficSplit: Float!
+  feedbackType: FeedbackType! = DIRECT
+}
+
+enum AbcampaignStatus {
+  WARMUP
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+type Activity {
+  interactions: InteractionOutput!
+  feedbacks: ActivityOutput!
+  uniqueUsers: ActivityOutput!
+}
+
+type ActivityOutput {
+  value: Int!
+  trend: Float
+}
+
+input AdaptRequestConfigInput {
+  outputName: String!
+  sampleConfig: SampleConfigInput!
+  trainingConfig: TrainingConfigInput!
+}
+
+type AdaptRequestConfigOutput {
+  outputName: String!
+  sampleConfig: SampleConfigOutput!
+  trainingConfig: TrainingConfigOutput!
+}
+
+input AddExternalModelInput {
+  name: String!
+  provider: ExternalModelProviderName!
+  providerData: ModelProviderDataInput
+  description: String
+}
+
+input AddHFModelInput {
+  modelId: String!
+  outputModelKey: String!
+  hfToken: String!
+}
+
+input AddModelInput {
+  path: String!
+  name: String!
+  key: String
+}
+
+input AijudgeEvaluation {
+  datasource: EvaluationDatasource!
+  judge: IdOrKey!
+  recipe: EvaluationRecipeInput!
+}
+
+type ApiKey {
+  key: String!
+  createdAt: Timestamp!
+}
+
+input ApiKeyCreate {
+  user: IdOrKey!
+}
+
+input AttachModel {
+  useCase: IdOrKey!
+  model: IdOrKey!
+  attached: Boolean! = true
+
+  # Wait for the model to be deployed or not
+  wait: Boolean! = false
+}
+
+type AuthProvider {
+  name: String!
+  key: String!
+  kind: AuthProviderKind!
+  loginUrl: String!
+}
+
+enum AuthProviderKind {
+  OIDC
+}
+
+input BaseTrainingParamsInput {
+  learningRate: Float!
+  numEpochs: Int!
+  batchSize: Int!
+  numValidations: Int!
+}
+
+type BaseTrainingParamsOutput {
+  learningRate: Float!
+  numEpochs: Int!
+  batchSize: Int!
+  numValidations: Int!
+}
+
+type BatchInferenceJobStageOutput {
+  totalNumSamples: Int
+  processedNumSamples: Int
+}
+
+type ChatMessage {
+  role: String!
+  content: String!
+}
+
+type ComparisonFeedback {
+  id: UUID!
+  createdAt: Timestamp!
+  usecase: UseCase
+  metric: Metric
+  preferedCompletion: Completion
+  otherCompletion: Completion
+}
+
+type Completion {
+  id: UUID!
+  prompt(maxLength: Int): String!
+  promptHash: String
+  chatMessages: [ChatMessage!]
+  completion(maxLength: Int): String
+  source: CompletionSource!
+  modelService: ModelService
+  model: Model
+  directFeedbacks: [DirectFeedback!]!
+  comparisonFeedbacks: [ComparisonFeedback!]!
+  session: Session!
+  history: [CompletionHistoryEntryOuput!]!
+  labels(withProtected: Boolean! = false): [CompletionLabel!]!
+  createdAt: Timestamp!
+  siblingsCount(filter: ListCompletionsFilterInput!): Int!
+  metadata: CompletionMetadata!
+}
+
+input CompletionComparisonFilterInput {
+  metric: IdOrKey!
+}
+
+type CompletionConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [CompletionEdge!]!
+
+  # A list of nodes.
+  nodes: [Completion!]!
+  totalCount: Int!
+}
+
+# An edge in a connection.
+type CompletionEdge {
+  # The item at the end of the edge
+  node: Completion!
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
+input CompletionFeedbackFilterInput {
+  metric: IdOrKey!
+  gt: Float
+  gte: Float
+  eq: Float
+  neq: Float
+  lt: Float
+  lte: Float
+  reasons: [String!]
+  user: UUID
+}
+
+type CompletionFeedbackFilterOutput {
+  metric: String!
+  gt: Float
+  gte: Float
+  eq: Float
+  neq: Float
+  lt: Float
+  lte: Float
+  reasons: [String!]
+  user: String
+}
+
+enum CompletionGroupBy {
+  MODEL
+  PROMPT
+}
+
+type CompletionGroupData {
+  key: String
+  count: Int!
+  directFeedbacksStats: [CompletionGroupFeedbackStats!]!
+  completions(
+    page: CursorPageInput!
+    order: [OrderPair!]! = [{ field: "id", order: DESC }]
+  ): CompletionConnection!
+}
+
+type CompletionGroupDataConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [CompletionGroupDataEdge!]!
+
+  # A list of nodes.
+  nodes: [CompletionGroupData!]!
+  groupBy: CompletionGroupBy!
+  totalCount: Int!
+}
+
+# An edge in a connection.
+type CompletionGroupDataEdge {
+  # The item at the end of the edge
+  node: CompletionGroupData!
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
+type CompletionGroupFeedbackStats {
+  metric: Metric!
+  feedbacks: Int!
+  average: Float
+  max: Float
+  min: Float
+  stddev: Float
+  sum: Float
+}
+
+type CompletionHistoryEntryOuput {
+  level: Int!
+  completionId: UUID!
+  prompt: String!
+  completion: String!
+  createdAt: TimestampSec!
+}
+
+type CompletionLabel {
+  key: String!
+  value: String!
+}
+
+input CompletionLabelFilter {
+  key: String!
+  value: [String!]
+}
+
+type CompletionLabelFilterOutput {
+  key: String!
+  value: [String!]
+}
+
+type CompletionMetadata {
+  parameters: JSON
+  timings: JSON
+  usage: JSON
+}
+
+enum CompletionSource {
+  LIVE
+  OFFLINE
+  AUTOMATION
+  DATASET
+}
+
+enum CompletionSourceOutput {
+  LIVE
+  OFFLINE
+  AUTOMATION
+}
+
+input CursorPageInput {
+  first: Int
+  after: String
+  before: String
+  last: Int
+}
+
+input CustomRecipe {
+  guidelines: String!
+  metric: MetricGetOrCreate!
+}
+
+type Dataset {
+  id: UUID!
+  key: String!
+  name: String!
+  createdAt: DateTime!
+}
+
+input DatasetCreate {
+  useCase: IdOrKey!
+  name: String!
+  key: String
+}
+
+# Implement the DateTime<Utc> scalar
+#
+# The input/output is a string in RFC3339 format.
+scalar DateTime
+
+type DirectFeedback {
+  id: UUID!
+  value: Float!
+  userId: UUID!
+  metric: Metric
+  reason: String
+  details: String
+  createdAt: Timestamp!
+}
+
+input DpotrainingParamsInput {
+  klDivCoeff: Float!
+}
+
+type DpotrainingParamsOutput {
+  klDivCoeff: Float!
+}
+
+type Emoji {
+  native: String!
+}
+
+input EmojiInput {
+  native: String!
+}
+
+type EvalJobStageOutput {
+  totalNumSamples: Int
+  processedNumSamples: Int
+}
+
+input EvaluationCreate {
+  useCase: IdOrKey!
+  name: String
+  kind: EvaluationKind!
+  modelServices: [IdOrKey!]!
+}
+
+input EvaluationDatasource {
+  dataset: IdOrKey
+  completions: EvaluationDatasourceCompletions
+}
+
+input EvaluationDatasourceCompletions {
+  filter: ListCompletionsFilterInput!
+
+  # if true, the completions will be replayed by the models being evaluated
+  replayInteractions: Boolean!
+}
+
+type EvaluationJob {
+  id: UUID!
+  name: String!
+  createdAt: Timestamp!
+  status: EvaluationJobStatus!
+  startedAt: Timestamp
+  endedAt: Timestamp
+  durationMs: Int
+  modelServices: [ModelService!]!
+  judge: ModelService
+  useCase: UseCase
+  stages: [JobStageOutput!]!
+  report: AbReport
+  createdBy: User
+  dataset: Dataset
+  metric: Metric
+}
+
+enum EvaluationJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+
+input EvaluationKind {
+  aijudge: AijudgeEvaluation
+}
+
+input EvaluationRecipeInput {
+  faithfulness: FaithfulnessRecipe
+  custom: CustomRecipe
+}
+
+enum ExternalModelProviderName {
+  OPEN_AI
+  GOOGLE
+}
+
+input FaithfulnessRecipe {
+  misc: String
+}
+
+input FeedbackAddInput {
+  value: JSON!
+  details: String
+  reason: String
+  userId: UUID
+}
+
+enum FeedbackType {
+  DIRECT
+  COMPARISON
+}
+
+enum FeedbackTypeInput {
+  DIRECT
+  PREFERENCE
+}
+
+enum FeedbackTypeOutput {
+  DIRECT
+  PREFERENCE
+}
+
+input FeedbackUpdateInput {
+  value: JSON
+  details: String
+}
+
+input GoogleProviderDataInput {
+  apiKey: String!
+  externalModelId: String!
+}
+
+input GuidelinesTrainingParamsInput {
+  judgeModel: IdOrKey!
+  judgeModelPrompt: String!
+}
+
+type GuidelinesTrainingParamsOutput {
+  judgeModel: String!
+  judgeModelPrompt: String!
+}
+
+# id or key for the entity
+scalar IdOrKey
+
+# DateTime that could be read from several forms:
+# - string RFC 3339 or ISO 8601: '2024-02-21T09:51:03Z'
+# - string date (without time). Time is set as start of day: '2024-02-21'
+# - number as epoch milliseconds: 1708457468860
+# - relative string: 'now' or 'now - 1 month'. Format is 'now +/- <amount> <unit> |? <timezone?>'
+#
+scalar InputDatetime
+
+type InteractionOutput {
+  value: Int!
+  perSecond: Float
+  trend: Float
+}
+
+type Interval {
+  start: Float!
+  middle: Float!
+  end: Float!
+}
+
+# A scalar that can represent any JSON value.
+scalar JSON
+
+union JobStageInfoOutput =
+    TrainingJobStageOutput
+  | EvalJobStageOutput
+  | BatchInferenceJobStageOutput
+
+type JobStageOutput {
+  name: String!
+  status: JobStatusOutput!
+  parent: String
+  stageId: Int!
+  info: JobStageInfoOutput
+  startedAt: Timestamp
+  endedAt: Timestamp
+}
+
+enum JobStatusOutput {
+  PENDING
+  RUNNING
+  DONE
+  CANCELLED
+  ERROR
+}
+
+type LabelKeyUsage {
+  key: String!
+  count: Int!
+  values: [LabelValueUsage!]!
+  lastUsed: Timestamp!
+}
+
+type LabelUsage {
+  keys: [LabelKeyUsage!]!
+}
+
+type LabelValueUsage {
+  value: String!
+  count: Int!
+  lastUsed: Timestamp!
+}
+
+input ListCompletionsFilterInput {
+  useCase: IdOrKey!
+  models: [IdOrKey!]
+  timerange: TimeRange
+  sessionId: UUID
+  userId: UUID
+  feedbacks: [CompletionFeedbackFilterInput!]
+  comparisons: [CompletionComparisonFilterInput!]
+  labels: [CompletionLabelFilter!]
+  promptHash: String
+  completionId: UUID
+  tags: [String!]
+  source: [CompletionSource!]
+}
+
+type ListCompletionsFilterOutput {
+  useCase: String!
+  models: [String!]
+  timerange: TimeRangeOutput
+  sessionId: UUID
+  userId: UUID
+  feedbacks: [CompletionFeedbackFilterOutput!]
+  labels: [CompletionLabelFilterOutput!]
+  promptHash: String
+  completionId: UUID
+  tags: [String!]
+  source: [CompletionSourceOutput!]
+}
+
+type MetaObject {
+  authProviders: ProviderList!
+}
+
+type Metric {
+  id: UUID!
+  key: String!
+  name: String!
+  createdAt: Timestamp!
+  kind: MetricKind!
+  description: String!
+  scoringType: MetricScoringType!
+
+  # Return the list of UseCase which use this metric
+  useCases(filter: UseCaseFilter! = { isArchived: false }): [UseCase!]!
+  activity(timerange: TimeRange): MetricActivity!
+  hasDirectFeedbacks: Boolean!
+  hasComparisonFeedbacks: Boolean!
+}
+
+type MetricActivity {
+  feedbacks: ActivityOutput!
+}
+
+enum MetricAggregation {
+  AVERAGE
+  SUM
+  COUNT
+}
+
+input MetricCreate {
+  name: String!
+  key: String
+  kind: MetricKind!
+  scoringType: MetricScoringType! = HIGHER_IS_BETTER
+  description: String
+}
+
+input MetricGetOrCreate {
+  existing: IdOrKey
+  new: MetricCreate
+}
+
+enum MetricKind {
+  SCALAR
+  BOOL
+}
+
+input MetricLink {
+  useCase: IdOrKey!
+  metric: IdOrKey!
+}
+
+enum MetricScoringType {
+  HIGHER_IS_BETTER
+  LOWER_IS_BETTER
+}
+
+input MetricTrainingParamsInput {
+  metricKey: IdOrKey!
+  metricMetadata: MetricTrainingParamsMetadata
+}
+
+input MetricTrainingParamsMetadata {
+  scalarMetric: ScalarMetricConfigInput
+}
+
+union MetricTrainingParamsMetadataOutput = ScalarMetricConfigOutput
+
+type MetricTrainingParamsOutput {
+  metricKey: String!
+  metricMetadata: MetricTrainingParamsMetadataOutput
+}
+
+input MetricTrendInput {
+  timerange: TimeRange
+  aggregation: MetricAggregation! = AVERAGE
+}
+
+input MetricUnlink {
+  useCase: IdOrKey!
+  metric: IdOrKey!
+}
+
+type MetricWithContext {
+  id: UUID!
+  key: String!
+  name: String!
+  kind: MetricKind!
+  scoringType: MetricScoringType!
+  description: String!
+  createdAt: DateTime!
+  feedbackCount(timerange: TimeRange): Int!
+  comparisonCount(timerange: TimeRange): Int!
+  trend(
+    input: MetricTrendInput! = { timerange: null, aggregation: AVERAGE }
+  ): TrendResult
+  timeseries(input: TimeseriesInput!): [Timeseries!]!
+  hasComparisonFeedbacks: Boolean!
+  hasDirectFeedbacks: Boolean!
+}
+
+type Model {
+  id: UUID!
+  name: String!
+  key: String!
+  createdAt: Timestamp!
+
+  # indicates if this model is spawned in mangrove or not
+  online: ModelOnline!
+  activity(timerange: TimeRange): Activity!
+  metrics: [MetricWithContext!]!
+
+  # Return the list of UseCase which use this model
+  useCases(
+    filter: UseCaseFilter! = { isArchived: false }
+    attached: Boolean! = true
+  ): [UseCase!]!
+  providerName: ProviderName!
+  isExternal: Boolean!
+  order: Int!
+  inStorage: Boolean!
+  isAdapter: Boolean!
+  backbone: Model
+
+  # indicates if a training is pending or running for this model
+  isTraining: Boolean!
+  trainingJob: TrainingJob
+  kind: ModelKindFilter!
+}
+
+input ModelFilter {
+  inStorage: Boolean
+  available: Boolean
+  trainable: Boolean
+  kind: [ModelKindFilter!]
+  viewAll: Boolean
+}
+
+enum ModelKindFilter {
+  Embedding
+  Generation
+}
+
+enum ModelOnline {
+  ONLINE
+  PENDING
+  OFFLINE
+  ERROR
+}
+
+input ModelProviderDataInput {
+  openAI: OpenAIProviderDataInput
+  google: GoogleProviderDataInput
+}
+
+type ModelService {
+  id: UUID!
+  useCaseId: UUID!
+  key: String!
+  name: String!
+  createdAt: Timestamp!
+  model: Model!
+  attached: Boolean!
+  isDefault: Boolean!
+  desiredOnline: Boolean!
+  activity(timerange: TimeRange): Activity!
+  systemPromptTemplate: SystemPromptTemplate
+  metrics: [MetricWithContext!]!
+  abCampaigns(
+    filter: AbCampaignFilter! = { active: null, status: null, useCase: null }
+  ): [Abcampaign!]!
+}
+
+input ModelServiceDisconnect {
+  useCase: IdOrKey!
+  modelService: IdOrKey!
+}
+
+input ModelServiceFilter {
+  model: IdOrKey
+  kind: [ModelKindFilter!]
+}
+
+type MutationRoot {
+  createAbCampaign(input: AbcampaignCreate!): Abcampaign!
+  cancelAbCampaign(input: IdOrKey!): String!
+  createDataset(input: DatasetCreate!, file: Upload!): Dataset!
+  createEvaluationJob(input: EvaluationCreate!): EvaluationJob!
+  createSystemPromptTemplate(
+    input: SystemPromptTemplateCreate!
+  ): SystemPromptTemplate!
+  deriveSystemPromptTemplate(
+    input: SystemPromptTemplateUpdate!
+  ): SystemPromptTemplate!
+  createMetric(input: MetricCreate!): Metric!
+
+  # Link a metric and a use case. Can also be used to update the `isPinned`
+  linkMetric(input: MetricLink!): MetricWithContext!
+  unlinkMetric(input: MetricUnlink!): String!
+  attachModel(input: AttachModel!): ModelService!
+  disconnectModel(input: ModelServiceDisconnect!): String!
+  updateModelService(input: UpdateModelService!): ModelService!
+  deployModel(idOrKey: IdOrKey!, wait: Boolean! = false): String!
+
+  # If a model is used by several use cases with `attached = true`, you need to specify 'force = true' to be able to deactivate the model
+  terminateModel(idOrKey: IdOrKey!, force: Boolean! = false): String!
+  addExternalModel(input: AddExternalModelInput!): Model!
+  addModel(input: AddModelInput!): Model!
+  importHfModel(input: AddHFModelInput!): String!
+  createTrainingJob(input: TrainingJobInput!): TrainingJob!
+  cancelTrainingJob(id: UUID!): String!
+  createUseCase(input: UseCaseCreate!): UseCase!
+  updateUseCase(idOrKey: IdOrKey!, input: UseCaseUpdate!): UseCase!
+  shareUseCase(idOrKey: IdOrKey!, input: UseCaseShares!): UseCase!
+  createApiKey(input: ApiKeyCreate!): ApiKey!
+  setTeamMember(input: TeamMemberSet!): TeamMember!
+  removeTeamMember(input: TeamMemberRemove!): User!
+  updateFeedback(id: UUID!, input: FeedbackUpdateInput!): DirectFeedback!
+  addDirectFeedback(
+    completionId: UUID!
+    metricId: IdOrKey!
+    input: FeedbackAddInput!
+  ): DirectFeedback!
+}
+
+enum OpenAIModel {
+  GPT4O
+  GPT4O_MINI
+  GPT4
+  GPT4_TURBO
+  GPT3_5_TURBO
+}
+
+input OpenAIProviderDataInput {
+  apiKey: String!
+  externalModelId: OpenAIModel!
+}
+
+input OrderPair {
+  field: String!
+  order: SortDirection!
+}
+
+# Information about pagination in a connection
+type PageInfo {
+  # When paginating backwards, are there more items?
+  hasPreviousPage: Boolean!
+
+  # When paginating forwards, are there more items?
+  hasNextPage: Boolean!
+
+  # When paginating backwards, the cursor to continue.
+  startCursor: String
+
+  # When paginating forwards, the cursor to continue.
+  endCursor: String
+}
+
+input PpotrainingParamsInput {
+  klDivCoeff: Float!
+}
+
+type PpotrainingParamsOutput {
+  klDivCoeff: Float!
+}
+
+type ProviderList {
+  providers: [AuthProvider!]!
+}
+
+enum ProviderName {
+  OPEN_AI
+  MANGROVE
+  GOOGLE
+}
+
+type QueryRoot {
+  abCampaigns(
+    filter: AbCampaignFilter! = { active: null, status: null, useCase: null }
+  ): [Abcampaign!]!
+  abCampaign(idOrKey: IdOrKey!): Abcampaign
+  datasets(useCase: IdOrKey!): [Dataset!]!
+  dataset(idOrKey: IdOrKey!): Dataset
+  evaluationJobs: [EvaluationJob!]!
+  evaluationJob(id: UUID!): EvaluationJob
+  completions(
+    filter: ListCompletionsFilterInput!
+    page: CursorPageInput!
+    order: [OrderPair!]! = [{ field: "id", order: DESC }]
+  ): CompletionConnection!
+  completionsGrouped(
+    filter: ListCompletionsFilterInput!
+    groupBy: CompletionGroupBy!
+    page: CursorPageInput!
+    order: [OrderPair!]! = [{ field: "group", order: ASC }]
+  ): CompletionGroupDataConnection!
+  completion(useCase: IdOrKey!, id: UUID!): Completion
+  systemPromptTemplates: [SystemPromptTemplate!]!
+  metrics: [Metric!]!
+  metric(idOrKey: IdOrKey!): Metric
+
+  # List all models that were created in the app
+  models(
+    filter: ModelFilter! = {
+      inStorage: null
+      available: null
+      trainable: null
+      kind: [Generation]
+      viewAll: false
+    }
+  ): [Model!]!
+  model(idOrKey: IdOrKey!): Model
+  trainingJobs: [TrainingJob!]!
+  trainingJob(id: UUID!): TrainingJob
+  useCases(filter: UseCaseFilter! = { isArchived: false }): [UseCase!]!
+  useCase(idOrKey: IdOrKey!): UseCase
+
+  # Currently logged in user
+  me: User
+  users: [User!]!
+  teams: [Team!]!
+  meta: MetaObject!
+}
+
+type Role {
+  id: UUID!
+  key: String!
+  name: String!
+  createdAt: Timestamp!
+  permissions: [String!]!
+}
+
+input SampleConfigInput {
+  feedbackType: FeedbackTypeInput
+  selectionType: SelectionTypeInput!
+  maxSamples: Int
+  filter: ListCompletionsFilterInput
+}
+
+type SampleConfigOutput {
+  feedbackType: FeedbackTypeOutput
+  selectionType: SelectionTypeOutput!
+  maxSamples: Int
+  filter: ListCompletionsFilterOutput
+}
+
+input ScalarMetricConfigInput {
+  threshold: Float
+}
+
+type ScalarMetricConfigOutput {
+  threshold: Float
+}
+
+enum SelectionTypeInput {
+  ALL
+  RANDOM
+  LAST
+}
+
+enum SelectionTypeOutput {
+  ALL
+  RANDOM
+  LAST
+}
+
+type Session {
+  id: UUID!
+  turns: [Completion!]!
+}
+
+type Settings {
+  defaultMetric: MetricWithContext
+}
+
+type Share {
+  team: Team!
+  role: Role!
+  isOwner: Boolean!
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+type SystemPromptTemplate {
+  id: UUID!
+  name: String!
+  template: String!
+  arguments: [String!]!
+  createdAt: DateTime!
+  createdBy: UUID!
+}
+
+input SystemPromptTemplateCreate {
+  name: String!
+  template: String!
+}
+
+input SystemPromptTemplateUpdate {
+  systemPromptTemplate: UUID!
+  name: String
+  template: String!
+  updateModelServices: Boolean! = false
+}
+
+type Team {
+  id: UUID!
+  key: String!
+  name: String!
+  createdAt: Timestamp!
+}
+
+type TeamMember {
+  user: User!
+  team: Team!
+  role: Role!
+}
+
+input TeamMemberRemove {
+  user: IdOrKey!
+  team: IdOrKey!
+}
+
+input TeamMemberSet {
+  user: IdOrKey!
+  team: IdOrKey!
+  role: IdOrKey!
+}
+
+type TeamWithrole {
+  team: Team!
+  role: Role!
+}
+
+input TimeRange {
+  from: InputDatetime!
+  to: InputDatetime!
+}
+
+type TimeRangeOutput {
+  from: DateTime!
+  to: DateTime!
+}
+
+type Timeseries {
+  model: Model
+  timeBuckets: [Timestamp!]!
+  count: [Int!]!
+  values: [Float]!
+  aggregation: MetricAggregation!
+}
+
+input TimeseriesInput {
+  interval: TimeseriesInterval!
+  timerange: TimeRange
+  timezone: String
+  byModel: Boolean! = false
+  aggregation: MetricAggregation! = AVERAGE
+}
+
+enum TimeseriesInterval {
+  HOUR
+  DAY
+  WEEK
+  MONTH
+  QUARTER
+  YEAR
+}
+
+# Unix timestamp in milliseconds
+scalar Timestamp
+
+# Unix timestamp in seconds
+scalar TimestampSec
+
+input TrainingConfigInput {
+  baseTrainingParams: BaseTrainingParamsInput!
+  trainingMetadata: TrainingMetadataInput!
+  trainingObjective: TrainingObjectiveInput!
+}
+
+type TrainingConfigOutput {
+  baseTrainingParams: BaseTrainingParamsOutput!
+  trainingMetadata: TrainingMetadataOutput!
+  trainingObjective: TrainingObjectiveOutput!
+}
+
+type TrainingJob {
+  id: UUID!
+  name: String!
+  status: TrainingJobStatus!
+  createdAt: Timestamp!
+  startedAt: Timestamp
+  endedAt: Timestamp
+  durationMs: Int
+  stages: [JobStageOutput!]!
+  childModel: Model
+  parentModel: Model
+  checkpoints: [Model!]!
+  useCase: UseCase
+  config: AdaptRequestConfigOutput!
+  createdBy: User
+}
+
+input TrainingJobInput {
+  model: IdOrKey!
+  useCase: IdOrKey!
+  name: String
+  config: AdaptRequestConfigInput!
+  wait: Boolean! = false
+}
+
+type TrainingJobStageOutput {
+  trainingMonitoringLink: String
+  totalNumSamples: Int
+  processedNumSamples: Int
+  checkpoints: [String!]!
+}
+
+enum TrainingJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+
+input TrainingMetadataInput {
+  trainingType: TrainingMetadataInputTrainingType!
+  alignmentMethod: TrainingMetadataInputAlignmentMethod!
+  parameters: TrainingMetadataInputParameters
+}
+
+enum TrainingMetadataInputAlignmentMethod {
+  DPO
+  PPO
+}
+
+input TrainingMetadataInputParameters {
+  dpo: DpotrainingParamsInput
+  ppo: PpotrainingParamsInput
+}
+
+enum TrainingMetadataInputTrainingType {
+  FULL_WEIGHTS
+  PARAMETER_EFFICIENT
+}
+
+type TrainingMetadataOutput {
+  trainingType: TrainingMetadataOutputTrainingType!
+  alignmentMethod: TrainingMetadataOutputAlignmentMethod!
+  parameters: TrainingMetadataOutputParameters
+}
+
+enum TrainingMetadataOutputAlignmentMethod {
+  DPO
+  PPO
+  SFT
+}
+
+union TrainingMetadataOutputParameters =
+    DpotrainingParamsOutput
+  | PpotrainingParamsOutput
+
+enum TrainingMetadataOutputTrainingType {
+  FULL_WEIGHTS
+  PARAMETER_EFFICIENT
+}
+
+input TrainingObjectiveInput {
+  metric: MetricTrainingParamsInput
+  guidelines: GuidelinesTrainingParamsInput
+}
+
+union TrainingObjectiveOutput =
+    MetricTrainingParamsOutput
+  | GuidelinesTrainingParamsOutput
+
+type TrendResult {
+  trend: Float!
+  previous: Float!
+  current: Float!
+}
+
+# A UUID is a unique 128-bit number, stored as 16 octets. UUIDs are parsed as
+# Strings within GraphQL. UUIDs are used to assign unique identifiers to
+# entities without requiring a central allocating authority.
+#
+# # References
+#
+# * [Wikipedia: Universally Unique Identifier](http://en.wikipedia.org/wiki/Universally_unique_identifier)
+# * [RFC4122: A Universally Unique IDentifier (UUID) URN Namespace](http://tools.ietf.org/html/rfc4122)
+scalar UUID
+
+type UnitConfig {
+  symbol: String!
+  position: UnitPosition!
+}
+
+input UnitConfigInput {
+  symbol: String!
+  position: UnitPosition!
+}
+
+enum UnitPosition {
+  LEFT
+  RIGHT
+}
+
+input UpdateModelService {
+  useCase: IdOrKey!
+  modelService: IdOrKey!
+  isDefault: Boolean
+  attached: Boolean
+  desiredOnline: Boolean
+  name: String
+  systemPromptTemplate: UUID
+}
+
+scalar Upload
+
+type UseCase {
+  id: UUID!
+  name: String!
+  key: String!
+  description: String!
+  createdAt: Timestamp!
+  isArchived: Boolean!
+  modelServices(filter: ModelServiceFilter = null): [ModelService!]!
+  modelService(idOrKey: IdOrKey!): ModelService
+  defaultModelService: ModelService
+  activity(timerange: TimeRange): Activity!
+  metrics: [MetricWithContext!]!
+  metric(metric: IdOrKey!): MetricWithContext
+  abCampaigns(
+    filter: AbCampaignFilter! = { active: null, status: null, useCase: null }
+  ): [Abcampaign!]!
+  autoEvals: [EvaluationJob!]!
+  widgets: [Widget!]!
+  metadata: UseCaseMetadata!
+  permissions: [String!]!
+  shares: [Share!]!
+  settings: Settings!
+  labelUsage: LabelUsage!
+}
+
+input UseCaseCreate {
+  name: String!
+  team: IdOrKey
+  key: String
+  description: String
+  gradientColor: String
+  metadata: UseCaseMetadataInput
+  settings: UseCaseSettingsInput
+}
+
+input UseCaseFilter {
+  isArchived: Boolean
+}
+
+type UseCaseMetadata {
+  emoji: Emoji
+}
+
+input UseCaseMetadataInput {
+  emoji: EmojiInput
+}
+
+input UseCaseSettingsInput {
+  defaultMetric: IdOrKey
+}
+
+input UseCaseShareInput {
+  team: IdOrKey!
+  role: IdOrKey!
+  isOwner: Boolean!
+}
+
+input UseCaseShares {
+  shares: [UseCaseShareInput!]!
+}
+
+input UseCaseUpdate {
+  name: String
+  description: String
+  widgets: [WidgetInput!]
+  metadata: UseCaseMetadataInput
+  settings: UseCaseSettingsInput
+  isArchived: Boolean
+}
+
+type User {
+  id: UUID!
+  email: String!
+  name: String!
+  createdAt: Timestamp!
+  teams: [TeamWithrole!]!
+  apiKeys: [ApiKey!]!
+}
+
+type Widget {
+  title: String!
+  metric: String!
+  aggregation: MetricAggregation!
+  unit: UnitConfig!
+}
+
+input WidgetInput {
+  title: String!
+  metric: String!
+  aggregation: MetricAggregation!
+  unit: UnitConfigInput!
+}

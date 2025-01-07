@@ -1,0 +1,9 @@
+[tool.ariadne-codegen]
+schema_path = "src/adaptive_sdk/schema.graphql"
+queries_path = "src/adaptive_sdk/queries.graphql"
+target_package_name = "async_graphql_client"
+target_package_path = "src/adaptive_sdk"
+client_name = "AsyncGQLClient"
+async_client = true
+opentelemetry_client = true
+enable_custom_operations = true

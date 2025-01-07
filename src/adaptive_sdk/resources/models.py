@@ -1,0 +1,357 @@
+from typing import Literal, Sequence
+
+from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
+from adaptive_sdk.graphql_client import (
+    OpenAIModel,
+    OpenAIProviderDataInput,
+    GoogleProviderDataInput,
+    ModelProviderDataInput,
+    AddExternalModelInput,
+    ExternalModelProviderName,
+    AttachModel,
+    UpdateModelService,
+    ModelData,
+    ModelServiceData,
+    ListModelsModels,
+    ModelDataAdmin,
+    AddHFModelInput,
+)
+
+from .base_resource import SyncAPIResource, AsyncAPIResource
+
+provider_config = {
+    "open_ai": {
+        "model_enum": OpenAIModel,
+        "provider_data": lambda api_key, model_id: ModelProviderDataInput(
+            openAI=OpenAIProviderDataInput(apiKey=api_key, externalModelId=model_id)
+        ),
+    },
+    "google": {
+        "provider_data": lambda api_key, model_id: ModelProviderDataInput(
+            google=GoogleProviderDataInput(apiKey=api_key, externalModelId=model_id)
+        ),
+    },
+}
+
+SupportedHFModels = Literal["google/gemma-2-2b"]
+
+
+class Models(SyncAPIResource):
+    """
+    Resource to interact with models.
+    """
+
+    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
+        super().__init__(client)
+        self._use_case_key = use_case_key
+
+    def get(self, model) -> ModelData | None:
+        """
+        Get the details for a model.
+
+        Args:
+            model: Model key.
+        """
+        return self._gql_client.describe_model(input=model).model
+
+    def attach(self, model: str, wait: bool = False, make_default: bool = False) -> ModelServiceData:
+        """
+        Attach a model to the client's use case.
+
+        Args:
+            model: Model key.
+            wait: If the model is not deployed already, attaching it to the use case will automatically deploy it.
+                If `True`, this call blocks until model is `Online`.
+            make_default: Make the model the use case's default on attachment.
+        """
+        input = AttachModel(model=model, useCase=self._use_case_key, attached=True, wait=wait)
+        result = self._gql_client.attach_model_to_use_case(input).attach_model
+        if make_default:
+            result = self.update(model=model, is_default=make_default)
+        return result
+
+    def detach(self, model: str) -> ModelServiceData:
+        """
+        Detach model from client's use case.
+
+        Args:
+            model: Model key.
+        """
+        return self.update(model=model, attached=False)
+
+    def update(
+        self,
+        model: str,
+        is_default: bool | None = None,
+        attached: bool | None = None,
+        desired_online: bool | None = None,
+    ) -> ModelServiceData:
+        """
+        Update config of model attached to client's use case.
+
+        Args:
+            model: Model key.
+            is_default: Change the selection of the model as default for the use case.
+                `True` to promote to default, `False` to demote from default. If `None`, no changes are applied.
+            attached: Whether model should be attached or detached to/from use case. If `None`, no changes are applied.
+            desired_online: Turn model inference on or off for the client use case.
+                This does not influence the global status of the model, it is use case-bounded.
+                If `None`, no changes are applied.
+
+        """
+        input = UpdateModelService(
+            useCase=self._use_case_key,
+            modelService=model,
+            isDefault=is_default,
+            attached=attached,
+            desiredOnline=desired_online,
+        )
+        return self._gql_client.update_model(input).update_model_service
+
+
+class ModelsAdmin(SyncAPIResource):
+    """
+    Resource to administrate models.
+    """
+
+    def add_hf_model(self, hf_model_id: SupportedHFModels, output_model_key: str, hf_token: str) -> str:
+        """
+        Add model from the HuggingFace Model hub to Adaptive model registry.
+        It will take several minutes for the model to be downloaded and converted to Adaptive format.
+
+        Args:
+            hf_model_id: The ID of the selected model repo on HuggingFace Model Hub.
+            output_model_key: The key that will identify the new model in Adaptive.
+            hf_token: Your HuggingFace Token, needed to validate access to gated/restricted model.
+        """
+        input = AddHFModelInput(modelId=hf_model_id, outputModelKey=output_model_key, hfToken=hf_token)
+        return self._gql_client.add_hf_model(input).import_hf_model
+
+    def add_external(
+        self,
+        name: str,
+        external_model_id: str,
+        api_key: str,
+        provider: Literal["open_ai", "google"],
+    ) -> ModelData:
+        """
+        Add proprietary external model to Adaptive model registry.
+
+        Args:
+            name: Adaptive name for the new model.
+            external_model_id: Should match the model id publicly shared by the model provider.
+            api_key: API Key for authentication against external model provider.
+            provider: External proprietary model provider.
+        """
+
+        provider_enum = ExternalModelProviderName(provider.upper())
+        config = provider_config[provider]
+        if provider == "open_ai":
+            model_enum_class = config["model_enum"]
+            ext_model = model_enum_class(external_model_id)
+        else:
+            ext_model = external_model_id
+
+        provider_data_fn = config["provider_data"]
+        provider_data = provider_data_fn(api_key, ext_model)
+
+        input = AddExternalModelInput(name=name, provider=provider_enum, providerData=provider_data)
+        return self._gql_client.add_external_model(input).add_external_model
+
+    def list(self) -> Sequence[ListModelsModels]:
+        """
+        List all models in Adaptive model registry.
+        """
+        return self._gql_client.list_models().models
+
+    def get(self, model) -> ModelDataAdmin | None:
+        """
+        Get details for a model.
+
+        Args:
+            model: Model key.
+        """
+        return self._gql_client.describe_model_admin(input=model).model
+
+    def deploy(self, model: str, wait: bool = False) -> str:
+        """
+        Deploy a model, loading it to memory and making it ready for inference.
+
+        Args:
+            model: Model key.
+            wait: If `True`, call block until model is in `Online` state.
+        """
+        return self._gql_client.deploy_model(id_or_key=model, wait=wait).deploy_model
+
+    def terminate(self, model: str, force: bool = False) -> str:
+        """
+        Terminate model, removing it from memory and making it unavailable to all use cases.
+
+        Args:
+            model: Model key.
+            force: If model is attached to several use cases, `force` must equal `True` in order
+                for the model to be terminated.
+        """
+        return self._gql_client.terminate_model(id_or_key=model, force=force).terminate_model
+
+
+class AsyncModels(AsyncAPIResource):
+    """
+    Resource to interact with models.
+    """
+
+    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
+        super().__init__(client)
+        self._use_case_key = use_case_key
+
+    async def get(self, model) -> ModelData | None:
+        """
+        Get the details for a model.
+
+        Args:
+            model: Model key.
+        """
+        return (await self._gql_client.describe_model(input=model)).model
+
+    async def attach(self, model: str, wait: bool = True, make_default: bool = False) -> ModelServiceData:
+        """
+        Attach a model to the client's use case.
+
+        Args:
+            model: Model key.
+            wait: If the model is not deployed already, attaching it to the use case will automatically deploy it.
+                If `True`, this call blocks until model is `Online`.
+            make_default: Make the model the use case's default on attachment.
+        """
+        input = AttachModel(model=model, useCase=self._use_case_key, attached=True, wait=wait)
+        result = await self._gql_client.attach_model_to_use_case(input)
+        result = result.attach_model
+        if make_default:
+            result = await self.update(model=model, is_default=make_default)
+        return result
+
+    async def detach(self, model: str) -> ModelServiceData:
+        """
+        Detach model from client's use case.
+
+        Args:
+            model: Model key.
+        """
+        return await self.update(model=model, attached=False)
+
+    async def update(
+        self,
+        model: str,
+        is_default: bool | None = None,
+        attached: bool | None = None,
+        desired_online: bool | None = None,
+    ) -> ModelServiceData:
+        """
+        Update config of model attached to client's use case.
+
+        Args:
+            model: Model key.
+            is_default: Change the selection of the model as default for the use case.
+                `True` to promote to default, `False` to demote from default. If `None`, no changes are applied.
+            attached: Whether model should be attached or detached to/from use case. If `None`, no changes are applied.
+            desired_online: Turn model inference on or off for the client use case.
+                This does not influence the global status of the model, it is use case-bounded.
+                If `None`, no changes are applied.
+
+        """
+        input = UpdateModelService(
+            useCase=self._use_case_key,
+            modelService=model,
+            isDefault=is_default,
+            attached=attached,
+            desiredOnline=desired_online,
+        )
+        result = await self._gql_client.update_model(input)
+        return result.update_model_service
+
+
+class AsyncModelsAdmin(AsyncAPIResource):
+    """
+    Resource to administrate models.
+    """
+
+    async def add_hf_model(self, hf_model_id: str, output_model_key: str, hf_token: str):
+        """
+        Add model from the HuggingFace Model hub to Adaptive model registry.
+        It will take several minutes for the model to be downloaded and converted to Adaptive format.
+
+        Args:
+            hf_model_id: The ID of the selected model repo on HuggingFace Model Hub.
+            output_model_key: The key that will identify the new model in Adaptive.
+            hf_token: Your HuggingFace Token, needed to validate access to gated/restricted model.
+        """
+        input = AddHFModelInput(modelId=hf_model_id, outputModelKey=output_model_key, hfToken=hf_token)
+        result = await self._gql_client.add_hf_model(input)
+        return result.import_hf_model
+
+    async def add_external(
+        self,
+        name: str,
+        external_model_id: str,
+        api_key: str,
+        provider: Literal["open_ai", "google"],
+    ) -> ModelData:
+        """
+        Add proprietary external model to Adaptive model registry.
+
+        Args:
+            name: Adaptive name for the new model.
+            external_model_id: Should match the model id publicly shared by the model provider.
+            api_key: API Key for authentication against external model provider.
+            provider: External proprietary model provider.
+        """
+        provider_enum = ExternalModelProviderName(provider.upper())
+        config = provider_config[provider]
+        if provider == "open_ai":
+            model_enum_class = config["model_enum"]
+            ext_model = model_enum_class(external_model_id)
+        else:
+            ext_model = external_model_id
+
+        provider_data_fn = config["provider_data"]
+        provider_data = provider_data_fn(api_key, ext_model)
+
+        input = AddExternalModelInput(name=name, provider=provider_enum, providerData=provider_data)
+        result = await self._gql_client.add_external_model(input)
+        return result.add_external_model
+
+    async def list(self) -> Sequence[ListModelsModels]:
+        """
+        List all models in Adaptive model registry.
+        """
+        return (await self._gql_client.list_models()).models
+
+    async def get(self, model) -> ModelDataAdmin | None:
+        """
+        Get details for a model.
+
+        Args:
+            model: Model key.
+        """
+        return (await self._gql_client.describe_model_admin(input=model)).model
+
+    async def deploy(self, model: str, wait: bool = False) -> str:
+        """
+        Deploy a model, loading it to memory and making it ready for inference.
+
+        Args:
+            model: Model key.
+            wait: If `True`, call block until model is in `Online` state.
+        """
+        return (await self._gql_client.deploy_model(id_or_key=model, wait=wait)).deploy_model
+
+    async def terminate(self, model: str, force: bool = False) -> str:
+        """
+        Terminate model, removing it from memory and making it unavailable to all use cases.
+
+        Args:
+            model: Model key.
+            force: If model is attached to several use cases, `force` must equal `True` in order
+                for the model to be terminated.
+        """
+        return (await self._gql_client.terminate_model(id_or_key=model, force=force)).terminate_model
