@@ -344,4 +344,4 @@ class AddComparisonRequest(BaseModel):
     use_case: Annotated[
         Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
     ] = None
-    user_id: UUID
+    user_id: Optional[UUID] = None
