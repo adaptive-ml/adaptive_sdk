@@ -76,6 +76,9 @@ class EvalJobs(SyncAPIResource, UseCaseResource):
         )
         return self._gql_client.create_evaluation_job(input=input).create_evaluation_job
 
+    def cancel(self, job_id: str) -> str:
+        return self._gql_client.cancel_evaluation_job(id=job_id).cancel_evaluation_job
+
     def list(self) -> List[ListEvaluationJobsEvaluationJobs]:
         return self._gql_client.list_evaluation_jobs().evaluation_jobs
 
@@ -136,6 +139,9 @@ class AsyncEvalJobs(AsyncAPIResource, UseCaseResource):
         )
         result = await self._gql_client.create_evaluation_job(input=input)
         return result.create_evaluation_job
+
+    async def cancel(self, job_id: str) -> str:
+        return (await self._gql_client.cancel_evaluation_job(id=job_id)).cancel_evaluation_job
 
     async def list(self) -> List[ListEvaluationJobsEvaluationJobs]:
         result = await self._gql_client.list_evaluation_jobs()

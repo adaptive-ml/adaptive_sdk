@@ -8,6 +8,7 @@ from .attach_model_to_use_case import AttachModelToUseCase
 from .base_model import UNSET, UnsetType, Upload
 from .base_operation import GraphQLField
 from .cancel_ab_campaign import CancelABCampaign
+from .cancel_evaluation_job import CancelEvaluationJob
 from .cancel_training_job import CancelTrainingJob
 from .create_ab_campaign import CreateAbCampaign
 from .create_evaluation_job import CreateEvaluationJob
@@ -815,6 +816,21 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
             'CreateEvaluationJob', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateEvaluationJob.model_validate(data)
+
+    async def cancel_evaluation_job(self, id: Any, **kwargs: Any
+        ) ->CancelEvaluationJob:
+        query = gql(
+            """
+            mutation CancelEvaluationJob($id: UUID!) {
+              cancelEvaluationJob(id: $id)
+            }
+            """
+            )
+        variables: Dict[str, object] = {'id': id}
+        response = await self.execute(query=query, operation_name=
+            'CancelEvaluationJob', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return CancelEvaluationJob.model_validate(data)
 
     async def add_hf_model(self, input: AddHFModelInput, **kwargs: Any
         ) ->AddHFModel:

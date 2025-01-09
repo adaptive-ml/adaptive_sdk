@@ -21,6 +21,7 @@ type AbReport {
 type AbVariantReport {
   variant: ModelService!
   interval: Interval!
+  mean: Float!
   feedbacks: Int!
   comparisons: [AbVariantReportComparison!]
 }
@@ -319,6 +320,11 @@ type CompletionLabelFilterOutput {
   value: [String!]
 }
 
+input CompletionLabelValue {
+  key: String!
+  value: String!
+}
+
 type CompletionMetadata {
   parameters: JSON
   timings: JSON
@@ -406,6 +412,12 @@ input EvaluationCreate {
   modelServices: [IdOrKey!]!
 }
 
+type EvaluationCustomRecipe {
+  guidelines: String!
+  criteria: [String!]
+  metric: Metric
+}
+
 input EvaluationDatasource {
   dataset: IdOrKey
   completions: EvaluationDatasourceCompletions
@@ -416,6 +428,10 @@ input EvaluationDatasourceCompletions {
 
   # if true, the completions will be replayed by the models being evaluated
   replayInteractions: Boolean!
+}
+
+type EvaluationFaithfulnessRecipe {
+  metric: Metric
 }
 
 type EvaluationJob {
@@ -434,6 +450,7 @@ type EvaluationJob {
   createdBy: User
   dataset: Dataset
   metric: Metric
+  recipe: EvaluationRecipe
 }
 
 enum EvaluationJobStatus {
@@ -447,6 +464,8 @@ enum EvaluationJobStatus {
 input EvaluationKind {
   aijudge: AijudgeEvaluation
 }
+
+union EvaluationRecipe = EvaluationCustomRecipe | EvaluationFaithfulnessRecipe
 
 input EvaluationRecipeInput {
   faithfulness: FaithfulnessRecipe
@@ -788,6 +807,8 @@ type MutationRoot {
   cancelAbCampaign(input: IdOrKey!): String!
   createDataset(input: DatasetCreate!, file: Upload!): Dataset!
   createEvaluationJob(input: EvaluationCreate!): EvaluationJob!
+  cancelEvaluationJob(id: UUID!): String!
+  updateCompletion(input: UpdateCompletion!): Completion!
   createSystemPromptTemplate(
     input: SystemPromptTemplateCreate!
   ): SystemPromptTemplate!
@@ -1209,6 +1230,20 @@ input UnitConfigInput {
 enum UnitPosition {
   LEFT
   RIGHT
+}
+
+input UpdateCompletion {
+  id: UUID!
+
+  # remove some label value. This operation is atomic
+  removeLabels: [CompletionLabelValue!]
+
+  # add a label value. This operation is atomic
+  addLabels: [CompletionLabelValue!]
+
+  # set the completion labels to this list. If you want to only add or remove specific labels,
+  # it's better to use `add_labels` or `remove_labels`
+  setLabels: [CompletionLabelValue!]
 }
 
 input UpdateModelService {

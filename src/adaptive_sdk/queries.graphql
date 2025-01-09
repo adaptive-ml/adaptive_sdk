@@ -90,6 +90,10 @@ mutation CreateEvaluationJob($input: EvaluationCreate!) {
   }
 }
 
+mutation CancelEvaluationJob($id: UUID!) {
+  cancelEvaluationJob(id: $id)
+}
+
 mutation AddHFModel($input: AddHFModelInput!) {
   importHfModel(input: $input)
 }

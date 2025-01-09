@@ -106,6 +106,12 @@ class CompletionLabelFilter(BaseModel):
     value: Optional[List[str]] = None
 
 
+class CompletionLabelValue(BaseModel):
+    """@private"""
+    key: str
+    value: str
+
+
 class CursorPageInput(BaseModel):
     """@private"""
     first: Optional[int] = None
@@ -410,6 +416,17 @@ class UnitConfigInput(BaseModel):
     position: UnitPosition
 
 
+class UpdateCompletion(BaseModel):
+    """@private"""
+    id: Any
+    remove_labels: Optional[List['CompletionLabelValue']] = Field(alias=
+        'removeLabels', default=None)
+    add_labels: Optional[List['CompletionLabelValue']] = Field(alias=
+        'addLabels', default=None)
+    set_labels: Optional[List['CompletionLabelValue']] = Field(alias=
+        'setLabels', default=None)
+
+
 class UpdateModelService(BaseModel):
     """@private"""
     use_case: str = Field(alias='useCase')
@@ -500,6 +517,7 @@ TrainingJobInput.model_rebuild()
 TrainingMetadataInput.model_rebuild()
 TrainingMetadataInputParameters.model_rebuild()
 TrainingObjectiveInput.model_rebuild()
+UpdateCompletion.model_rebuild()
 UseCaseCreate.model_rebuild()
 UseCaseMetadataInput.model_rebuild()
 UseCaseShares.model_rebuild()

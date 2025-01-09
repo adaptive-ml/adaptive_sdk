@@ -158,6 +158,17 @@ class DatasetData(BaseModel):
     created_at: Any = Field(alias='createdAt')
 
 
+class MetricWithContextData(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    kind: MetricKind
+    description: str
+    scoring_type: MetricScoringType = Field(alias='scoringType')
+    created_at: Any = Field(alias='createdAt')
+
+
 class ModelData(BaseModel):
     """@public"""
     id: Any
@@ -190,6 +201,28 @@ class ModelServiceDataModel(ModelData):
 
 
 class ModelServiceDataModelBackbone(ModelData):
+    """@public"""
+    pass
+
+
+class UseCaseData(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    description: str
+    created_at: int = Field(alias='createdAt')
+    metrics: List['UseCaseDataMetrics']
+    model_services: List['UseCaseDataModelServices'] = Field(alias=
+        'modelServices')
+
+
+class UseCaseDataMetrics(MetricWithContextData):
+    """@public"""
+    pass
+
+
+class UseCaseDataModelServices(ModelServiceData):
     """@public"""
     pass
 
@@ -232,39 +265,6 @@ class JobStageOutputDataInfoBatchInferenceJobStageOutput(BaseModel):
         '__typename')
     total_num_samples: Optional[int] = Field(alias='totalNumSamples')
     processed_num_samples: Optional[int] = Field(alias='processedNumSamples')
-
-
-class MetricWithContextData(BaseModel):
-    """@public"""
-    id: Any
-    key: str
-    name: str
-    kind: MetricKind
-    description: str
-    scoring_type: MetricScoringType = Field(alias='scoringType')
-    created_at: Any = Field(alias='createdAt')
-
-
-class UseCaseData(BaseModel):
-    """@public"""
-    id: Any
-    key: str
-    name: str
-    description: str
-    created_at: int = Field(alias='createdAt')
-    metrics: List['UseCaseDataMetrics']
-    model_services: List['UseCaseDataModelServices'] = Field(alias=
-        'modelServices')
-
-
-class UseCaseDataMetrics(MetricWithContextData):
-    """@public"""
-    pass
-
-
-class UseCaseDataModelServices(ModelServiceData):
-    """@public"""
-    pass
 
 
 class EvaluationJobData(BaseModel):
@@ -559,11 +559,11 @@ AbCampaignDetailData.model_rebuild()
 AbCampaignReportData.model_rebuild()
 CompletionData.model_rebuild()
 DatasetData.model_rebuild()
+MetricWithContextData.model_rebuild()
 ModelData.model_rebuild()
 ModelServiceData.model_rebuild()
-JobStageOutputData.model_rebuild()
-MetricWithContextData.model_rebuild()
 UseCaseData.model_rebuild()
+JobStageOutputData.model_rebuild()
 EvaluationJobData.model_rebuild()
 ListCompletionsFilterOutputData.model_rebuild()
 MetricDataAdmin.model_rebuild()

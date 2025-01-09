@@ -1,8 +1,8 @@
 from typing import Any, Dict, Optional
 from .base_model import Upload
-from .custom_fields import AbcampaignFields, ApiKeyFields, DatasetFields, DirectFeedbackFields, EvaluationJobFields, MetricFields, MetricWithContextFields, ModelFields, ModelServiceFields, SystemPromptTemplateFields, TeamMemberFields, TrainingJobFields, UseCaseFields, UserFields
+from .custom_fields import AbcampaignFields, ApiKeyFields, CompletionFields, DatasetFields, DirectFeedbackFields, EvaluationJobFields, MetricFields, MetricWithContextFields, ModelFields, ModelServiceFields, SystemPromptTemplateFields, TeamMemberFields, TrainingJobFields, UseCaseFields, UserFields
 from .custom_typing_fields import GraphQLField
-from .input_types import AbcampaignCreate, AddExternalModelInput, AddHFModelInput, AddModelInput, ApiKeyCreate, AttachModel, DatasetCreate, EvaluationCreate, FeedbackAddInput, FeedbackUpdateInput, MetricCreate, MetricLink, MetricUnlink, ModelServiceDisconnect, SystemPromptTemplateCreate, SystemPromptTemplateUpdate, TeamMemberRemove, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate, UseCaseShares, UseCaseUpdate
+from .input_types import AbcampaignCreate, AddExternalModelInput, AddHFModelInput, AddModelInput, ApiKeyCreate, AttachModel, DatasetCreate, EvaluationCreate, FeedbackAddInput, FeedbackUpdateInput, MetricCreate, MetricLink, MetricUnlink, ModelServiceDisconnect, SystemPromptTemplateCreate, SystemPromptTemplateUpdate, TeamMemberRemove, TeamMemberSet, TrainingJobInput, UpdateCompletion, UpdateModelService, UseCaseCreate, UseCaseShares, UseCaseUpdate
 
 
 class Mutation:
@@ -46,6 +46,24 @@ class Mutation:
             value['value'] is not None}
         return EvaluationJobFields(field_name='createEvaluationJob',
             arguments=cleared_arguments)
+
+    @classmethod
+    def cancel_evaluation_job(cls, id: Any) ->GraphQLField:
+        arguments: Dict[str, Dict[str, Any]] = {'id': {'type': 'UUID!',
+            'value': id}}
+        cleared_arguments = {key: value for key, value in arguments.items() if
+            value['value'] is not None}
+        return GraphQLField(field_name='cancelEvaluationJob', arguments=
+            cleared_arguments)
+
+    @classmethod
+    def update_completion(cls, input: UpdateCompletion) ->CompletionFields:
+        arguments: Dict[str, Dict[str, Any]] = {'input': {'type':
+            'UpdateCompletion!', 'value': input}}
+        cleared_arguments = {key: value for key, value in arguments.items() if
+            value['value'] is not None}
+        return CompletionFields(field_name='updateCompletion', arguments=
+            cleared_arguments)
 
     @classmethod
     def create_system_prompt_template(cls, input: SystemPromptTemplateCreate

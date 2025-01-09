@@ -241,10 +241,39 @@ class EvalJobStageOutputGraphQLField(GraphQLField):
         return self
 
 
+class EvaluationCustomRecipeGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) ->'EvaluationCustomRecipeGraphQLField':
+        self._alias = alias
+        return self
+
+
+class EvaluationFaithfulnessRecipeGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) ->'EvaluationFaithfulnessRecipeGraphQLField':
+        self._alias = alias
+        return self
+
+
 class EvaluationJobGraphQLField(GraphQLField):
     """@private"""
 
     def alias(self, alias: str) ->'EvaluationJobGraphQLField':
+        self._alias = alias
+        return self
+
+
+class EvaluationRecipeUnion(GraphQLField):
+    """@private"""
+
+    def on(self, type_name: str, *subfields: GraphQLField
+        ) ->'EvaluationRecipeUnion':
+        self._inline_fragments[type_name] = subfields
+        return self
+
+    def alias(self, alias: str) ->'EvaluationRecipeUnion':
         self._alias = alias
         return self
 
