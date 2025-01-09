@@ -1,21 +1,25 @@
+from __future__ import annotations
 import json
 from uuid import UUID
-from typing import Dict, List, AsyncGenerator, Generator, Literal, Sequence, overload
+from typing import Dict, List, AsyncGenerator, Generator, Literal, Sequence, overload, TYPE_CHECKING
 
 from adaptive_sdk import input_types
 from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.rest import rest_types
 from adaptive_sdk.utils import convert_optional_UUID, _validate_response, get_full_model_path
 
-from .base_resource import SyncAPIResource, AsyncAPIResource
+from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 ROUTE = "/chat/completions"
 
 
-class Chat(SyncAPIResource):
-    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+class Chat(SyncAPIResource, UseCaseResource):
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     @overload
     def create(
@@ -29,6 +33,7 @@ class Chat(SyncAPIResource):
         top_p: float | None = None,
         stream_include_usage: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -47,6 +52,7 @@ class Chat(SyncAPIResource):
         top_p: float | None = None,
         stream_include_usage: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -64,6 +70,7 @@ class Chat(SyncAPIResource):
         top_p: float | None = None,
         stream_include_usage: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -106,7 +113,7 @@ class Chat(SyncAPIResource):
         input_messages = [rest_types.ChatMessage(**m) for m in messages]
         input = rest_types.ChatInput(
             messages=input_messages,
-            model=get_full_model_path(self._use_case_key, model),
+            model=get_full_model_path(self.use_case_key(use_case), model),
             stream=stream,
             stop=stop,
             max_tokens=max_tokens,
@@ -136,10 +143,10 @@ class Chat(SyncAPIResource):
                     yield rest_types.ChatResponseChunk.model_validate(json.loads(chunk_data))
 
 
-class AsyncChat(AsyncAPIResource):
-    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+class AsyncChat(AsyncAPIResource, UseCaseResource):
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     @overload
     async def create(
@@ -153,6 +160,7 @@ class AsyncChat(AsyncAPIResource):
         top_p: float | None = None,
         stream_include_usage: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -171,6 +179,7 @@ class AsyncChat(AsyncAPIResource):
         top_p: float | None = None,
         stream_include_usage: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -188,6 +197,7 @@ class AsyncChat(AsyncAPIResource):
         top_p: float | None = None,
         stream_include_usage: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -230,7 +240,7 @@ class AsyncChat(AsyncAPIResource):
         input_messages = [rest_types.ChatMessage(**m) for m in messages]
         input = rest_types.ChatInput(
             messages=input_messages,
-            model=get_full_model_path(self._use_case_key, model),
+            model=get_full_model_path(self.use_case_key(use_case), model),
             stream=stream,
             stop=stop,
             max_tokens=max_tokens,

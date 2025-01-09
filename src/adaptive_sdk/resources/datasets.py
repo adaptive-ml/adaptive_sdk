@@ -1,5 +1,6 @@
+from __future__ import annotations
 from pathlib import Path
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
@@ -10,23 +11,27 @@ from adaptive_sdk.graphql_client import (
     DescribeDatasetDataset,
 )
 
-from .base_resource import SyncAPIResource, AsyncAPIResource
+from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class Datasets(SyncAPIResource):
+class Datasets(SyncAPIResource, UseCaseResource):
     """
     Resource to interact with file datasets.
     """
 
-    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     def upload(
         self,
         file_path: str,
         dataset_key: str,
         name: str | None = None,
+        use_case: str | None = None,
     ) -> LoadDatasetCreateDataset:
         """
          Upload a dataset from a file. File must be jsonl, where each line should match structure in example below.
@@ -41,7 +46,7 @@ class Datasets(SyncAPIResource):
         {"messages": [{"role": "system", "content": "<optional system prompt>"}, {"role": "user", "content": "<user content>"}, {"role": "assistant", "content": "<assistant answer>"}], "completion": "hey"}
         ```
         """
-        input = DatasetCreate(useCase=self._use_case_key, name=name if name else dataset_key, key=dataset_key)
+        input = DatasetCreate(useCase=self.use_case_key(use_case), name=name if name else dataset_key, key=dataset_key)
         filename = Path(file_path).stem
         with open(file_path, "rb") as f:
             file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
@@ -49,11 +54,12 @@ class Datasets(SyncAPIResource):
 
     def list(
         self,
+        use_case: str | None = None,
     ) -> List[ListDatasetsDatasets]:
         """
         List previously uploaded datasets.
         """
-        return self._gql_client.list_datasets(self._use_case_key).datasets
+        return self._gql_client.list_datasets(self.use_case_key(use_case)).datasets
 
     def get(self, key: str) -> DescribeDatasetDataset | None:
         """
@@ -65,16 +71,17 @@ class Datasets(SyncAPIResource):
         return self._gql_client.describe_dataset(key).dataset
 
 
-class AsyncDatasets(AsyncAPIResource):
-    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+class AsyncDatasets(AsyncAPIResource, UseCaseResource):
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     async def upload(
         self,
         file_path: str,
         dataset_key: str,
         name: str | None = None,
+        use_case: str | None = None,
     ) -> LoadDatasetCreateDataset:
         """
         Upload a dataset from a file. File must be jsonl, where each line should match structure in example below.
@@ -89,7 +96,7 @@ class AsyncDatasets(AsyncAPIResource):
         {"messages": [{"role": "system", "content": "<optional system prompt>"}, {"role": "user", "content": "<user content>"}, {"role": "assistant", "content": "<assistant answer>"}], "completion": "hey"}
         ```
         """
-        input = DatasetCreate(useCase=self._use_case_key, name=name if name else dataset_key, key=dataset_key)
+        input = DatasetCreate(useCase=self.use_case_key(use_case), name=name if name else dataset_key, key=dataset_key)
         filename = Path(file_path).stem
         with open(file_path, "rb") as f:
             file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
@@ -98,11 +105,12 @@ class AsyncDatasets(AsyncAPIResource):
 
     async def list(
         self,
+        use_case: str | None = None,
     ) -> List[ListDatasetsDatasets]:
         """
         List previously uploaded datasets.
         """
-        results = await self._gql_client.list_datasets(self._use_case_key)
+        results = await self._gql_client.list_datasets(self.use_case_key(use_case))
         return results.datasets
 
     async def get(self, key: str) -> DescribeDatasetDataset | None:

@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import os
 from enum import Enum
 from typing import Optional
@@ -40,7 +41,7 @@ class BaseSyncClient:
                 base_url = base_url.rstrip("/")
             else:
                 raise ValueError(
-                    f"Provided base_url {base_url} is invalid. It should be a well-formed url like https://api.adaptive-ml.com"
+                    f"Provided base_url {base_url} is invalid. It should be a well-formed url like https://api-adaptive-ml.com"
                 )
 
         self.api_key = _get_api_key(api_key)
@@ -79,3 +80,16 @@ class BaseAsyncClient:
 
     async def close(self) -> None:
         await self._rest_client.aclose()
+
+
+class UseCaseClient(ABC):
+    @property
+    @abstractmethod
+    def default_use_case(self) -> str | None:
+        """Get the current default use case key."""
+        pass
+
+    @abstractmethod
+    def set_default_use_case(self, use_case: str) -> None:
+        """Set the default use case key."""
+        pass

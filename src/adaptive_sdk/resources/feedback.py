@@ -1,8 +1,8 @@
-from typing import Literal, Sequence, List, Dict
+from __future__ import annotations
+from typing import Literal, Sequence, List, Dict, TYPE_CHECKING
 from uuid import UUID
 
 from adaptive_sdk import input_types
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
     MetricData,
     MetricDataAdmin,
@@ -19,18 +19,24 @@ from adaptive_sdk.utils import (
     _validate_response,
     validate_comparison_completion,
 )
+from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
 
-from .base_resource import SyncAPIResource, AsyncAPIResource
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 FEEDBACK_ROUTE = "/feedback"
 PREFERENCE_ROUTE = "/comparison"
 OUTCOME_ROUTE = "/outcome"
 
 
-class FeedbackAdmin(SyncAPIResource):
+class Feedback(SyncAPIResource, UseCaseResource):
     """
-    Resource to administrate feedbacks.
+    Resource to interact with and log feedback.
     """
+
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     def register_key(
         self,
@@ -68,56 +74,6 @@ class FeedbackAdmin(SyncAPIResource):
         """
         return self._gql_client.list_metrics().metrics
 
-    def get_key(self, feedback_key: str) -> MetricDataAdmin | None:
-        """
-        Get the details of a feedback key.
-
-        Args:
-            feedback_key: The feedback key.
-        """
-        return self._gql_client.describe_metric_admin(input=feedback_key).metric
-
-    def link(
-        self,
-        feedback_key: str,
-        use_case: str,
-    ) -> MetricWithContextData:
-        """
-        Link a feedback key to a use case.
-        Once a feedback key is linked to a use case, its statistics and associations with interactions will render in the UI.
-
-        Args:
-            feedback_key: The feedback key to be linked.
-            use_case: The use case key to link the feedback key to.
-        """
-        input = MetricLink(useCase=use_case, metric=feedback_key)
-        return self._gql_client.link_metric(input).link_metric
-
-    def unlink(
-        self,
-        feedback_key: str,
-        use_case: str,
-    ) -> str:
-        """
-        Unlink a feedback key from a use case.
-
-        Args:
-            feedback_key: The feedback key to be unlinked.
-            use_case: The use case key to unlink the feedback key from.
-        """
-        input = MetricUnlink(useCase=use_case, metric=feedback_key)
-        return self._gql_client.unlink_metric(input).unlink_metric
-
-
-class Feedback(SyncAPIResource):
-    """
-    Resource to interact with and log feedback.
-    """
-
-    def __init__(self, client: BaseSyncClient, use_case: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case
-
     def get_key(self, feedback_key: str) -> MetricData | None:
         """
         Get the details of a feedback key.
@@ -126,10 +82,12 @@ class Feedback(SyncAPIResource):
             feedback_key: The feedback key.
         return self._gql_client.describe_metric(input=feedback_key).metric
         """
+        return self._gql_client.describe_metric(input=feedback_key).metric
 
     def link(
         self,
         feedback_key: str,
+        use_case: str | None = None,
     ) -> MetricWithContextData:
         """
         Link a feedback key to the client's use case.
@@ -138,12 +96,13 @@ class Feedback(SyncAPIResource):
         Args:
             feedback_key: The feedback key to be linked.
         """
-        input = MetricLink(useCase=self._use_case_key, metric=feedback_key)
+        input = MetricLink(useCase=self.use_case_key(use_case), metric=feedback_key)
         return self._gql_client.link_metric(input).link_metric
 
     def unlink(
         self,
         feedback_key: str,
+        use_case: str | None = None,
     ) -> str:
         """
         Unlink a feedback key from the client's use case.
@@ -151,7 +110,7 @@ class Feedback(SyncAPIResource):
         Args:
             feedback_key: The feedback key to be unlinked.
         """
-        input = MetricUnlink(useCase=self._use_case_key, metric=feedback_key)
+        input = MetricUnlink(useCase=self.use_case_key(use_case), metric=feedback_key)
         return self._gql_client.unlink_metric(input).unlink_metric
 
     def log_metric(
@@ -192,6 +151,7 @@ class Feedback(SyncAPIResource):
         prompt: str | None = None,
         messages: List[Dict[str, str]] | None = None,
         tied: Literal["good", "bad"] | None = None,
+        use_case: str | None = None,
     ) -> rest_types.ComparisonOutput:
         """
         Log preference feedback between 2 completions.
@@ -221,17 +181,21 @@ class Feedback(SyncAPIResource):
             prompt=prompt,
             messages=input_messages,
             tied=rest_types.ComparisonTie(tied) if tied else None,
-            use_case=self._use_case_key,
+            use_case=self.use_case_key(use_case),
         )
         r = self._rest_client.post(PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True))
         _validate_response(r)
         return rest_types.ComparisonOutput.model_validate(r.json())
 
 
-class AsyncFeedbackAdmin(AsyncAPIResource):
+class AsyncFeedback(AsyncAPIResource, UseCaseResource):
     """
-    Resource to administrate feedback.
+    Resource to interact with and log feedback.
     """
+
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     async def register_key(
         self,
@@ -269,56 +233,6 @@ class AsyncFeedbackAdmin(AsyncAPIResource):
         """
         return (await self._gql_client.list_metrics()).metrics
 
-    async def get_key(self, feedback_key: str) -> MetricDataAdmin | None:
-        """
-        Get the details of a feedback key.
-
-        Args:
-            feedback_key: The feedback key.
-        """
-        return (await self._gql_client.describe_metric_admin(input=feedback_key)).metric
-
-    async def link(
-        self,
-        feedback_key: str,
-        use_case_key: str,
-    ) -> MetricWithContextData:
-        """
-        Link a feedback key to a use case.
-        Once a feedback key is linked to a use case, its statistics and associations with interactions will render in the UI.
-
-        Args:
-            feedback_key: The feedback key to be linked.
-            use_case: The use case key to link the feedback key to.
-        """
-        input = MetricLink(useCase=use_case_key, metric=feedback_key)
-        return (await self._gql_client.link_metric(input)).link_metric
-
-    async def unlink(
-        self,
-        feedback_key: str,
-        use_case_key: str,
-    ) -> str:
-        """
-        Unlink a feedback key from a use case.
-
-        Args:
-            feedback_key: The feedback key to be unlinked.
-            use_case: The use case key to unlink the feedback key from.
-        """
-        input = MetricUnlink(useCase=use_case_key, metric=feedback_key)
-        return (await self._gql_client.unlink_metric(input)).unlink_metric
-
-
-class AsyncFeedback(AsyncAPIResource):
-    """
-    Resource to interact with and log feedback.
-    """
-
-    def __init__(self, client: BaseAsyncClient, use_case: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case
-
     async def get_key(self, feedback_key: str) -> MetricData | None:
         """
         Get the details of a feedback key.
@@ -331,6 +245,7 @@ class AsyncFeedback(AsyncAPIResource):
     async def link(
         self,
         feedback_key: str,
+        use_case: str | None = None,
     ) -> MetricWithContextData:
         """
         Link a feedback key to the client's use case.
@@ -339,13 +254,14 @@ class AsyncFeedback(AsyncAPIResource):
         Args:
             feedback_key: The feedback key to be linked.
         """
-        input = MetricLink(useCase=self._use_case_key, metric=feedback_key)
+        input = MetricLink(useCase=self.use_case_key(use_case), metric=feedback_key)
         result = await self._gql_client.link_metric(input)
         return result.link_metric
 
     async def unlink(
         self,
         feedback_key: str,
+        use_case: str | None = None,
     ) -> str:
         """
         Unlink a feedback key from the client's use case.
@@ -353,7 +269,7 @@ class AsyncFeedback(AsyncAPIResource):
         Args:
             feedback_key: The feedback key to be unlinked.
         """
-        input = MetricUnlink(useCase=self._use_case_key, metric=feedback_key)
+        input = MetricUnlink(useCase=self.use_case_key(use_case), metric=feedback_key)
         result = await self._gql_client.unlink_metric(input)
         return result.unlink_metric
 
@@ -395,6 +311,7 @@ class AsyncFeedback(AsyncAPIResource):
         prompt: str | None = None,
         messages: List[Dict[str, str]] | None = None,
         tied: Literal["good", "bad"] | None = None,
+        use_case: str | None = None,
     ) -> rest_types.ComparisonOutput:
         """
         Log preference feedback between 2 completions.
@@ -424,7 +341,7 @@ class AsyncFeedback(AsyncAPIResource):
             prompt=prompt,
             messages=input_messages,
             tied=rest_types.ComparisonTie(tied) if tied else None,
-            use_case=self._use_case_key,
+            use_case=self.use_case_key(use_case),
         )
         r = await self._rest_client.post(PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True))
         _validate_response(r)

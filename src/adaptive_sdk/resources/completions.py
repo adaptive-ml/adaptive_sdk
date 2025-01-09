@@ -1,18 +1,23 @@
+from __future__ import annotations
 from uuid import UUID
+from typing import TYPE_CHECKING
 
 from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.rest import rest_types
 from adaptive_sdk.utils import convert_optional_UUID, _validate_response, get_full_model_path
 
-from .base_resource import SyncAPIResource, AsyncAPIResource
+from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 ROUTE = "/completions"
 
 
-class Completions(SyncAPIResource):
-    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+class Completions(SyncAPIResource, UseCaseResource):
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     def create(
         self,
@@ -20,6 +25,7 @@ class Completions(SyncAPIResource):
         model: str | None = None,
         stream: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -28,7 +34,7 @@ class Completions(SyncAPIResource):
 
         input = rest_types.GenerateInput(
             prompt=prompt,
-            model=get_full_model_path(self._use_case_key, model),
+            model=get_full_model_path(self.use_case_key(use_case), model),
             stream=stream,
             session_id=convert_optional_UUID(session_id),
             user=convert_optional_UUID(user),
@@ -41,10 +47,10 @@ class Completions(SyncAPIResource):
         return rest_types.GenerateResponse.model_validate(r.json())
 
 
-class AsyncCompletions(AsyncAPIResource):
-    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+class AsyncCompletions(AsyncAPIResource, UseCaseResource):
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     async def create(
         self,
@@ -52,6 +58,7 @@ class AsyncCompletions(AsyncAPIResource):
         model: str | None = None,
         stream: bool | None = None,
         session_id: str | UUID | None = None,
+        use_case: str | None = None,
         user: str | UUID | None = None,
         ab_campaign: str | None = None,
         n: int | None = None,
@@ -60,7 +67,7 @@ class AsyncCompletions(AsyncAPIResource):
 
         input = rest_types.GenerateInput(
             prompt=prompt,
-            model=get_full_model_path(self._use_case_key, model),
+            model=get_full_model_path(self.use_case_key(use_case), model),
             stream=stream,
             session_id=convert_optional_UUID(session_id),
             user=convert_optional_UUID(user),

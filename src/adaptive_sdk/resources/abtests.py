@@ -1,4 +1,5 @@
-from typing import Sequence, Literal, List
+from __future__ import annotations
+from typing import Sequence, Literal, List, TYPE_CHECKING
 
 from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
@@ -11,17 +12,20 @@ from adaptive_sdk.graphql_client import (
     AbcampaignCreate,
 )
 
-from .base_resource import SyncAPIResource, AsyncAPIResource
+from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class ABTests(SyncAPIResource):
+class ABTests(SyncAPIResource, UseCaseResource):
     """
     Resource to interact with AB Tests.
     """
 
-    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     def create(
         self,
@@ -31,6 +35,7 @@ class ABTests(SyncAPIResource):
         traffic_split: float = 1.0,
         feedback_type: Literal["metric", "preference"] = "metric",
         auto_deploy: bool = False,
+        use_case: str | None = None,
     ) -> AbCampaignCreateData:
         """
         Creates a new A/B test in the client's use case.
@@ -56,7 +61,7 @@ class ABTests(SyncAPIResource):
         input = AbcampaignCreate(
             key=ab_test_key,
             metric=feedback_key,
-            useCase=self._use_case_key,
+            useCase=self.use_case_key(use_case),
             modelServices=models,
             trafficSplit=traffic_split,
             autoDeploy=auto_deploy,
@@ -74,7 +79,10 @@ class ABTests(SyncAPIResource):
         return self._gql_client.cancel_ab_campaign(input=key).cancel_ab_campaign
 
     def list(
-        self, active: bool | None = None, status: Literal["warmup", "in_progress", "done", "cancelled"] | None = None
+        self,
+        active: bool | None = None,
+        status: Literal["warmup", "in_progress", "done", "cancelled"] | None = None,
+        use_case: str | None = None,
     ) -> Sequence[AbCampaignDetailData]:
         """
         List the use case AB tests.
@@ -85,9 +93,9 @@ class ABTests(SyncAPIResource):
         """
         if status:
             status_input = AbcampaignStatus(status.upper())
-            input = AbCampaignFilter(active=active, status=status_input, useCase=self._use_case_key)
+            input = AbCampaignFilter(active=active, status=status_input, useCase=self.use_case_key(use_case))
         else:
-            input = AbCampaignFilter(active=active, useCase=self._use_case_key)
+            input = AbCampaignFilter(active=active, useCase=self.use_case_key(use_case))
         return self._gql_client.list_ab_campaigns(input).ab_campaigns
 
     def get(self, key: str) -> DescribeAbCampaignAbCampaign | None:
@@ -100,14 +108,14 @@ class ABTests(SyncAPIResource):
         return self._gql_client.describe_ab_campaign(input=key).ab_campaign
 
 
-class AsyncABTests(AsyncAPIResource):
+class AsyncABTests(AsyncAPIResource, UseCaseResource):
     """
     Resource to interact with AB Tests.
     """
 
-    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     async def create(
         self,
@@ -117,6 +125,7 @@ class AsyncABTests(AsyncAPIResource):
         traffic_split: float = 1.0,
         feedback_type: Literal["metric", "preference"] = "metric",
         auto_deploy: bool = False,
+        use_case: str | None = None,
     ) -> AbCampaignCreateData:
         """
         Creates a new A/B test in the client's use case.
@@ -142,7 +151,7 @@ class AsyncABTests(AsyncAPIResource):
         input = AbcampaignCreate(
             key=ab_test_key,
             metric=feedback_key,
-            useCase=self._use_case_key,
+            useCase=self.use_case_key(use_case),
             modelServices=models,
             trafficSplit=traffic_split,
             autoDeploy=auto_deploy,
@@ -162,7 +171,10 @@ class AsyncABTests(AsyncAPIResource):
         return result.cancel_ab_campaign
 
     async def list(
-        self, active: bool | None = None, status: Literal["warmup", "in_progress", "done", "cancelled"] | None = None
+        self,
+        active: bool | None = None,
+        status: Literal["warmup", "in_progress", "done", "cancelled"] | None = None,
+        use_case: str | None = None,
     ) -> Sequence[AbCampaignDetailData]:
         """
         List the use case AB tests.
@@ -173,9 +185,9 @@ class AsyncABTests(AsyncAPIResource):
         """
         if status:
             status_input = AbcampaignStatus(status.upper())
-            input = AbCampaignFilter(active=active, status=status_input, useCase=self._use_case_key)
+            input = AbCampaignFilter(active=active, status=status_input, useCase=self.use_case_key(use_case))
         else:
-            input = AbCampaignFilter(active=active, useCase=self._use_case_key)
+            input = AbCampaignFilter(active=active, useCase=self.use_case_key(use_case))
         result = await self._gql_client.list_ab_campaigns(input)
         return result.ab_campaigns
 

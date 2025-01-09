@@ -1,4 +1,5 @@
-from typing import List
+from __future__ import annotations
+from typing import List, TYPE_CHECKING
 import humps
 
 from adaptive_sdk import input_types
@@ -12,41 +13,20 @@ from adaptive_sdk.graphql_client import (
 )
 
 from .defaults import update_training_config_with_defaults
-from ..base_resource import SyncAPIResource, AsyncAPIResource
+from ..base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class TrainingJobsAdmin(SyncAPIResource):
-    """
-    Resource to administrate training jobs.
-    """
-
-    def cancel(self, job_id: str) -> str:
-        """
-        Cancel ongoing training job.
-        """
-        return self._gql_client.cancel_training_job(job_id).cancel_training_job
-
-    def list(self) -> List[ListTrainingJobsTrainingJobs]:
-        """
-        List all training jobs.
-        """
-        return self._gql_client.list_training_jobs().training_jobs
-
-    def get(self, job_id: str) -> DescribeTrainingJobTrainingJob | None:
-        """
-        Get details for training job.
-        """
-        return self._gql_client.describe_training_job(id=job_id).training_job
-
-
-class TrainingJobs(SyncAPIResource):
+class TrainingJobs(SyncAPIResource, UseCaseResource):
     """
     Resource to interact with training jobs.
     """
 
-    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     def create(
         self,
@@ -54,6 +34,7 @@ class TrainingJobs(SyncAPIResource):
         config: input_types.AdaptRequestConfigInput,
         name: str | None = None,
         wait: bool = False,
+        use_case: str | None = None,
     ) -> CreateTrainingJobCreateTrainingJob:
         """
         Create a new training job.
@@ -65,12 +46,12 @@ class TrainingJobs(SyncAPIResource):
         """
         new_config = update_training_config_with_defaults(config)
         if new_config.get("sample_config").get("filter"):  # type:ignore
-            new_config["sample_config"]["filter"].update({"useCase": self._use_case_key})  # type:ignore
+            new_config["sample_config"]["filter"].update({"useCase": self.use_case_key(use_case)})  # type:ignore
         new_config = humps.camelize(new_config)
         config_input = AdaptRequestConfigInput.model_validate(new_config)
         input = TrainingJobInput(
             model=model,
-            useCase=self._use_case_key,
+            useCase=self.use_case_key(use_case),
             name=name,
             config=config_input,
             wait=wait,
@@ -96,38 +77,14 @@ class TrainingJobs(SyncAPIResource):
         return self._gql_client.describe_training_job(id=job_id).training_job
 
 
-class AsyncTrainingJobsAdmin(AsyncAPIResource):
-    """
-    Resource to administrate training jobs.
-    """
-
-    async def cancel(self, job_id: str) -> str:
-        """
-        Cancel ongoing training job.
-        """
-        return (await self._gql_client.cancel_training_job(job_id)).cancel_training_job
-
-    async def list(self) -> List[ListTrainingJobsTrainingJobs]:
-        """
-        List all training jobs.
-        """
-        return (await self._gql_client.list_training_jobs()).training_jobs
-
-    async def get(self, job_id: str) -> DescribeTrainingJobTrainingJob | None:
-        """
-        Get details for training job.
-        """
-        return (await self._gql_client.describe_training_job(id=job_id)).training_job
-
-
-class AsyncTrainingJobs(AsyncAPIResource):
+class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):
     """
     Resource to interact with training jobs.
     """
 
-    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     async def create(
         self,
@@ -135,6 +92,7 @@ class AsyncTrainingJobs(AsyncAPIResource):
         config: input_types.AdaptRequestConfigInput,
         name: str | None = None,
         wait: bool = False,
+        use_case: str | None = None,
     ) -> CreateTrainingJobCreateTrainingJob:
         """
         Create a new training job.
@@ -146,12 +104,12 @@ class AsyncTrainingJobs(AsyncAPIResource):
         """
         new_config = update_training_config_with_defaults(config)
         if new_config.get("sample_config").get("filter"):  # type:ignore
-            new_config["sample_config"]["filter"].update({"useCase": self._use_case_key})  # type:ignore
+            new_config["sample_config"]["filter"].update({"useCase": self.use_case_key(use_case)})  # type:ignore
         new_config = humps.camelize(new_config)
         config_input = AdaptRequestConfigInput.model_validate(new_config)
         input = TrainingJobInput(
             model=model,
-            useCase=self._use_case_key,
+            useCase=self.use_case_key(use_case),
             name=name,
             config=config_input,
             wait=wait,

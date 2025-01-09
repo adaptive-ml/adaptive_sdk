@@ -1,4 +1,5 @@
-from typing import Literal, Sequence
+from __future__ import annotations
+from typing import Literal, Sequence, TYPE_CHECKING
 
 from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
@@ -17,7 +18,10 @@ from adaptive_sdk.graphql_client import (
     AddHFModelInput,
 )
 
-from .base_resource import SyncAPIResource, AsyncAPIResource
+from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 provider_config = {
     "open_ai": {
@@ -36,83 +40,14 @@ provider_config = {
 SupportedHFModels = Literal["google/gemma-2-2b"]
 
 
-class Models(SyncAPIResource):
+class Models(SyncAPIResource, UseCaseResource):
     """
     Resource to interact with models.
     """
 
-    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
-
-    def get(self, model) -> ModelData | None:
-        """
-        Get the details for a model.
-
-        Args:
-            model: Model key.
-        """
-        return self._gql_client.describe_model(input=model).model
-
-    def attach(self, model: str, wait: bool = False, make_default: bool = False) -> ModelServiceData:
-        """
-        Attach a model to the client's use case.
-
-        Args:
-            model: Model key.
-            wait: If the model is not deployed already, attaching it to the use case will automatically deploy it.
-                If `True`, this call blocks until model is `Online`.
-            make_default: Make the model the use case's default on attachment.
-        """
-        input = AttachModel(model=model, useCase=self._use_case_key, attached=True, wait=wait)
-        result = self._gql_client.attach_model_to_use_case(input).attach_model
-        if make_default:
-            result = self.update(model=model, is_default=make_default)
-        return result
-
-    def detach(self, model: str) -> ModelServiceData:
-        """
-        Detach model from client's use case.
-
-        Args:
-            model: Model key.
-        """
-        return self.update(model=model, attached=False)
-
-    def update(
-        self,
-        model: str,
-        is_default: bool | None = None,
-        attached: bool | None = None,
-        desired_online: bool | None = None,
-    ) -> ModelServiceData:
-        """
-        Update config of model attached to client's use case.
-
-        Args:
-            model: Model key.
-            is_default: Change the selection of the model as default for the use case.
-                `True` to promote to default, `False` to demote from default. If `None`, no changes are applied.
-            attached: Whether model should be attached or detached to/from use case. If `None`, no changes are applied.
-            desired_online: Turn model inference on or off for the client use case.
-                This does not influence the global status of the model, it is use case-bounded.
-                If `None`, no changes are applied.
-
-        """
-        input = UpdateModelService(
-            useCase=self._use_case_key,
-            modelService=model,
-            isDefault=is_default,
-            attached=attached,
-            desiredOnline=desired_online,
-        )
-        return self._gql_client.update_model(input).update_model_service
-
-
-class ModelsAdmin(SyncAPIResource):
-    """
-    Resource to administrate models.
-    """
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     def add_hf_model(self, hf_model_id: SupportedHFModels, output_model_key: str, hf_token: str) -> str:
         """
@@ -164,14 +99,79 @@ class ModelsAdmin(SyncAPIResource):
         """
         return self._gql_client.list_models().models
 
-    def get(self, model) -> ModelDataAdmin | None:
+    def get(self, model) -> ModelData | None:
         """
-        Get details for a model.
+        Get the details for a model.
 
         Args:
             model: Model key.
         """
-        return self._gql_client.describe_model_admin(input=model).model
+        return self._gql_client.describe_model(input=model).model
+
+    def attach(
+        self,
+        model: str,
+        wait: bool = False,
+        make_default: bool = False,
+        use_case: str | None = None,
+    ) -> ModelServiceData:
+        """
+        Attach a model to the client's use case.
+
+        Args:
+            model: Model key.
+            wait: If the model is not deployed already, attaching it to the use case will automatically deploy it.
+                If `True`, this call blocks until model is `Online`.
+            make_default: Make the model the use case's default on attachment.
+        """
+        input = AttachModel(model=model, useCase=self.use_case_key(use_case), attached=True, wait=wait)
+        result = self._gql_client.attach_model_to_use_case(input).attach_model
+        if make_default:
+            result = self.update(model=model, is_default=make_default)
+        return result
+
+    def detach(
+        self,
+        model: str,
+        use_case: str | None = None,
+    ) -> ModelServiceData:
+        """
+        Detach model from client's use case.
+
+        Args:
+            model: Model key.
+        """
+        return self.update(model=model, attached=False, use_case=use_case)
+
+    def update(
+        self,
+        model: str,
+        is_default: bool | None = None,
+        attached: bool | None = None,
+        desired_online: bool | None = None,
+        use_case: str | None = None,
+    ) -> ModelServiceData:
+        """
+        Update config of model attached to client's use case.
+
+        Args:
+            model: Model key.
+            is_default: Change the selection of the model as default for the use case.
+                `True` to promote to default, `False` to demote from default. If `None`, no changes are applied.
+            attached: Whether model should be attached or detached to/from use case. If `None`, no changes are applied.
+            desired_online: Turn model inference on or off for the client use case.
+                This does not influence the global status of the model, it is use case-bounded.
+                If `None`, no changes are applied.
+
+        """
+        input = UpdateModelService(
+            useCase=self.use_case_key(use_case),
+            modelService=model,
+            isDefault=is_default,
+            attached=attached,
+            desiredOnline=desired_online,
+        )
+        return self._gql_client.update_model(input).update_model_service
 
     def deploy(self, model: str, wait: bool = False) -> str:
         """
@@ -195,85 +195,14 @@ class ModelsAdmin(SyncAPIResource):
         return self._gql_client.terminate_model(id_or_key=model, force=force).terminate_model
 
 
-class AsyncModels(AsyncAPIResource):
+class AsyncModels(AsyncAPIResource, UseCaseResource):
     """
     Resource to interact with models.
     """
 
-    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
-
-    async def get(self, model) -> ModelData | None:
-        """
-        Get the details for a model.
-
-        Args:
-            model: Model key.
-        """
-        return (await self._gql_client.describe_model(input=model)).model
-
-    async def attach(self, model: str, wait: bool = True, make_default: bool = False) -> ModelServiceData:
-        """
-        Attach a model to the client's use case.
-
-        Args:
-            model: Model key.
-            wait: If the model is not deployed already, attaching it to the use case will automatically deploy it.
-                If `True`, this call blocks until model is `Online`.
-            make_default: Make the model the use case's default on attachment.
-        """
-        input = AttachModel(model=model, useCase=self._use_case_key, attached=True, wait=wait)
-        result = await self._gql_client.attach_model_to_use_case(input)
-        result = result.attach_model
-        if make_default:
-            result = await self.update(model=model, is_default=make_default)
-        return result
-
-    async def detach(self, model: str) -> ModelServiceData:
-        """
-        Detach model from client's use case.
-
-        Args:
-            model: Model key.
-        """
-        return await self.update(model=model, attached=False)
-
-    async def update(
-        self,
-        model: str,
-        is_default: bool | None = None,
-        attached: bool | None = None,
-        desired_online: bool | None = None,
-    ) -> ModelServiceData:
-        """
-        Update config of model attached to client's use case.
-
-        Args:
-            model: Model key.
-            is_default: Change the selection of the model as default for the use case.
-                `True` to promote to default, `False` to demote from default. If `None`, no changes are applied.
-            attached: Whether model should be attached or detached to/from use case. If `None`, no changes are applied.
-            desired_online: Turn model inference on or off for the client use case.
-                This does not influence the global status of the model, it is use case-bounded.
-                If `None`, no changes are applied.
-
-        """
-        input = UpdateModelService(
-            useCase=self._use_case_key,
-            modelService=model,
-            isDefault=is_default,
-            attached=attached,
-            desiredOnline=desired_online,
-        )
-        result = await self._gql_client.update_model(input)
-        return result.update_model_service
-
-
-class AsyncModelsAdmin(AsyncAPIResource):
-    """
-    Resource to administrate models.
-    """
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     async def add_hf_model(self, hf_model_id: str, output_model_key: str, hf_token: str):
         """
@@ -326,14 +255,81 @@ class AsyncModelsAdmin(AsyncAPIResource):
         """
         return (await self._gql_client.list_models()).models
 
-    async def get(self, model) -> ModelDataAdmin | None:
+    async def get(self, model) -> ModelData | None:
         """
-        Get details for a model.
+        Get the details for a model.
 
         Args:
             model: Model key.
         """
-        return (await self._gql_client.describe_model_admin(input=model)).model
+        return (await self._gql_client.describe_model(input=model)).model
+
+    async def attach(
+        self,
+        model: str,
+        wait: bool = True,
+        make_default: bool = False,
+        use_case: str | None = None,
+    ) -> ModelServiceData:
+        """
+        Attach a model to the client's use case.
+
+        Args:
+            model: Model key.
+            wait: If the model is not deployed already, attaching it to the use case will automatically deploy it.
+                If `True`, this call blocks until model is `Online`.
+            make_default: Make the model the use case's default on attachment.
+        """
+        input = AttachModel(model=model, useCase=self.use_case_key(use_case), attached=True, wait=wait)
+        result = await self._gql_client.attach_model_to_use_case(input)
+        result = result.attach_model
+        if make_default:
+            result = await self.update(model=model, is_default=make_default)
+        return result
+
+    async def detach(
+        self,
+        model: str,
+        use_case: str | None = None,
+    ) -> ModelServiceData:
+        """
+        Detach model from client's use case.
+
+        Args:
+            model: Model key.
+        """
+        return await self.update(model=model, attached=False, use_case=use_case)
+
+    async def update(
+        self,
+        model: str,
+        is_default: bool | None = None,
+        attached: bool | None = None,
+        desired_online: bool | None = None,
+        use_case: str | None = None,
+    ) -> ModelServiceData:
+        """
+        Update config of model attached to client's use case.
+
+        Args:
+            model: Model key.
+            is_default: Change the selection of the model as default for the use case.
+                `True` to promote to default, `False` to demote from default. If `None`, no changes are applied.
+            attached: Whether model should be attached or detached to/from use case. If `None`, no changes are applied.
+            desired_online: Turn model inference on or off for the client use case.
+                This does not influence the global status of the model, it is use case-bounded.
+                If `None`, no changes are applied.
+
+        """
+        input = UpdateModelService(
+            useCase=self.use_case_key(use_case),
+            modelService=model,
+            isDefault=is_default,
+            attached=attached,
+            desiredOnline=desired_online,
+        )
+        result = await self._gql_client.update_model(input)
+        return result.update_model_service
 
     async def deploy(self, model: str, wait: bool = False) -> str:
         """

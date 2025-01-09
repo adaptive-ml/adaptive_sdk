@@ -1,15 +1,23 @@
-from typing import Sequence
+from __future__ import annotations
+from typing import Sequence, TYPE_CHECKING
 
 from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import UseCaseCreate, UseCaseSettingsInput, UseCaseData
 
-from .base_resource import SyncAPIResource, AsyncAPIResource
+from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+
+if TYPE_CHECKING:
+    from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class UseCasesAdmin(SyncAPIResource):
+class UseCase(SyncAPIResource, UseCaseResource):
     """
-    Resource to administrate use cases.
+    Resource to interact with use cases.
     """
+
+    def __init__(self, client: Adaptive) -> None:
+        SyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     def create(
         self,
@@ -43,36 +51,24 @@ class UseCasesAdmin(SyncAPIResource):
         """
         return self._gql_client.list_use_cases().use_cases
 
-    def get(self, use_case: str) -> UseCaseData | None:
+    def get(
+        self,
+        use_case: str | None = None,
+    ) -> UseCaseData | None:
         """
-        Get details for a use case.
-
-        Args:
-            use_case: Use case key.
+        Get details for the client's use case.
         """
-        return self._gql_client.describe_use_case(use_case).use_case
+        return self._gql_client.describe_use_case(self.use_case_key(use_case)).use_case
 
 
-class UseCase(SyncAPIResource):
+class AsyncUseCase(AsyncAPIResource, UseCaseResource):
     """
     Resource to interact with use cases.
     """
 
-    def __init__(self, client: BaseSyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
-
-    def get(self) -> UseCaseData | None:
-        """
-        Get details for the client's use case.
-        """
-        return self._gql_client.describe_use_case(self._use_case_key).use_case
-
-
-class AsyncUseCasesAdmin(AsyncAPIResource):
-    """
-    Resource to administrate use cases.
-    """
+    def __init__(self, client: AsyncAdaptive) -> None:
+        AsyncAPIResource.__init__(self, client)
+        UseCaseResource.__init__(self, client)
 
     async def create(
         self,
@@ -108,29 +104,12 @@ class AsyncUseCasesAdmin(AsyncAPIResource):
         result = await self._gql_client.list_use_cases()
         return result.use_cases
 
-    async def get(self, use_case: str) -> UseCaseData | None:
-        """
-        Get details for a use case.
-
-        Args:
-            use_case: Use case key.
-        """
-        result = await self._gql_client.describe_use_case(use_case)
-        return result.use_case
-
-
-class AsyncUseCase(AsyncAPIResource):
-    """
-    Resource to interact with use cases.
-    """
-
-    def __init__(self, client: BaseAsyncClient, use_case_key: str) -> None:
-        super().__init__(client)
-        self._use_case_key = use_case_key
-
-    async def get(self) -> UseCaseData | None:
+    async def get(
+        self,
+        use_case: str | None = None,
+    ) -> UseCaseData | None:
         """
         Get details for the client's use case.
         """
-        result = await self._gql_client.describe_use_case(self._use_case_key)
+        result = await self._gql_client.describe_use_case(self.use_case_key(use_case))
         return result.use_case
