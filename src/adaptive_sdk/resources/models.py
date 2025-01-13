@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Literal, Sequence, TYPE_CHECKING
 
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
     OpenAIModel,
     OpenAIProviderDataInput,

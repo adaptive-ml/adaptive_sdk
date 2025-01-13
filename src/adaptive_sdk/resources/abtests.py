@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Sequence, Literal, List, TYPE_CHECKING
 
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
     DescribeAbCampaignAbCampaign,
     AbCampaignDetailData,

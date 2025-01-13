@@ -1,7 +1,6 @@
 from __future__ import annotations
 from uuid import UUID
 from typing import overload
-import httpx
 
 from adaptive_sdk import input_types
 from .rest import rest_types
@@ -36,13 +35,6 @@ def validate_comparison_completion(
         processed_completion = convert_optional_UUID(completion)
 
     return processed_completion
-
-
-def _validate_response(response: httpx.Response):
-    if response.is_client_error:
-        raise Exception(f"Error {response.status_code}: {response.text}")
-    else:
-        response.raise_for_status()
 
 
 def get_full_model_path(use_case_key: str, model_key: str | None):

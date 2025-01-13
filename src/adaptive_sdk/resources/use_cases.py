@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Sequence, TYPE_CHECKING
 
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import UseCaseCreate, UseCaseSettingsInput, UseCaseData
+from adaptive_sdk.graphql_client.exceptions import GraphQLClientGraphQLMultiError
 
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
 
@@ -58,7 +58,11 @@ class UseCase(SyncAPIResource, UseCaseResource):
         """
         Get details for the client's use case.
         """
-        return self._gql_client.describe_use_case(self.use_case_key(use_case)).use_case
+        try:
+            result = self._gql_client.describe_use_case(self.use_case_key(use_case)).use_case
+        except GraphQLClientGraphQLMultiError as e:
+            print("hey")
+            raise e
 
 
 class AsyncUseCase(AsyncAPIResource, UseCaseResource):

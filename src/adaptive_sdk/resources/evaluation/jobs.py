@@ -1,7 +1,6 @@
 from __future__ import annotations
 from copy import deepcopy
 from typing import List, Literal, TYPE_CHECKING
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
     ListEvaluationJobsEvaluationJobs,
     DescribeEvaluationJobEvaluationJob,

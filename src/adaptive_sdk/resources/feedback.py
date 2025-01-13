@@ -3,6 +3,7 @@ from typing import Literal, Sequence, List, Dict, TYPE_CHECKING
 from uuid import UUID
 
 from adaptive_sdk import input_types
+from adaptive_sdk.error_handling import rest_error_handler
 from adaptive_sdk.graphql_client import (
     MetricData,
     MetricDataAdmin,
@@ -16,7 +17,6 @@ from adaptive_sdk.graphql_client import (
 from adaptive_sdk.rest import rest_types
 from adaptive_sdk.utils import (
     convert_optional_UUID,
-    _validate_response,
     validate_comparison_completion,
 )
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
@@ -139,7 +139,7 @@ class Feedback(SyncAPIResource, UseCaseResource):
             details=details,
         )
         r = self._rest_client.post(FEEDBACK_ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.FeedbackOutput.model_validate(r.json())
 
     def log_preference(
@@ -184,7 +184,7 @@ class Feedback(SyncAPIResource, UseCaseResource):
             use_case=self.use_case_key(use_case),
         )
         r = self._rest_client.post(PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.ComparisonOutput.model_validate(r.json())
 
 
@@ -299,7 +299,7 @@ class AsyncFeedback(AsyncAPIResource, UseCaseResource):
             details=details,
         )
         r = await self._rest_client.post(FEEDBACK_ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.FeedbackOutput.model_validate(r.json())
 
     async def log_preference(
@@ -344,5 +344,5 @@ class AsyncFeedback(AsyncAPIResource, UseCaseResource):
             use_case=self.use_case_key(use_case),
         )
         r = await self._rest_client.post(PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.ComparisonOutput.model_validate(r.json())

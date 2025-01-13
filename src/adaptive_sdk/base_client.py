@@ -6,6 +6,7 @@ import httpx
 from urllib.parse import urlparse
 
 from .graphql_client import GQLClient, AsyncGQLClient
+from .error_handling import graphql_multi_error_handler
 
 
 class Routes(Enum):
@@ -48,6 +49,7 @@ class BaseSyncClient:
         self.base_url = base_url
         headers = {"Authorization": f"Bearer {self.api_key}"}
         self._gql_client = GQLClient(base_url + Routes.GQL.value, headers=headers)
+        self._gql_client.get_data = graphql_multi_error_handler(self._gql_client.get_data)
         self._gql_client.http_client.timeout = timeout
         self._rest_client = httpx.Client(headers=headers, base_url=base_url + Routes.REST.value, timeout=timeout)
 
@@ -75,6 +77,7 @@ class BaseAsyncClient:
         self.base_url = base_url
         headers = {"Authorization": f"Bearer {self.api_key}"}
         self._gql_client = AsyncGQLClient(base_url + Routes.GQL.value, headers=headers)
+        self._gql_client.get_data = graphql_multi_error_handler(self._gql_client.get_data)
         self._gql_client.http_client.timeout = timeout
         self._rest_client = httpx.AsyncClient(headers=headers, base_url=base_url + Routes.REST.value, timeout=timeout)
 

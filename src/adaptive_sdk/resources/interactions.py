@@ -5,7 +5,7 @@ from typing import List, Dict, Literal, TYPE_CHECKING
 from uuid import UUID
 
 from adaptive_sdk import input_types
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
+from adaptive_sdk.error_handling import rest_error_handler
 from adaptive_sdk.graphql_client import (
     CompletionGroupBy,
     CursorPageInput,
@@ -17,7 +17,7 @@ from adaptive_sdk.graphql_client import (
 )
 from adaptive_sdk.graphql_client.base_model import UNSET
 from adaptive_sdk.rest import rest_types
-from adaptive_sdk.utils import convert_optional_UUID, _validate_response
+from adaptive_sdk.utils import convert_optional_UUID
 
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
 
@@ -64,11 +64,11 @@ class Interactions(SyncAPIResource, UseCaseResource):
 
     def create(
         self,
-        model: str,
         completion: str,
+        model: str | None = None,
         prompt: str | None = None,
-        messages: list[dict[str, str]] | None = None,
-        feedbacks: list[input_types.InteractionFeedbackDict] | None = None,
+        messages: List[dict[str, str]] | None = None,
+        feedbacks: List[input_types.InteractionFeedbackDict] | None = None,
         user: str | UUID | None = None,
         session_id: str | UUID | None = None,
         use_case: str | None = None,
@@ -107,7 +107,7 @@ class Interactions(SyncAPIResource, UseCaseResource):
             created_at=created_at,
         )
         r = self._rest_client.post(ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.AddInteractionsResponse.model_validate(r.json())
 
     def list(
@@ -181,11 +181,11 @@ class AsyncInteractions(AsyncAPIResource, UseCaseResource):
 
     async def create(
         self,
-        model: str,
         completion: str,
+        model: str | None = None,
         prompt: str | None = None,
-        messages: list[dict[str, str]] | None = None,
-        feedbacks: list[input_types.InteractionFeedbackDict] | None = None,
+        messages: List[dict[str, str]] | None = None,
+        feedbacks: List[input_types.InteractionFeedbackDict] | None = None,
         user: str | UUID | None = None,
         session_id: str | UUID | None = None,
         use_case: str | None = None,
@@ -221,7 +221,7 @@ class AsyncInteractions(AsyncAPIResource, UseCaseResource):
             labels=labels,
         )
         r = await self._rest_client.post(ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.AddInteractionsResponse.model_validate(r.json())
 
     async def list(

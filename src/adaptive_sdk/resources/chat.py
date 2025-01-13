@@ -1,12 +1,12 @@
 from __future__ import annotations
 import json
 from uuid import UUID
-from typing import Dict, List, AsyncGenerator, Generator, Literal, Sequence, overload, TYPE_CHECKING
+from typing import Dict, List, AsyncGenerator, Generator, Literal, overload, TYPE_CHECKING
 
 from adaptive_sdk import input_types
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
+from adaptive_sdk.error_handling import rest_error_handler
 from adaptive_sdk.rest import rest_types
-from adaptive_sdk.utils import convert_optional_UUID, _validate_response, get_full_model_path
+from adaptive_sdk.utils import convert_optional_UUID, get_full_model_path
 
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
 
@@ -129,12 +129,12 @@ class Chat(SyncAPIResource, UseCaseResource):
         if input.stream:
             return self._stream(input)
         r = self._rest_client.post(ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.ChatResponse.model_validate(r.json())
 
     def _stream(self, input: rest_types.ChatInput) -> Generator[rest_types.ChatResponseChunk, None, None]:
         with self._rest_client.stream("POST", ROUTE, json=input.model_dump(exclude_none=True)) as r:
-            _validate_response(r)
+            rest_error_handler(r)
             for chunk in r.iter_lines():
                 if chunk:
                     chunk_data = chunk[6:]
@@ -256,12 +256,12 @@ class AsyncChat(AsyncAPIResource, UseCaseResource):
         if input.stream:
             return self._stream(input)
         r = await self._rest_client.post(ROUTE, json=input.model_dump(exclude_none=True))
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.ChatResponse.model_validate(r.json())
 
     async def _stream(self, input: rest_types.ChatInput) -> AsyncGenerator[rest_types.ChatResponseChunk, None]:
         async with self._rest_client.stream("POST", ROUTE, json=input.model_dump(exclude_none=True)) as r:
-            _validate_response(r)
+            rest_error_handler(r)
             async for line in r.aiter_lines():
                 if line:
                     chunk_data = line[6:]

@@ -337,13 +337,17 @@
       "AddInteractionsRequest": {
         "type": "object",
         "required": [
-          "model_service",
           "use_case",
           "completion"
         ],
         "properties": {
           "model_service": {
-            "$ref": "#/components/schemas/IdOrKey"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IdOrKey"
+              }
+            ],
+            "nullable": true
           },
           "use_case": {
             "$ref": "#/components/schemas/IdOrKey"

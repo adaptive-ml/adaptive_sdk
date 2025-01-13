@@ -2,7 +2,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, TYPE_CHECKING
 
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
     DatasetCreate,
     Upload,

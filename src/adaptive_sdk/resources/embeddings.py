@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import Literal, TYPE_CHECKING
 from uuid import UUID
 
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
+from adaptive_sdk.error_handling import rest_error_handler
 from adaptive_sdk.rest import rest_types
-from adaptive_sdk.utils import convert_optional_UUID, _validate_response, get_full_model_path
+from adaptive_sdk.utils import convert_optional_UUID, get_full_model_path
 
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
 
@@ -53,7 +53,7 @@ class Embeddings(SyncAPIResource, UseCaseResource):
         r = self._rest_client.post(
             ROUTE, data=emb_input.model_dump_json(exclude_none=True), headers={"Content-Type": "application/json"}  # type: ignore
         )
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.EmbeddingsResponseList.model_validate(r.json())
 
 
@@ -95,5 +95,5 @@ class AsyncEmbeddings(AsyncAPIResource, UseCaseResource):
         r = await self._rest_client.post(
             ROUTE, data=emb_input.model_dump_json(exclude_none=True), headers={"Content-Type": "application/json"}  # type: ignore
         )
-        _validate_response(r)
+        rest_error_handler(r)
         return rest_types.EmbeddingsResponseList.model_validate(r.json())

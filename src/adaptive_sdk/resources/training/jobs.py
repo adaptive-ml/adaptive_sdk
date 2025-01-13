@@ -3,7 +3,6 @@ from typing import List, TYPE_CHECKING
 import humps
 
 from adaptive_sdk import input_types
-from adaptive_sdk.base_client import BaseAsyncClient, BaseSyncClient
 from adaptive_sdk.graphql_client import (
     ListTrainingJobsTrainingJobs,
     DescribeTrainingJobTrainingJob,

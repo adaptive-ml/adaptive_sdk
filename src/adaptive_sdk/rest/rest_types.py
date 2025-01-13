@@ -177,8 +177,8 @@ class AddInteractionsRequest(BaseModel):
     """@public"""
 
     model_service: Annotated[
-        str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
-    ]
+        Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+    ] = None
     use_case: Annotated[
         str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
     ]
@@ -340,7 +340,7 @@ class AddComparisonRequest(BaseModel):
     ] = None
     preferred_completion: Union[UUID, CompletionIdOrText1]
     other_completion: Union[UUID, CompletionIdOrText1]
-    tied: Optional[ComparisonTie]
+    tied: Optional[ComparisonTie] = None
     use_case: Annotated[
         Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
     ] = None
