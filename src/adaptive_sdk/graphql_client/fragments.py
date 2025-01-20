@@ -292,7 +292,7 @@ class EvaluationJobDataModelServices(ModelServiceData):
     pass
 
 
-class EvaluationJobDataJudge(ModelServiceData):
+class EvaluationJobDataJudge(ModelData):
     """@public"""
     pass
 
@@ -553,6 +553,38 @@ class TrainingJobDataCreatedBy(BaseModel):
     name: str
 
 
+class UserData(BaseModel):
+    """@public"""
+    id: Any
+    email: str
+    name: str
+    created_at: int = Field(alias='createdAt')
+    teams: List['UserDataTeams']
+
+
+class UserDataTeams(BaseModel):
+    """@public"""
+    team: 'UserDataTeamsTeam'
+    role: 'UserDataTeamsRole'
+
+
+class UserDataTeamsTeam(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    created_at: int = Field(alias='createdAt')
+
+
+class UserDataTeamsRole(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    created_at: int = Field(alias='createdAt')
+    permissions: List[str]
+
+
 AbCampaignCreateData.model_rebuild()
 MetricData.model_rebuild()
 AbCampaignDetailData.model_rebuild()
@@ -570,3 +602,4 @@ MetricDataAdmin.model_rebuild()
 ModelDataAdmin.model_rebuild()
 TrainingConfigOutputData.model_rebuild()
 TrainingJobData.model_rebuild()
+UserData.model_rebuild()

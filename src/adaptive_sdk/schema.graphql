@@ -443,7 +443,7 @@ type EvaluationJob {
   endedAt: Timestamp
   durationMs: Int
   modelServices: [ModelService!]!
-  judge: ModelService
+  judge: Model
   useCase: UseCase
   stages: [JobStageOutput!]!
   report: AbReport

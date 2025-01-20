@@ -65,7 +65,7 @@ class EvalJobs(SyncAPIResource, UseCaseResource):
             }
 
         else:
-            recipe_dict = {"faithfulness": "hey"}
+            recipe_dict = {"faithfulness": {"misc":"hey"}}
         recipe_input = EvaluationRecipeInput.model_validate(recipe_dict)
         input = EvaluationCreate(
             useCase=self.use_case_key(use_case),

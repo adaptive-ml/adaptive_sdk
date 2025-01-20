@@ -20,6 +20,7 @@ from .describe_ab_campaign import DescribeAbCampaign
 from .describe_dataset import DescribeDataset
 from .describe_evaluation_job import DescribeEvaluationJob
 from .describe_interaction import DescribeInteraction
+from .describe_me import DescribeMe
 from .describe_metric import DescribeMetric
 from .describe_metric_admin import DescribeMetricAdmin
 from .describe_model import DescribeModel
@@ -27,7 +28,7 @@ from .describe_model_admin import DescribeModelAdmin
 from .describe_training_job import DescribeTrainingJob
 from .describe_use_case import DescribeUseCase
 from .enums import CompletionGroupBy
-from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, DatasetCreate, EvaluationCreate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, OrderPair, TrainingJobInput, UpdateModelService, UseCaseCreate
+from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, DatasetCreate, EvaluationCreate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, OrderPair, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate
 from .link_metric import LinkMetric
 from .list_ab_campaigns import ListAbCampaigns
 from .list_datasets import ListDatasets
@@ -36,13 +37,16 @@ from .list_grouped_interactions import ListGroupedInteractions
 from .list_interactions import ListInteractions
 from .list_metrics import ListMetrics
 from .list_models import ListModels
+from .list_teams import ListTeams
 from .list_training_jobs import ListTrainingJobs
 from .list_use_cases import ListUseCases
+from .list_users import ListUsers
 from .load_dataset import LoadDataset
 from .me import Me
 from .terminate_model import TerminateModel
 from .unlink_metric import UnlinkMetric
 from .update_model import UpdateModel
+from .update_user import UpdateUser
 
 
 def gql(q: str) ->str:
@@ -706,7 +710,7 @@ class GQLClient(BaseClientOpenTelemetry):
                 ...ModelServiceData
               }
               judge {
-                ...ModelServiceData
+                ...ModelData
               }
               stages {
                 ...JobStageOutputData
@@ -841,6 +845,59 @@ class GQLClient(BaseClientOpenTelemetry):
             variables=variables, **kwargs)
         data = self.get_data(response)
         return AddHFModel.model_validate(data)
+
+    def update_user(self, input: TeamMemberSet, **kwargs: Any) ->UpdateUser:
+        query = gql(
+            """
+            mutation UpdateUser($input: TeamMemberSet!) {
+              setTeamMember(input: $input) {
+                user {
+                  ...UserData
+                }
+                team {
+                  id
+                  key
+                  name
+                  createdAt
+                }
+                role {
+                  id
+                  key
+                  name
+                  createdAt
+                  permissions
+                }
+              }
+            }
+
+            fragment UserData on User {
+              id
+              email
+              name
+              createdAt
+              teams {
+                team {
+                  id
+                  key
+                  name
+                  createdAt
+                }
+                role {
+                  id
+                  key
+                  name
+                  createdAt
+                  permissions
+                }
+              }
+            }
+            """
+            )
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='UpdateUser',
+            variables=variables, **kwargs)
+        data = self.get_data(response)
+        return UpdateUser.model_validate(data)
 
     def list_datasets(self, input: str, **kwargs: Any) ->ListDatasets:
         query = gql(
@@ -1378,10 +1435,10 @@ class GQLClient(BaseClientOpenTelemetry):
         data = self.get_data(response)
         return DescribeAbCampaign.model_validate(data)
 
-    def me(self, **kwargs: Any) ->Me:
+    def describe_me(self, **kwargs: Any) ->DescribeMe:
         query = gql(
             """
-            query Me {
+            query DescribeMe {
               me {
                 id
                 email
@@ -1392,10 +1449,10 @@ class GQLClient(BaseClientOpenTelemetry):
             """
             )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='Me', variables
-            =variables, **kwargs)
+        response = self.execute(query=query, operation_name='DescribeMe',
+            variables=variables, **kwargs)
         data = self.get_data(response)
-        return Me.model_validate(data)
+        return DescribeMe.model_validate(data)
 
     def list_interactions(self, filter: ListCompletionsFilterInput, page:
         CursorPageInput, order: Union[Optional[List[OrderPair]], UnsetType]
@@ -2072,7 +2129,7 @@ class GQLClient(BaseClientOpenTelemetry):
                 ...ModelServiceData
               }
               judge {
-                ...ModelServiceData
+                ...ModelData
               }
               stages {
                 ...JobStageOutputData
@@ -2236,7 +2293,7 @@ class GQLClient(BaseClientOpenTelemetry):
                 ...ModelServiceData
               }
               judge {
-                ...ModelServiceData
+                ...ModelData
               }
               stages {
                 ...JobStageOutputData
@@ -2342,6 +2399,105 @@ class GQLClient(BaseClientOpenTelemetry):
             'ListEvaluationJobs', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListEvaluationJobs.model_validate(data)
+
+    def list_users(self, **kwargs: Any) ->ListUsers:
+        query = gql(
+            """
+            query ListUsers {
+              users {
+                ...UserData
+              }
+            }
+
+            fragment UserData on User {
+              id
+              email
+              name
+              createdAt
+              teams {
+                team {
+                  id
+                  key
+                  name
+                  createdAt
+                }
+                role {
+                  id
+                  key
+                  name
+                  createdAt
+                  permissions
+                }
+              }
+            }
+            """
+            )
+        variables: Dict[str, object] = {}
+        response = self.execute(query=query, operation_name='ListUsers',
+            variables=variables, **kwargs)
+        data = self.get_data(response)
+        return ListUsers.model_validate(data)
+
+    def me(self, **kwargs: Any) ->Me:
+        query = gql(
+            """
+            query Me {
+              me {
+                ...UserData
+                apiKeys {
+                  key
+                  createdAt
+                }
+              }
+            }
+
+            fragment UserData on User {
+              id
+              email
+              name
+              createdAt
+              teams {
+                team {
+                  id
+                  key
+                  name
+                  createdAt
+                }
+                role {
+                  id
+                  key
+                  name
+                  createdAt
+                  permissions
+                }
+              }
+            }
+            """
+            )
+        variables: Dict[str, object] = {}
+        response = self.execute(query=query, operation_name='Me', variables
+            =variables, **kwargs)
+        data = self.get_data(response)
+        return Me.model_validate(data)
+
+    def list_teams(self, **kwargs: Any) ->ListTeams:
+        query = gql(
+            """
+            query ListTeams {
+              teams {
+                id
+                key
+                name
+                createdAt
+              }
+            }
+            """
+            )
+        variables: Dict[str, object] = {}
+        response = self.execute(query=query, operation_name='ListTeams',
+            variables=variables, **kwargs)
+        data = self.get_data(response)
+        return ListTeams.model_validate(data)
 
     async def execute_custom_operation(self, *fields: GraphQLField,
         operation_type: OperationType, operation_name: str) ->Dict[str, Any]:

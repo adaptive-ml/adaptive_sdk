@@ -28,6 +28,7 @@ class Adaptive(BaseSyncClient, UseCaseClient):
         self.models: resources.Models = resources.Models(self)
         self.training: resources.Training = resources.Training(self)
         self.use_cases: resources.UseCase = resources.UseCase(self)
+        self.users: resources.Users = resources.Users(self)
 
     @property
     def default_use_case(self) -> str | None:
@@ -71,6 +72,7 @@ class AsyncAdaptive(BaseAsyncClient, UseCaseClient):
         self.models: resources.AsyncModels = resources.AsyncModels(self)
         self.training: resources.AsyncTraining = resources.AsyncTraining(self)
         self.use_cases: resources.AsyncUseCase = resources.AsyncUseCase(self)
+        self.users: resources.AsyncUsers = resources.AsyncUsers(self)
 
     @property
     def default_use_case(self) -> str | None:

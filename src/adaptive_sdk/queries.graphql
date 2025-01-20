@@ -97,6 +97,27 @@ mutation CancelEvaluationJob($id: UUID!) {
 mutation AddHFModel($input: AddHFModelInput!) {
   importHfModel(input: $input)
 }
+
+mutation UpdateUser($input: TeamMemberSet!) {
+  setTeamMember(input: $input) {
+    user{
+      ...UserData
+    }
+    team {
+      id 
+      key 
+      name
+      createdAt
+    }
+    role {
+      id 
+      key
+      name
+      createdAt
+      permissions
+    }
+  }
+}
 ################# Queries
 
 query ListDatasets($input: IdOrKey!) {
@@ -181,15 +202,6 @@ query DescribeAbCampaign($input: IdOrKey!) {
     report {
       ...AbCampaignReportData
     }
-  }
-}
-
-query Me {
-  me {
-    id
-    email
-    name
-    createdAt
   }
 }
 
@@ -290,7 +302,54 @@ query ListEvaluationJobs {
     ...EvaluationJobData
   }
 }
+
+query ListUsers {
+  users {
+    ...UserData
+  }
+}
+
+query Me {
+  me {
+    ...UserData
+    apiKeys {
+    key
+    createdAt
+    }
+  }
+}
+
+query ListTeams {
+  teams {
+    id 
+    key
+    name
+    createdAt
+  }
+}
+
 ################# Fragments
+fragment UserData on User {
+  id
+  email
+  name
+  createdAt
+  teams {
+    team {
+      id 
+      key 
+      name 
+      createdAt
+    }
+    role {
+      id 
+      key 
+      name
+      createdAt
+      permissions
+    }
+  }
+}
 
 fragment EvaluationJobData on EvaluationJob {
   id 
@@ -304,7 +363,7 @@ fragment EvaluationJobData on EvaluationJob {
     ...ModelServiceData
   }
   judge {
-    ...ModelServiceData
+    ...ModelData
   }
   stages {
     ...JobStageOutputData

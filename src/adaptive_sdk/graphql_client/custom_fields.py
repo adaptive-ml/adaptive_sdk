@@ -838,8 +838,8 @@ class EvaluationJobFields(GraphQLField):
         return ModelServiceFields('model_services')
 
     @classmethod
-    def judge(cls) ->'ModelServiceFields':
-        return ModelServiceFields('judge')
+    def judge(cls) ->'ModelFields':
+        return ModelFields('judge')
 
     @classmethod
     def use_case(cls) ->'UseCaseFields':
@@ -868,8 +868,9 @@ class EvaluationJobFields(GraphQLField):
 
     def fields(self, *subfields: Union[EvaluationJobGraphQLField,
         'AbReportFields', 'DatasetFields', 'EvaluationRecipeUnion',
-        'JobStageOutputFields', 'MetricFields', 'ModelServiceFields',
-        'UseCaseFields', 'UserFields']) ->'EvaluationJobFields':
+        'JobStageOutputFields', 'MetricFields', 'ModelFields',
+        'ModelServiceFields', 'UseCaseFields', 'UserFields']
+        ) ->'EvaluationJobFields':
         """Subfields should come from the EvaluationJobFields class"""
         self._subfields.extend(subfields)
         return self

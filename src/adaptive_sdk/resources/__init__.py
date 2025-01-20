@@ -19,6 +19,7 @@ from .training import (
     AsyncTrainingJobs,
 )
 from .use_cases import UseCase, AsyncUseCase
+from .users import Users, AsyncUsers
 
 __all__ = [
     "ABTests",
@@ -34,6 +35,7 @@ __all__ = [
     "Training",
     "TrainingJobs",
     "UseCase",
+    "Users",
     "AsyncABTests",
     "AsyncChat",
     "AsyncCompletions",
@@ -47,4 +49,5 @@ __all__ = [
     "AsyncTraining",
     "AsyncTrainingJobs",
     "AsyncUseCase",
+    "AsyncUsers"
 ]
