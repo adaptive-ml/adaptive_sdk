@@ -5,17 +5,35 @@ description = "Python SDK for Adaptive Engine"
 authors = [
   { name = "Vincent Debergue", email = "vincent@adaptive-ml.com" },
   { name = "Joao Moura", email = "joao@adaptive-ml.com" },
+  { name = "Yacine Bouraoui", email = "yacine@adaptive-ml.com" },
+
 ]
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["httpx >= 0.27.2", "gql >= 3.5.0", "pydantic[email] >= 2.9.0", "pyhumps >= 3.8.0"]
+dependencies = [
+  "httpx >= 0.27.2",
+  "gql >= 3.5.0",
+  "pydantic[email] >= 2.9.0",
+  "pyhumps >= 3.8.0",
+  "fastapi >= 0.115.8",
+  "uvicorn >= 0.34.0",
+]
 
 [project.optional-dependencies]
-dev = ["ariadne-codegen >= 0.14.0"]
+dev = [
+  "ariadne-codegen >= 0.14.0",
+  "datamodel-code-generator >= 0.25.8",
+  "astor >= 0.8.1",
+  "pdoc >= 15.0.1",
+  "toml>=0.10.2",
+  "black==25.1.0",
+  "pytest==8.3.5",
+  "mypy>=1.15.0",
+]
 
 [tool.ariadne-codegen]
-schema_path = "src/adaptive_sdk/schema.graphql"
-queries_path = "src/adaptive_sdk/queries.graphql"
+schema_path = "schema.graphql"
+queries_path = "queries.graphql"
 target_package_name = "graphql_client"
 target_package_path = "src/adaptive_sdk"
 client_name = "GQLClient"
@@ -31,3 +49,12 @@ type = "int"
 type = "int | str"
 [tool.ariadne-codegen.scalars.TimestampSec]
 type = "int"
+
+[tool.mypy]
+files = "src/adaptive_sdk"
+exclude = "src/adaptive_sdk/graphql_client/"
+allow_redefinition = true
+
+
+[tool.black]
+required-version = '25.1.0'

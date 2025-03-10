@@ -5,12 +5,15 @@ from .fragments import EvaluationJobData
 
 class CreateEvaluationJob(BaseModel):
     """@public"""
-    create_evaluation_job: 'CreateEvaluationJobCreateEvaluationJob' = Field(
-        alias='createEvaluationJob')
+
+    create_evaluation_job: "CreateEvaluationJobCreateEvaluationJob" = Field(
+        alias="createEvaluationJob"
+    )
 
 
 class CreateEvaluationJobCreateEvaluationJob(EvaluationJobData):
     """@public"""
+
     pass
 
 

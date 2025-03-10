@@ -1,7 +1,7 @@
 from copy import deepcopy
 from adaptive_sdk import input_types
 
-default_sample_config = {"selection_type": "ALL"}
+default_sample_config = {"datasource": {"completions": {"selection_type": "ALL"}}}
 
 default_base_training_params = {
     "learning_rate": 0.00001,
@@ -12,8 +12,6 @@ default_base_training_params = {
 
 default_training_metadata = {
     "training_type": "PARAMETER_EFFICIENT",
-    "alignment_method": "PPO",
-    "parameters": {"ppo": {"kl_div_coeff": 0.01}},
 }
 
 
@@ -32,29 +30,19 @@ def update_training_config_with_defaults(config: input_types.AdaptRequestConfigI
     if "training_metadata" not in new_config["training_config"]:
         new_config["training_config"]["training_metadata"] = {}  # type:ignore
 
-    new_config["sample_config"] = {  # type:ignore
-        **default_sample_config,
-        **new_config["sample_config"],
+    new_config["sample_config"] = {
+        **deepcopy(default_sample_config),  # type: ignore[typeddict-item]
+        **new_config["sample_config"],  # type: ignore[typeddict-item]
     }
 
-    new_config["training_config"]["base_training_params"] = {  # type:ignore
-        **default_base_training_params,
-        **new_config["training_config"]["base_training_params"],
+    new_config["training_config"]["base_training_params"] = {
+        **deepcopy(default_base_training_params),  # type: ignore[typeddict-item]
+        **new_config["training_config"]["base_training_params"],  # type: ignore[typeddict-item]
     }
 
-    new_config["training_config"]["training_metadata"] = {  # type:ignore
-        **default_training_metadata,
-        **new_config["training_config"]["training_metadata"],
+    new_config["training_config"]["training_metadata"] = {
+        **deepcopy(default_training_metadata),  # type: ignore[typeddict-item]
+        **new_config["training_config"]["training_metadata"],  # type: ignore[typeddict-item]
     }
-
-    if new_config["training_config"]["training_metadata"]["alignment_method"] == "DPO":
-        new_config["training_config"]["training_metadata"]["parameters"]["dpo"] = new_config["training_config"][  # type: ignore
-            "training_metadata"
-        ][
-            "parameters"
-        ][
-            "ppo"
-        ]
-        del new_config["training_config"]["training_metadata"]["parameters"]["ppo"]  # type: ignore
 
     return new_config

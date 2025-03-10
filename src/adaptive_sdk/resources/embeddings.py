@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Literal, TYPE_CHECKING
 from uuid import UUID
-
+from typing_extensions import override
 from adaptive_sdk.error_handling import rest_error_handler
 from adaptive_sdk.rest import rest_types
 from adaptive_sdk.utils import convert_optional_UUID, get_full_model_path
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 ROUTE = "/embeddings"
 
 
-class Embeddings(SyncAPIResource, UseCaseResource):
+class Embeddings(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with embeddings.
     """
@@ -57,7 +57,7 @@ class Embeddings(SyncAPIResource, UseCaseResource):
         return rest_types.EmbeddingsResponseList.model_validate(r.json())
 
 
-class AsyncEmbeddings(AsyncAPIResource, UseCaseResource):
+class AsyncEmbeddings(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with embeddings.
     """

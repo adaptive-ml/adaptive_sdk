@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
 class Training:
     def __init__(self, client: Adaptive) -> None:
-        self.jobs = TrainingJobs(client)
+        self.jobs: TrainingJobs = TrainingJobs(client)
 
 
 class AsyncTraining:
     def __init__(self, client: AsyncAdaptive) -> None:
-        self.jobs = AsyncTrainingJobs(client)
+        self.jobs: AsyncTrainingJobs = AsyncTrainingJobs(client)

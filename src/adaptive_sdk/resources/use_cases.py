@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class UseCase(SyncAPIResource, UseCaseResource):
+class UseCase(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with use cases.
     """
@@ -61,7 +61,7 @@ class UseCase(SyncAPIResource, UseCaseResource):
         return self._gql_client.describe_use_case(self.use_case_key(use_case)).use_case
 
 
-class AsyncUseCase(AsyncAPIResource, UseCaseResource):
+class AsyncUseCase(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with use cases.
     """

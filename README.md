@@ -17,13 +17,11 @@ Please refer to the public SDK [documentation](https://docs.adaptive-ml.com/intr
 
 Basic clients instantiation:
 ```python
-from adaptive_sdk import Adaptive, AdaptiveAdmin
-# Similar async clients are available 
-# from adaptive_sdk import AsyncAdaptive, AsyncAdaptiveAdmin
+from adaptive_sdk import Adaptive
+# Similar async client is available AsyncAdaptive
 
-# Admin client
-admin_client = AdaptiveAdmin(base_url="YOUR_ADAPTIVE_URL", api_key="ADAPTIVE_API_KEY")
-# Use case-bounded client
-client = Adaptive(use_case="YOUR_USE_CASE_KEY", base_url="YOUR_ADAPTIVE_URL", api_key="ADAPTIVE_API_KEY")
+# Adaptive client
+client = AdaptiveAdmin(base_url="YOUR_ADAPTIVE_URL", api_key="ADAPTIVE_API_KEY")
+client.set_default_use_case("my_use_case_key")  # Set default use case for client
 ```
 

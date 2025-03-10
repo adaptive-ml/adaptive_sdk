@@ -5,12 +5,15 @@ from .fragments import AbCampaignCreateData
 
 class CreateAbCampaign(BaseModel):
     """@public"""
-    create_ab_campaign: 'CreateAbCampaignCreateAbCampaign' = Field(alias=
-        'createAbCampaign')
+
+    create_ab_campaign: "CreateAbCampaignCreateAbCampaign" = Field(
+        alias="createAbCampaign"
+    )
 
 
 class CreateAbCampaignCreateAbCampaign(AbCampaignCreateData):
     """@public"""
+
     pass
 
 

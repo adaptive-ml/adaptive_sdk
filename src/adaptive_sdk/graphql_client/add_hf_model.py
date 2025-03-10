@@ -4,4 +4,5 @@ from .base_model import BaseModel
 
 class AddHFModel(BaseModel):
     """@public"""
-    import_hf_model: str = Field(alias='importHfModel')
+
+    import_hf_model: str = Field(alias="importHfModel")

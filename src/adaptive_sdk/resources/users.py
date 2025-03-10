@@ -1,7 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence, List
 
-from adaptive_sdk.graphql_client import UserData, TeamMemberSet, UpdateUserSetTeamMember, ListTeamsTeams
+from adaptive_sdk.graphql_client import (
+    UserData,
+    TeamMemberSet,
+    UpdateUserSetTeamMember,
+    ListTeamsTeams,
+)
 
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
 
@@ -9,7 +14,7 @@ if TYPE_CHECKING:
     from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class Users(SyncAPIResource, UseCaseResource):
+class Users(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to manage users and permissions.
     """
@@ -17,7 +22,6 @@ class Users(SyncAPIResource, UseCaseResource):
     def __init__(self, client: Adaptive) -> None:
         SyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
-        self.teams = self.Teams(client)
 
     def me(self) -> UserData | None:
         """
@@ -44,16 +48,8 @@ class Users(SyncAPIResource, UseCaseResource):
         input = TeamMemberSet(user=email, team=team, role=role)
         return self._gql_client.update_user(input).set_team_member
 
-    class Teams(SyncAPIResource, UseCaseResource):
-        def __init__(self, client: Adaptive) -> None:
-            SyncAPIResource.__init__(self, client)
-            UseCaseResource.__init__(self, client)
 
-        def list(self) -> List[ListTeamsTeams]:
-            return self._gql_client.list_teams().teams
-
-
-class AsyncUsers(AsyncAPIResource, UseCaseResource):
+class AsyncUsers(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to manage users and permissions.
     """
@@ -61,7 +57,6 @@ class AsyncUsers(AsyncAPIResource, UseCaseResource):
     def __init__(self, client: AsyncAdaptive) -> None:
         AsyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
-        self.teams = self.Teams(client)
 
     async def me(self) -> UserData | None:
         """
@@ -90,11 +85,3 @@ class AsyncUsers(AsyncAPIResource, UseCaseResource):
         input = TeamMemberSet(user=email, team=team, role=role)
         result = await self._gql_client.update_user(input)
         return result.set_team_member
-
-    class Teams(AsyncAPIResource, UseCaseResource):
-        def __init__(self, client: AsyncAdaptive) -> None:
-            AsyncAPIResource.__init__(self, client)
-            UseCaseResource.__init__(self, client)
-
-        async def list(self) -> List[ListTeamsTeams]:
-            return (await self._gql_client.list_teams()).teams

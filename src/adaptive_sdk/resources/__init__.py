@@ -12,6 +12,9 @@ from .evaluation import (
 from .feedback import Feedback, AsyncFeedback
 from .interactions import Interactions, AsyncInteractions
 from .models import Models, AsyncModels
+from .permissions import Permissions, AsyncPermissions
+from .roles import Roles, AsyncRoles
+from .teams import Teams, AsyncTeams
 from .training import (
     Training,
     AsyncTraining,
@@ -32,6 +35,9 @@ __all__ = [
     "Feedback",
     "Interactions",
     "Models",
+    "Permissions",
+    "Roles",
+    "Teams",
     "Training",
     "TrainingJobs",
     "UseCase",
@@ -46,8 +52,11 @@ __all__ = [
     "AsyncFeedback",
     "AsyncInteractions",
     "AsyncModels",
+    "AsyncPermissions",
+    "AsyncRoles",
+    "AsyncTeams",
     "AsyncTraining",
     "AsyncTrainingJobs",
     "AsyncUseCase",
-    "AsyncUsers"
+    "AsyncUsers",
 ]

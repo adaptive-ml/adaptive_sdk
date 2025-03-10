@@ -6,12 +6,13 @@ from .fragments import TrainingJobData
 
 class ListTrainingJobs(BaseModel):
     """@public"""
-    training_jobs: List['ListTrainingJobsTrainingJobs'] = Field(alias=
-        'trainingJobs')
+
+    training_jobs: List["ListTrainingJobsTrainingJobs"] = Field(alias="trainingJobs")
 
 
 class ListTrainingJobsTrainingJobs(TrainingJobData):
     """@public"""
+
     pass
 
 

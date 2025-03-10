@@ -1,6 +1,6 @@
 """
 This file serves the purpose of automatic SDK docs generation.
-All output rest types are included in __all__ so they are exported to the reference.
+All output rest types are included in __all__ so they are exported to the reference docs.
 """
 
 from .rest_types import (

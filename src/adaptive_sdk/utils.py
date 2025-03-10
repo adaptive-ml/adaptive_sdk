@@ -30,11 +30,11 @@ def validate_comparison_completion(
 ) -> UUID | rest_types.CompletionIdOrText1:
 
     if isinstance(completion, dict):
-        processed_completion = rest_types.CompletionIdOrText1(text=completion["text"], model=completion["model"])
+        return rest_types.CompletionIdOrText1(
+            text=completion["text"], model=completion["model"]
+        )
     else:
-        processed_completion = convert_optional_UUID(completion)
-
-    return processed_completion
+        return convert_optional_UUID(completion)
 
 
 def get_full_model_path(use_case_key: str, model_key: str | None):

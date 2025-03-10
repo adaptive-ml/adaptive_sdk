@@ -17,6 +17,7 @@ class AddInteractionsResponse(BaseModel):
 class ChatChoiceMessage(BaseModel):
     """@public"""
 
+    id: str
     role: str
     content: str
 
@@ -96,6 +97,7 @@ class GenerateEmbeddingsInput(BaseModel):
     encoding_format: Optional[EmbeddingsEncodingFormat] = None
     dimensions: Annotated[Optional[int], Field(ge=0)] = None
     user: Optional[UUID] = None
+    session_id: Optional[UUID] = None
 
 
 class GenerateParameters(BaseModel):
@@ -112,7 +114,11 @@ class InteractionFeedback(BaseModel):
     """@public"""
 
     metric: Annotated[
-        str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        str,
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ]
     value: Annotated[
         Any,
@@ -123,9 +129,10 @@ If the metric is Scalar, accepts number"""
     ]
     reason: Optional[str] = None
     details: Optional[str] = None
-    created_at: Annotated[Optional[str], Field(description="Input date field", examples=["2024-02-21T09:51:03Z"])] = (
-        None
-    )
+    created_at: Annotated[
+        Optional[str],
+        Field(description="Input date field", examples=["2024-02-21T09:51:03Z"]),
+    ] = None
 
 
 class OutcomeOutput(BaseModel):
@@ -143,7 +150,10 @@ class StreamOptions(BaseModel):
 class Timestamp(RootModel[float]):
     """@public"""
 
-    root: Annotated[float, Field(description="Unix Timestamp in milliseconds", examples=["1720712536911"])]
+    root: Annotated[
+        float,
+        Field(description="Unix Timestamp in milliseconds", examples=["1720712536911"]),
+    ]
 
 
 class Usage(BaseModel):
@@ -166,7 +176,11 @@ If the metric is Scalar, accepts number"""
     ]
     completion_id: UUID
     metric: Annotated[
-        str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        str,
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ]
     user_id: Optional[UUID] = None
     reason: Optional[FeedbackReason] = None
@@ -177,10 +191,18 @@ class AddInteractionsRequest(BaseModel):
     """@public"""
 
     model_service: Annotated[
-        Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        Optional[str],
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ] = None
     use_case: Annotated[
-        str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        str,
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ]
     prompt: Optional[str] = None
     messages: Optional[List[ChatMessage]] = None
@@ -188,11 +210,16 @@ class AddInteractionsRequest(BaseModel):
     feedbacks: Optional[List[InteractionFeedback]] = None
     user: Optional[UUID] = None
     session_id: Optional[UUID] = None
-    created_at: Annotated[Optional[str], Field(description="Input date field", examples=["2024-02-21T09:51:03Z"])] = (
-        None
-    )
+    created_at: Annotated[
+        Optional[str],
+        Field(description="Input date field", examples=["2024-02-21T09:51:03Z"]),
+    ] = None
     ab_campaign: Annotated[
-        Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        Optional[str],
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ] = None
     labels: Optional[Dict[str, str]] = None
 
@@ -208,7 +235,11 @@ If the metric is Scalar, accepts number"""
         ),
     ]
     metric: Annotated[
-        str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        str,
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ]
     session_id: UUID
     user_id: Optional[UUID] = None
@@ -239,13 +270,18 @@ class ChatInput(GenerateParameters):
     session_id: Optional[UUID] = None
     user: Optional[UUID] = None
     ab_campaign: Annotated[
-        Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        Optional[str],
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ] = None
     n: Annotated[Optional[int], Field(ge=0)] = None
     labels: Optional[Dict[str, str]] = None
     metadata: Optional[Dict[str, str]] = None
     system_prompt_args: Annotated[
-        Optional[Dict[str, Any]], Field(description="Will be used to render system prompt template")
+        Optional[Dict[str, Any]],
+        Field(description="Will be used to render system prompt template"),
     ] = None
     tags: Optional[List[str]] = None
 
@@ -254,7 +290,9 @@ class ChatResponse(BaseModel):
     """@public"""
 
     id: str
-    created: Annotated[float, Field(description="Unix Timestamp in seconds", examples=["1720712536"])]
+    created: Annotated[
+        float, Field(description="Unix Timestamp in seconds", examples=["1720712536"])
+    ]
     choices: List[ChatChoice]
     session_id: UUID
     usage: Usage
@@ -265,7 +303,9 @@ class ChatResponseChunk(BaseModel):
 
     id: str
     choices: List[Delta]
-    created: Annotated[float, Field(description="Unix Timestamp in seconds", examples=["1720712536"])]
+    created: Annotated[
+        float, Field(description="Unix Timestamp in seconds", examples=["1720712536"])
+    ]
     session_id: UUID
     usage: Optional[Usage] = None
 
@@ -275,7 +315,11 @@ class CompletionIdOrText1(BaseModel):
 
     text: str
     model: Annotated[
-        str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        str,
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ]
 
 
@@ -307,7 +351,11 @@ class GenerateInput(GenerateParameters):
     session_id: Optional[UUID] = None
     user: Optional[UUID] = None
     ab_campaign: Annotated[
-        Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        Optional[str],
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ] = None
     n: Annotated[Optional[int], Field(ge=0)] = None
     metadata: Optional[Dict[str, str]] = None
@@ -319,7 +367,9 @@ class GenerateResponse(BaseModel):
     """@public"""
 
     id: str
-    created: Annotated[float, Field(description="Unix Timestamp in seconds", examples=["1720712536"])]
+    created: Annotated[
+        float, Field(description="Unix Timestamp in seconds", examples=["1720712536"])
+    ]
     choices: List[GenerateChoice]
     usage: Usage
 
@@ -328,20 +378,32 @@ class AddComparisonRequest(BaseModel):
     """@public"""
 
     metric: Annotated[
-        str, Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        str,
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ]
     prompt: Annotated[
         Optional[str],
-        Field(description="Required (or messages) when using raw text for completion, ignored if using ids"),
+        Field(
+            description="Required (or messages) when using raw text for completion, ignored if using ids"
+        ),
     ] = None
     messages: Annotated[
         Optional[List[ChatMessage]],
-        Field(description="Required (or prompt) when using raw text for completion, ignored if using ids"),
+        Field(
+            description="Required (or prompt) when using raw text for completion, ignored if using ids"
+        ),
     ] = None
     preferred_completion: Union[UUID, CompletionIdOrText1]
     other_completion: Union[UUID, CompletionIdOrText1]
     tied: Optional[ComparisonTie] = None
     use_case: Annotated[
-        Optional[str], Field(description="id or key of the entity", examples=["76d1fab3-214c-47ef-bb04-16270639bf89"])
+        Optional[str],
+        Field(
+            description="id or key of the entity",
+            examples=["76d1fab3-214c-47ef-bb04-16270639bf89"],
+        ),
     ] = None
     user_id: Optional[UUID] = None

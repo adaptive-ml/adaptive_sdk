@@ -9,20 +9,22 @@ from adaptive_sdk.graphql_client import (
     AijudgeEvaluation,
     EvaluationRecipeInput,
     EvaluationDatasource,
-    CreateEvaluationJobCreateEvaluationJob,
+    EvaluationJobData,
 )
 from adaptive_sdk import input_types
 from ..base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class EvalJobs(SyncAPIResource, UseCaseResource):
+class EvalJobs(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with evaluation jobs.
     """
 
+    @override
     def __init__(self, client: Adaptive) -> None:
         SyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
@@ -36,7 +38,7 @@ class EvalJobs(SyncAPIResource, UseCaseResource):
         custom_eval_config: input_types.CustomRecipe | None = None,
         name: str | None = None,
         use_case: str | None = None,
-    ) -> CreateEvaluationJobCreateEvaluationJob:
+    ) -> EvaluationJobData:
         """
         Create a new evaluation job.
 
@@ -65,11 +67,15 @@ class EvalJobs(SyncAPIResource, UseCaseResource):
             }
 
         else:
-            recipe_dict = {"faithfulness": {"misc":"hey"}}
+            recipe_dict = {"faithfulness": {"misc": "hey"}}
         recipe_input = EvaluationRecipeInput.model_validate(recipe_dict)
         input = EvaluationCreate(
             useCase=self.use_case_key(use_case),
-            kind=EvaluationKind(aijudge=AijudgeEvaluation(datasource=ds_input, judge=judge_model, recipe=recipe_input)),
+            kind=EvaluationKind(
+                aijudge=AijudgeEvaluation(
+                    datasource=ds_input, judge=judge_model, recipe=recipe_input
+                )
+            ),
             modelServices=models,
             name=name,
         )
@@ -85,7 +91,7 @@ class EvalJobs(SyncAPIResource, UseCaseResource):
         return self._gql_client.describe_evaluation_job(id=job_id).evaluation_job
 
 
-class AsyncEvalJobs(AsyncAPIResource, UseCaseResource):
+class AsyncEvalJobs(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     def __init__(self, client: AsyncAdaptive) -> None:
         AsyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
@@ -99,7 +105,7 @@ class AsyncEvalJobs(AsyncAPIResource, UseCaseResource):
         custom_eval_config: input_types.CustomRecipe | None = None,
         name: str | None = None,
         use_case: str | None = None,
-    ) -> CreateEvaluationJobCreateEvaluationJob:
+    ) -> EvaluationJobData:
         """
         Create a new evaluation job.
 
@@ -128,11 +134,15 @@ class AsyncEvalJobs(AsyncAPIResource, UseCaseResource):
             }
 
         else:
-            recipe_dict = {"faithfulness": "hey"}
+            recipe_dict = {"faithfulness": "hey"}  # type: ignore[dict-item]
         recipe_input = EvaluationRecipeInput.model_validate(recipe_dict)
         input = EvaluationCreate(
             useCase=self.use_case_key(use_case),
-            kind=EvaluationKind(aijudge=AijudgeEvaluation(datasource=ds_input, judge=judge_model, recipe=recipe_input)),
+            kind=EvaluationKind(
+                aijudge=AijudgeEvaluation(
+                    datasource=ds_input, judge=judge_model, recipe=recipe_input
+                )
+            ),
             modelServices=models,
             name=name,
         )
@@ -140,7 +150,9 @@ class AsyncEvalJobs(AsyncAPIResource, UseCaseResource):
         return result.create_evaluation_job
 
     async def cancel(self, job_id: str) -> str:
-        return (await self._gql_client.cancel_evaluation_job(id=job_id)).cancel_evaluation_job
+        return (
+            await self._gql_client.cancel_evaluation_job(id=job_id)
+        ).cancel_evaluation_job
 
     async def list(self) -> List[ListEvaluationJobsEvaluationJobs]:
         result = await self._gql_client.list_evaluation_jobs()

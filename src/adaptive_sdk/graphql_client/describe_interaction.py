@@ -5,11 +5,13 @@ from .fragments import CompletionData
 
 class DescribeInteraction(BaseModel):
     """@public"""
-    completion: Optional['DescribeInteractionCompletion']
+
+    completion: Optional["DescribeInteractionCompletion"]
 
 
 class DescribeInteractionCompletion(CompletionData):
     """@public"""
+
     pass
 
 

@@ -5,11 +5,13 @@ from .fragments import MetricDataAdmin
 
 class DescribeMetricAdmin(BaseModel):
     """@public"""
-    metric: Optional['DescribeMetricAdminMetric']
+
+    metric: Optional["DescribeMetricAdminMetric"]
 
 
 class DescribeMetricAdminMetric(MetricDataAdmin):
     """@public"""
+
     pass
 
 

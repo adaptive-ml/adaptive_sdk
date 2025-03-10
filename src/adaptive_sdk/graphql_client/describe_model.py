@@ -5,16 +5,19 @@ from .fragments import ModelData
 
 class DescribeModel(BaseModel):
     """@public"""
-    model: Optional['DescribeModelModel']
+
+    model: Optional["DescribeModelModel"]
 
 
 class DescribeModelModel(ModelData):
     """@public"""
-    backbone: Optional['DescribeModelModelBackbone']
+
+    backbone: Optional["DescribeModelModelBackbone"]
 
 
 class DescribeModelModelBackbone(ModelData):
     """@public"""
+
     pass
 
 

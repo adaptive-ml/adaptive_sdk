@@ -5,11 +5,13 @@ from .fragments import UserData
 
 class ListUsers(BaseModel):
     """@public"""
-    users: List['ListUsersUsers']
+
+    users: List["ListUsersUsers"]
 
 
 class ListUsersUsers(UserData):
     """@public"""
+
     pass
 
 

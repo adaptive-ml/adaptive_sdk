@@ -5,11 +5,13 @@ from .fragments import MetricData
 
 class DescribeMetric(BaseModel):
     """@public"""
-    metric: Optional['DescribeMetricMetric']
+
+    metric: Optional["DescribeMetricMetric"]
 
 
 class DescribeMetricMetric(MetricData):
     """@public"""
+
     pass
 
 

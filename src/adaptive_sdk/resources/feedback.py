@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Literal, Sequence, List, Dict, TYPE_CHECKING
 from uuid import UUID
-
+from typing_extensions import override
 from adaptive_sdk import input_types
 from adaptive_sdk.error_handling import rest_error_handler
 from adaptive_sdk.graphql_client import (
@@ -29,7 +29,7 @@ PREFERENCE_ROUTE = "/comparison"
 OUTCOME_ROUTE = "/outcome"
 
 
-class Feedback(SyncAPIResource, UseCaseResource):
+class Feedback(SyncAPIResource, UseCaseResource):  # type: ignore
     """
     Resource to interact with and log feedback.
     """
@@ -42,7 +42,9 @@ class Feedback(SyncAPIResource, UseCaseResource):
         self,
         key: str,
         kind: Literal["scalar", "bool"] = "scalar",
-        scoring_type: Literal["higher_is_better", "lower_is_better"] = "higher_is_better",
+        scoring_type: Literal[
+            "higher_is_better", "lower_is_better"
+        ] = "higher_is_better",
         name: str | None = None,
         description: str | None = None,
     ) -> MetricData:
@@ -138,7 +140,9 @@ class Feedback(SyncAPIResource, UseCaseResource):
             user_id=convert_optional_UUID(user),
             details=details,
         )
-        r = self._rest_client.post(FEEDBACK_ROUTE, json=input.model_dump(exclude_none=True))
+        r = self._rest_client.post(
+            FEEDBACK_ROUTE, json=input.model_dump(exclude_none=True)
+        )
         rest_error_handler(r)
         return rest_types.FeedbackOutput.model_validate(r.json())
 
@@ -169,7 +173,9 @@ class Feedback(SyncAPIResource, UseCaseResource):
             tied: Indicator if both completions tied as equally bad or equally good.
         """
 
-        clean_preffered_completion = validate_comparison_completion(preferred_completion)
+        clean_preffered_completion = validate_comparison_completion(
+            preferred_completion
+        )
         clean_other_completion = validate_comparison_completion(other_completion)
         input_messages = [rest_types.ChatMessage(**m) for m in messages] if messages else None  # type: ignore
 
@@ -183,12 +189,14 @@ class Feedback(SyncAPIResource, UseCaseResource):
             tied=rest_types.ComparisonTie(tied) if tied else None,
             use_case=self.use_case_key(use_case),
         )
-        r = self._rest_client.post(PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True))
+        r = self._rest_client.post(
+            PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True)
+        )
         rest_error_handler(r)
         return rest_types.ComparisonOutput.model_validate(r.json())
 
 
-class AsyncFeedback(AsyncAPIResource, UseCaseResource):
+class AsyncFeedback(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with and log feedback.
     """
@@ -201,7 +209,9 @@ class AsyncFeedback(AsyncAPIResource, UseCaseResource):
         self,
         key: str,
         kind: Literal["scalar", "bool"],
-        scoring_type: Literal["higher_is_better", "lower_is_better"] = "higher_is_better",
+        scoring_type: Literal[
+            "higher_is_better", "lower_is_better"
+        ] = "higher_is_better",
         name: str | None = None,
         description: str | None = None,
     ) -> MetricData:
@@ -298,7 +308,9 @@ class AsyncFeedback(AsyncAPIResource, UseCaseResource):
             user_id=convert_optional_UUID(user_id),
             details=details,
         )
-        r = await self._rest_client.post(FEEDBACK_ROUTE, json=input.model_dump(exclude_none=True))
+        r = await self._rest_client.post(
+            FEEDBACK_ROUTE, json=input.model_dump(exclude_none=True)
+        )
         rest_error_handler(r)
         return rest_types.FeedbackOutput.model_validate(r.json())
 
@@ -329,7 +341,9 @@ class AsyncFeedback(AsyncAPIResource, UseCaseResource):
             tied: Indicator if both completions tied as equally bad or equally good.
 
         """
-        clean_preffered_completion = validate_comparison_completion(preferred_completion)
+        clean_preffered_completion = validate_comparison_completion(
+            preferred_completion
+        )
         clean_other_completion = validate_comparison_completion(other_completion)
         input_messages = [rest_types.ChatMessage(**m) for m in messages] if messages else None  # type: ignore
 
@@ -343,6 +357,8 @@ class AsyncFeedback(AsyncAPIResource, UseCaseResource):
             tied=rest_types.ComparisonTie(tied) if tied else None,
             use_case=self.use_case_key(use_case),
         )
-        r = await self._rest_client.post(PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True))
+        r = await self._rest_client.post(
+            PREFERENCE_ROUTE, json=input.model_dump(exclude_none=True)
+        )
         rest_error_handler(r)
         return rest_types.ComparisonOutput.model_validate(r.json())

@@ -5,12 +5,15 @@ from .fragments import ModelServiceData
 
 class UpdateModel(BaseModel):
     """@public"""
-    update_model_service: 'UpdateModelUpdateModelService' = Field(alias=
-        'updateModelService')
+
+    update_model_service: "UpdateModelUpdateModelService" = Field(
+        alias="updateModelService"
+    )
 
 
 class UpdateModelUpdateModelService(ModelServiceData):
     """@public"""
+
     pass
 
 

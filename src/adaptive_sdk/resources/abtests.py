@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class ABTests(SyncAPIResource, UseCaseResource):
+class ABTests(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with AB Tests.
     """
@@ -49,7 +49,9 @@ class ABTests(SyncAPIResource, UseCaseResource):
             auto_deploy: If set to `True`, when the AB test is completed, the winning model automatically gets promoted to the use case default model.
         """
         if feedback_type not in ["metric", "preference"]:
-            raise ValueError("Only `metric` and `preference` feedback types are supported for AB tests.")
+            raise ValueError(
+                "Only `metric` and `preference` feedback types are supported for AB tests."
+            )
         match feedback_type:
             case "metric":
                 new_feedback_type = "DIRECT"
@@ -92,7 +94,9 @@ class ABTests(SyncAPIResource, UseCaseResource):
         """
         if status:
             status_input = AbcampaignStatus(status.upper())
-            input = AbCampaignFilter(active=active, status=status_input, useCase=self.use_case_key(use_case))
+            input = AbCampaignFilter(
+                active=active, status=status_input, useCase=self.use_case_key(use_case)
+            )
         else:
             input = AbCampaignFilter(active=active, useCase=self.use_case_key(use_case))
         return self._gql_client.list_ab_campaigns(input).ab_campaigns
@@ -107,7 +111,7 @@ class ABTests(SyncAPIResource, UseCaseResource):
         return self._gql_client.describe_ab_campaign(input=key).ab_campaign
 
 
-class AsyncABTests(AsyncAPIResource, UseCaseResource):
+class AsyncABTests(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with AB Tests.
     """
@@ -139,7 +143,9 @@ class AsyncABTests(AsyncAPIResource, UseCaseResource):
             auto_deploy: If set to `True`, when the AB test is completed, the winning model automatically gets promoted to the use case default model.
         """
         if feedback_type not in ["metric", "preference"]:
-            raise ValueError("Only `metric` and `preference` feedback types are supported for AB tests.")
+            raise ValueError(
+                "Only `metric` and `preference` feedback types are supported for AB tests."
+            )
         match feedback_type:
             case "metric":
                 new_feedback_type = "DIRECT"
@@ -184,7 +190,9 @@ class AsyncABTests(AsyncAPIResource, UseCaseResource):
         """
         if status:
             status_input = AbcampaignStatus(status.upper())
-            input = AbCampaignFilter(active=active, status=status_input, useCase=self.use_case_key(use_case))
+            input = AbCampaignFilter(
+                active=active, status=status_input, useCase=self.use_case_key(use_case)
+            )
         else:
             input = AbCampaignFilter(active=active, useCase=self.use_case_key(use_case))
         result = await self._gql_client.list_ab_campaigns(input)

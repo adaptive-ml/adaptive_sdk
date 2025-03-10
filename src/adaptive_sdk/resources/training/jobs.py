@@ -2,6 +2,8 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING
 import humps
 
+from typing_extensions import override
+
 from adaptive_sdk import input_types
 from adaptive_sdk.graphql_client import (
     ListTrainingJobsTrainingJobs,
@@ -18,7 +20,7 @@ if TYPE_CHECKING:
     from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class TrainingJobs(SyncAPIResource, UseCaseResource):
+class TrainingJobs(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with training jobs.
     """
@@ -44,8 +46,18 @@ class TrainingJobs(SyncAPIResource, UseCaseResource):
             name: Name for training job.
         """
         new_config = update_training_config_with_defaults(config)
-        if new_config.get("sample_config").get("filter"):  # type:ignore
-            new_config["sample_config"]["filter"].update({"useCase": self.use_case_key(use_case)})  # type:ignore
+        if (
+            new_config.get("sample_config", {})
+            .get("datasource", {})
+            .get("completions", {})
+            .get("filter")
+            is not None
+        ):
+            new_config["sample_config"]["datasource"]["completions"][
+                "filter"
+            ].update(  # type:ignore
+                {"useCase": self.use_case_key(use_case)}  # type:ignore
+            )
         new_config = humps.camelize(new_config)
         config_input = AdaptRequestConfigInput.model_validate(new_config)
         input = TrainingJobInput(
@@ -76,7 +88,7 @@ class TrainingJobs(SyncAPIResource, UseCaseResource):
         return self._gql_client.describe_training_job(id=job_id).training_job
 
 
-class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):
+class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with training jobs.
     """
@@ -102,8 +114,17 @@ class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):
             name: Name for training job.
         """
         new_config = update_training_config_with_defaults(config)
-        if new_config.get("sample_config").get("filter"):  # type:ignore
-            new_config["sample_config"]["filter"].update({"useCase": self.use_case_key(use_case)})  # type:ignore
+        if (
+            new_config.get("sample_config", {})
+            .get("datasource", {})
+            .get("completions", {})
+            .get("filter")
+        ):
+            new_config["sample_config"]["datasource"]["completions"][
+                "filter"
+            ].update(  # type:ignore
+                {"useCase": self.use_case_key(use_case)}  # type:ignore
+            )
         new_config = humps.camelize(new_config)
         config_input = AdaptRequestConfigInput.model_validate(new_config)
         input = TrainingJobInput(

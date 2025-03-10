@@ -1,5 +1,16 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
-from graphql import DocumentNode, NamedTypeNode, NameNode, OperationDefinitionNode, OperationType, SelectionNode, SelectionSetNode, VariableDefinitionNode, VariableNode, print_ast
+from graphql import (
+    DocumentNode,
+    NamedTypeNode,
+    NameNode,
+    OperationDefinitionNode,
+    OperationType,
+    SelectionNode,
+    SelectionSetNode,
+    VariableDefinitionNode,
+    VariableNode,
+    print_ast,
+)
 from .add_external_model import AddExternalModel
 from .add_hf_model import AddHFModel
 from .add_model import AddModel
@@ -13,6 +24,8 @@ from .cancel_training_job import CancelTrainingJob
 from .create_ab_campaign import CreateAbCampaign
 from .create_evaluation_job import CreateEvaluationJob
 from .create_metric import CreateMetric
+from .create_role import CreateRole
+from .create_team import CreateTeam
 from .create_training_job import CreateTrainingJob
 from .create_use_case import CreateUseCase
 from .deploy_model import DeployModel
@@ -20,7 +33,6 @@ from .describe_ab_campaign import DescribeAbCampaign
 from .describe_dataset import DescribeDataset
 from .describe_evaluation_job import DescribeEvaluationJob
 from .describe_interaction import DescribeInteraction
-from .describe_me import DescribeMe
 from .describe_metric import DescribeMetric
 from .describe_metric_admin import DescribeMetricAdmin
 from .describe_model import DescribeModel
@@ -28,15 +40,42 @@ from .describe_model_admin import DescribeModelAdmin
 from .describe_training_job import DescribeTrainingJob
 from .describe_use_case import DescribeUseCase
 from .enums import CompletionGroupBy
-from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, DatasetCreate, EvaluationCreate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, OrderPair, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate
+from .input_types import (
+    AbcampaignCreate,
+    AbCampaignFilter,
+    AddExternalModelInput,
+    AddHFModelInput,
+    AddModelInput,
+    AttachModel,
+    CursorPageInput,
+    DatasetCreate,
+    EvaluationCreate,
+    ListCompletionsFilterInput,
+    MetricCreate,
+    MetricLink,
+    MetricUnlink,
+    ModelFilter,
+    ModelPlacementInput,
+    OrderPair,
+    RoleCreate,
+    TeamCreate,
+    TeamMemberSet,
+    TrainingJobInput,
+    UpdateModelService,
+    UseCaseCreate,
+)
 from .link_metric import LinkMetric
 from .list_ab_campaigns import ListAbCampaigns
+from .list_compute_pools import ListComputePools
 from .list_datasets import ListDatasets
 from .list_evaluation_jobs import ListEvaluationJobs
 from .list_grouped_interactions import ListGroupedInteractions
 from .list_interactions import ListInteractions
 from .list_metrics import ListMetrics
 from .list_models import ListModels
+from .list_partitions import ListPartitions
+from .list_permissions import ListPermissions
+from .list_roles import ListRoles
 from .list_teams import ListTeams
 from .list_training_jobs import ListTrainingJobs
 from .list_use_cases import ListUseCases
@@ -49,14 +88,14 @@ from .update_model import UpdateModel
 from .update_user import UpdateUser
 
 
-def gql(q: str) ->str:
+def gql(q: str) -> str:
     return q
 
 
 class GQLClient(BaseClientOpenTelemetry):
     """@private"""
 
-    def create_metric(self, input: MetricCreate, **kwargs: Any) ->CreateMetric:
+    def create_metric(self, input: MetricCreate, **kwargs: Any) -> CreateMetric:
         query = gql(
             """
             mutation CreateMetric($input: MetricCreate!) {
@@ -77,14 +116,15 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='CreateMetric',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="CreateMetric", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return CreateMetric.model_validate(data)
 
-    def link_metric(self, input: MetricLink, **kwargs: Any) ->LinkMetric:
+    def link_metric(self, input: MetricLink, **kwargs: Any) -> LinkMetric:
         query = gql(
             """
             mutation LinkMetric($input: MetricLink!) {
@@ -103,29 +143,32 @@ class GQLClient(BaseClientOpenTelemetry):
               createdAt
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='LinkMetric',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="LinkMetric", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return LinkMetric.model_validate(data)
 
-    def unlink_metric(self, input: MetricUnlink, **kwargs: Any) ->UnlinkMetric:
+    def unlink_metric(self, input: MetricUnlink, **kwargs: Any) -> UnlinkMetric:
         query = gql(
             """
             mutation UnlinkMetric($input: MetricUnlink!) {
               unlinkMetric(input: $input)
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='UnlinkMetric',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="UnlinkMetric", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return UnlinkMetric.model_validate(data)
 
-    def attach_model_to_use_case(self, input: AttachModel, **kwargs: Any
-        ) ->AttachModelToUseCase:
+    def attach_model_to_use_case(
+        self, input: AttachModel, **kwargs: Any
+    ) -> AttachModelToUseCase:
         query = gql(
             """
             mutation AttachModelToUseCase($input: AttachModel!) {
@@ -145,6 +188,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -163,15 +207,20 @@ class GQLClient(BaseClientOpenTelemetry):
               createdAt
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'AttachModelToUseCase', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="AttachModelToUseCase",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return AttachModelToUseCase.model_validate(data)
 
-    def add_external_model(self, input: AddExternalModelInput, **kwargs: Any
-        ) ->AddExternalModel:
+    def add_external_model(
+        self, input: AddExternalModelInput, **kwargs: Any
+    ) -> AddExternalModel:
         query = gql(
             """
             mutation AddExternalModel($input: AddExternalModelInput!) {
@@ -191,16 +240,21 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'AddExternalModel', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="AddExternalModel",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return AddExternalModel.model_validate(data)
 
-    def add_model(self, input: AddModelInput, **kwargs: Any) ->AddModel:
+    def add_model(self, input: AddModelInput, **kwargs: Any) -> AddModel:
         query = gql(
             """
             mutation AddModel($input: AddModelInput!) {
@@ -223,17 +277,18 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='AddModel',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="AddModel", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return AddModel.model_validate(data)
 
-    def update_model(self, input: UpdateModelService, **kwargs: Any
-        ) ->UpdateModel:
+    def update_model(self, input: UpdateModelService, **kwargs: Any) -> UpdateModel:
         query = gql(
             """
             mutation UpdateModel($input: UpdateModelService!) {
@@ -253,6 +308,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -271,45 +327,57 @@ class GQLClient(BaseClientOpenTelemetry):
               createdAt
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='UpdateModel',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="UpdateModel", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return UpdateModel.model_validate(data)
 
-    def deploy_model(self, id_or_key: str, wait: bool, **kwargs: Any
-        ) ->DeployModel:
+    def deploy_model(
+        self,
+        id_or_key: str,
+        wait: bool,
+        placement: Union[Optional[ModelPlacementInput], UnsetType] = UNSET,
+        **kwargs: Any,
+    ) -> DeployModel:
         query = gql(
             """
-            mutation DeployModel($idOrKey: IdOrKey!, $wait: Boolean!) {
-              deployModel(idOrKey: $idOrKey, wait: $wait)
+            mutation DeployModel($idOrKey: IdOrKey!, $wait: Boolean!, $placement: ModelPlacementInput) {
+              deployModel(idOrKey: $idOrKey, wait: $wait, placement: $placement)
             }
             """
-            )
-        variables: Dict[str, object] = {'idOrKey': id_or_key, 'wait': wait}
-        response = self.execute(query=query, operation_name='DeployModel',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {
+            "idOrKey": id_or_key,
+            "wait": wait,
+            "placement": placement,
+        }
+        response = self.execute(
+            query=query, operation_name="DeployModel", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return DeployModel.model_validate(data)
 
-    def terminate_model(self, id_or_key: str, force: bool, **kwargs: Any
-        ) ->TerminateModel:
+    def terminate_model(
+        self, id_or_key: str, force: bool, **kwargs: Any
+    ) -> TerminateModel:
         query = gql(
             """
             mutation TerminateModel($idOrKey: IdOrKey!, $force: Boolean!) {
               terminateModel(idOrKey: $idOrKey, force: $force)
             }
             """
-            )
-        variables: Dict[str, object] = {'idOrKey': id_or_key, 'force': force}
-        response = self.execute(query=query, operation_name=
-            'TerminateModel', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"idOrKey": id_or_key, "force": force}
+        response = self.execute(
+            query=query, operation_name="TerminateModel", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return TerminateModel.model_validate(data)
 
-    def create_use_case(self, input: UseCaseCreate, **kwargs: Any
-        ) ->CreateUseCase:
+    def create_use_case(self, input: UseCaseCreate, **kwargs: Any) -> CreateUseCase:
         query = gql(
             """
             mutation CreateUseCase($input: UseCaseCreate!) {
@@ -339,6 +407,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -371,15 +440,17 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='CreateUseCase',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="CreateUseCase", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return CreateUseCase.model_validate(data)
 
-    def create_ab_campaign(self, input: AbcampaignCreate, **kwargs: Any
-        ) ->CreateAbCampaign:
+    def create_ab_campaign(
+        self, input: AbcampaignCreate, **kwargs: Any
+    ) -> CreateAbCampaign:
         query = gql(
             """
             mutation CreateAbCampaign($input: AbcampaignCreate!) {
@@ -395,29 +466,38 @@ class GQLClient(BaseClientOpenTelemetry):
               beginDate
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'CreateAbCampaign', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="CreateAbCampaign",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return CreateAbCampaign.model_validate(data)
 
-    def cancel_ab_campaign(self, input: str, **kwargs: Any) ->CancelABCampaign:
+    def cancel_ab_campaign(self, input: str, **kwargs: Any) -> CancelABCampaign:
         query = gql(
             """
             mutation CancelABCampaign($input: IdOrKey!) {
               cancelAbCampaign(input: $input)
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'CancelABCampaign', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="CancelABCampaign",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return CancelABCampaign.model_validate(data)
 
-    def load_dataset(self, input: DatasetCreate, file: Upload, **kwargs: Any
-        ) ->LoadDataset:
+    def load_dataset(
+        self, input: DatasetCreate, file: Upload, **kwargs: Any
+    ) -> LoadDataset:
         query = gql(
             """
             mutation LoadDataset($input: DatasetCreate!, $file: Upload!) {
@@ -431,17 +511,40 @@ class GQLClient(BaseClientOpenTelemetry):
               key
               name
               createdAt
+              kind
+              records
+              metricsUsage {
+                feedbackCount
+                comparisonCount
+                metric {
+                  ...MetricData
+                }
+              }
+            }
+
+            fragment MetricData on Metric {
+              id
+              key
+              name
+              kind
+              description
+              scoringType
+              createdAt
+              hasDirectFeedbacks
+              hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input, 'file': file}
-        response = self.execute(query=query, operation_name='LoadDataset',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input, "file": file}
+        response = self.execute(
+            query=query, operation_name="LoadDataset", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return LoadDataset.model_validate(data)
 
-    def create_training_job(self, input: TrainingJobInput, **kwargs: Any
-        ) ->CreateTrainingJob:
+    def create_training_job(
+        self, input: TrainingJobInput, **kwargs: Any
+    ) -> CreateTrainingJob:
         query = gql(
             """
             mutation CreateTrainingJob($input: TrainingJobInput!) {
@@ -458,7 +561,7 @@ class GQLClient(BaseClientOpenTelemetry):
               info {
                 __typename
                 ... on TrainingJobStageOutput {
-                  trainingMonitoringLink
+                  monitoringLink
                   totalNumSamples
                   processedNumSamples
                   checkpoints
@@ -466,10 +569,12 @@ class GQLClient(BaseClientOpenTelemetry):
                 ... on EvalJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
                 ... on BatchInferenceJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
               }
               startedAt
@@ -515,6 +620,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -565,7 +671,10 @@ class GQLClient(BaseClientOpenTelemetry):
                 }
                 ... on GuidelinesTrainingParamsOutput {
                   judgeModel
-                  judgeModelPrompt
+                  judgeModelPrompt {
+                    name
+                    description
+                  }
                 }
               }
             }
@@ -600,10 +709,18 @@ class GQLClient(BaseClientOpenTelemetry):
                 outputName
                 sampleConfig {
                   feedbackType
-                  selectionType
-                  maxSamples
-                  filter {
-                    ...ListCompletionsFilterOutputData
+                  datasource {
+                    __typename
+                    ... on SampleDatasourceCompletionsOutput {
+                      selectionType
+                      maxSamples
+                      filter {
+                        ...ListCompletionsFilterOutputData
+                      }
+                    }
+                    ... on SampleDatasourceDatasetOutput {
+                      datasetKey
+                    }
                   }
                 }
                 trainingConfig {
@@ -631,29 +748,38 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'CreateTrainingJob', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="CreateTrainingJob",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return CreateTrainingJob.model_validate(data)
 
-    def cancel_training_job(self, id: Any, **kwargs: Any) ->CancelTrainingJob:
+    def cancel_training_job(self, id: Any, **kwargs: Any) -> CancelTrainingJob:
         query = gql(
             """
             mutation CancelTrainingJob($id: UUID!) {
               cancelTrainingJob(id: $id)
             }
             """
-            )
-        variables: Dict[str, object] = {'id': id}
-        response = self.execute(query=query, operation_name=
-            'CancelTrainingJob', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"id": id}
+        response = self.execute(
+            query=query,
+            operation_name="CancelTrainingJob",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return CancelTrainingJob.model_validate(data)
 
-    def create_evaluation_job(self, input: EvaluationCreate, **kwargs: Any
-        ) ->CreateEvaluationJob:
+    def create_evaluation_job(
+        self, input: EvaluationCreate, **kwargs: Any
+    ) -> CreateEvaluationJob:
         query = gql(
             """
             mutation CreateEvaluationJob($input: EvaluationCreate!) {
@@ -696,6 +822,15 @@ class GQLClient(BaseClientOpenTelemetry):
               key
               name
               createdAt
+              kind
+              records
+              metricsUsage {
+                feedbackCount
+                comparisonCount
+                metric {
+                  ...MetricData
+                }
+              }
             }
 
             fragment EvaluationJobData on EvaluationJob {
@@ -739,7 +874,7 @@ class GQLClient(BaseClientOpenTelemetry):
               info {
                 __typename
                 ... on TrainingJobStageOutput {
-                  trainingMonitoringLink
+                  monitoringLink
                   totalNumSamples
                   processedNumSamples
                   checkpoints
@@ -747,14 +882,28 @@ class GQLClient(BaseClientOpenTelemetry):
                 ... on EvalJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
                 ... on BatchInferenceJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
               }
               startedAt
               endedAt
+            }
+
+            fragment MetricData on Metric {
+              id
+              key
+              name
+              kind
+              description
+              scoringType
+              createdAt
+              hasDirectFeedbacks
+              hasComparisonFeedbacks
             }
 
             fragment MetricWithContextData on MetricWithContext {
@@ -778,6 +927,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -810,43 +960,51 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'CreateEvaluationJob', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="CreateEvaluationJob",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return CreateEvaluationJob.model_validate(data)
 
-    def cancel_evaluation_job(self, id: Any, **kwargs: Any
-        ) ->CancelEvaluationJob:
+    def cancel_evaluation_job(self, id: Any, **kwargs: Any) -> CancelEvaluationJob:
         query = gql(
             """
             mutation CancelEvaluationJob($id: UUID!) {
               cancelEvaluationJob(id: $id)
             }
             """
-            )
-        variables: Dict[str, object] = {'id': id}
-        response = self.execute(query=query, operation_name=
-            'CancelEvaluationJob', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"id": id}
+        response = self.execute(
+            query=query,
+            operation_name="CancelEvaluationJob",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return CancelEvaluationJob.model_validate(data)
 
-    def add_hf_model(self, input: AddHFModelInput, **kwargs: Any) ->AddHFModel:
+    def add_hf_model(self, input: AddHFModelInput, **kwargs: Any) -> AddHFModel:
         query = gql(
             """
             mutation AddHFModel($input: AddHFModelInput!) {
               importHfModel(input: $input)
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='AddHFModel',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="AddHFModel", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return AddHFModel.model_validate(data)
 
-    def update_user(self, input: TeamMemberSet, **kwargs: Any) ->UpdateUser:
+    def update_user(self, input: TeamMemberSet, **kwargs: Any) -> UpdateUser:
         query = gql(
             """
             mutation UpdateUser($input: TeamMemberSet!) {
@@ -892,14 +1050,56 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='UpdateUser',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="UpdateUser", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return UpdateUser.model_validate(data)
 
-    def list_datasets(self, input: str, **kwargs: Any) ->ListDatasets:
+    def create_role(self, input: RoleCreate, **kwargs: Any) -> CreateRole:
+        query = gql(
+            """
+            mutation CreateRole($input: RoleCreate!) {
+              createRole(input: $input) {
+                id
+                key
+                name
+                createdAt
+                permissions
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="CreateRole", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return CreateRole.model_validate(data)
+
+    def create_team(self, input: TeamCreate, **kwargs: Any) -> CreateTeam:
+        query = gql(
+            """
+            mutation CreateTeam($input: TeamCreate!) {
+              createTeam(input: $input) {
+                id
+                key
+                name
+                createdAt
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="CreateTeam", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return CreateTeam.model_validate(data)
+
+    def list_datasets(self, input: str, **kwargs: Any) -> ListDatasets:
         query = gql(
             """
             query ListDatasets($input: IdOrKey!) {
@@ -913,16 +1113,38 @@ class GQLClient(BaseClientOpenTelemetry):
               key
               name
               createdAt
+              kind
+              records
+              metricsUsage {
+                feedbackCount
+                comparisonCount
+                metric {
+                  ...MetricData
+                }
+              }
+            }
+
+            fragment MetricData on Metric {
+              id
+              key
+              name
+              kind
+              description
+              scoringType
+              createdAt
+              hasDirectFeedbacks
+              hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='ListDatasets',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="ListDatasets", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return ListDatasets.model_validate(data)
 
-    def describe_dataset(self, input: str, **kwargs: Any) ->DescribeDataset:
+    def describe_dataset(self, input: str, **kwargs: Any) -> DescribeDataset:
         query = gql(
             """
             query DescribeDataset($input: IdOrKey!) {
@@ -936,16 +1158,38 @@ class GQLClient(BaseClientOpenTelemetry):
               key
               name
               createdAt
+              kind
+              records
+              metricsUsage {
+                feedbackCount
+                comparisonCount
+                metric {
+                  ...MetricData
+                }
+              }
+            }
+
+            fragment MetricData on Metric {
+              id
+              key
+              name
+              kind
+              description
+              scoringType
+              createdAt
+              hasDirectFeedbacks
+              hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'DescribeDataset', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="DescribeDataset", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return DescribeDataset.model_validate(data)
 
-    def describe_use_case(self, input: str, **kwargs: Any) ->DescribeUseCase:
+    def describe_use_case(self, input: str, **kwargs: Any) -> DescribeUseCase:
         query = gql(
             """
             query DescribeUseCase($input: IdOrKey!) {
@@ -975,6 +1219,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -1007,14 +1252,15 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'DescribeUseCase', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="DescribeUseCase", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return DescribeUseCase.model_validate(data)
 
-    def list_use_cases(self, **kwargs: Any) ->ListUseCases:
+    def list_use_cases(self, **kwargs: Any) -> ListUseCases:
         query = gql(
             """
             query ListUseCases {
@@ -1044,6 +1290,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -1076,18 +1323,19 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
+        )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='ListUseCases',
-            variables=variables, **kwargs)
+        response = self.execute(
+            query=query, operation_name="ListUseCases", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return ListUseCases.model_validate(data)
 
-    def list_models(self, **kwargs: Any) ->ListModels:
+    def list_models(self, filter: ModelFilter, **kwargs: Any) -> ListModels:
         query = gql(
             """
-            query ListModels {
-              models {
+            query ListModels($filter: ModelFilter! = {inStorage: null, available: null, trainable: null, kind: [Generation, Embedding], viewAll: false, online: null}) {
+              models(filter: $filter) {
                 ...ModelDataAdmin
                 backbone {
                   ...ModelDataAdmin
@@ -1111,17 +1359,18 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
             """
-            )
-        variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='ListModels',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"filter": filter}
+        response = self.execute(
+            query=query, operation_name="ListModels", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return ListModels.model_validate(data)
 
-    def describe_model_admin(self, input: str, **kwargs: Any
-        ) ->DescribeModelAdmin:
+    def describe_model_admin(self, input: str, **kwargs: Any) -> DescribeModelAdmin:
         query = gql(
             """
             query DescribeModelAdmin($input: IdOrKey!) {
@@ -1149,16 +1398,21 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'DescribeModelAdmin', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="DescribeModelAdmin",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return DescribeModelAdmin.model_validate(data)
 
-    def describe_model(self, input: str, **kwargs: Any) ->DescribeModel:
+    def describe_model(self, input: str, **kwargs: Any) -> DescribeModel:
         query = gql(
             """
             query DescribeModel($input: IdOrKey!) {
@@ -1181,16 +1435,18 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name='DescribeModel',
-            variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="DescribeModel", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return DescribeModel.model_validate(data)
 
-    def list_metrics(self, **kwargs: Any) ->ListMetrics:
+    def list_metrics(self, **kwargs: Any) -> ListMetrics:
         query = gql(
             """
             query ListMetrics {
@@ -1217,15 +1473,15 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
+        )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='ListMetrics',
-            variables=variables, **kwargs)
+        response = self.execute(
+            query=query, operation_name="ListMetrics", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return ListMetrics.model_validate(data)
 
-    def describe_metric_admin(self, input: str, **kwargs: Any
-        ) ->DescribeMetricAdmin:
+    def describe_metric_admin(self, input: str, **kwargs: Any) -> DescribeMetricAdmin:
         query = gql(
             """
             query DescribeMetricAdmin($input: IdOrKey!) {
@@ -1252,14 +1508,18 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'DescribeMetricAdmin', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="DescribeMetricAdmin",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return DescribeMetricAdmin.model_validate(data)
 
-    def describe_metric(self, input: str, **kwargs: Any) ->DescribeMetric:
+    def describe_metric(self, input: str, **kwargs: Any) -> DescribeMetric:
         query = gql(
             """
             query DescribeMetric($input: IdOrKey!) {
@@ -1280,15 +1540,17 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'DescribeMetric', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="DescribeMetric", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return DescribeMetric.model_validate(data)
 
-    def list_ab_campaigns(self, input: AbCampaignFilter, **kwargs: Any
-        ) ->ListAbCampaigns:
+    def list_ab_campaigns(
+        self, input: AbCampaignFilter, **kwargs: Any
+    ) -> ListAbCampaigns:
         query = gql(
             """
             query ListAbCampaigns($input: AbCampaignFilter!) {
@@ -1338,15 +1600,15 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'ListAbCampaigns', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query, operation_name="ListAbCampaigns", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return ListAbCampaigns.model_validate(data)
 
-    def describe_ab_campaign(self, input: str, **kwargs: Any
-        ) ->DescribeAbCampaign:
+    def describe_ab_campaign(self, input: str, **kwargs: Any) -> DescribeAbCampaign:
         query = gql(
             """
             query DescribeAbCampaign($input: IdOrKey!) {
@@ -1428,35 +1690,24 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'input': input}
-        response = self.execute(query=query, operation_name=
-            'DescribeAbCampaign', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = self.execute(
+            query=query,
+            operation_name="DescribeAbCampaign",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return DescribeAbCampaign.model_validate(data)
 
-    def describe_me(self, **kwargs: Any) ->DescribeMe:
-        query = gql(
-            """
-            query DescribeMe {
-              me {
-                id
-                email
-                name
-                createdAt
-              }
-            }
-            """
-            )
-        variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='DescribeMe',
-            variables=variables, **kwargs)
-        data = self.get_data(response)
-        return DescribeMe.model_validate(data)
-
-    def list_interactions(self, filter: ListCompletionsFilterInput, page:
-        CursorPageInput, order: Union[Optional[List[OrderPair]], UnsetType]
-        =UNSET, **kwargs: Any) ->ListInteractions:
+    def list_interactions(
+        self,
+        filter: ListCompletionsFilterInput,
+        page: CursorPageInput,
+        order: Union[Optional[List[OrderPair]], UnsetType] = UNSET,
+        **kwargs: Any,
+    ) -> ListInteractions:
         query = gql(
             """
             query ListInteractions($filter: ListCompletionsFilterInput!, $page: CursorPageInput!, $order: [OrderPair!] = [{field: "created_at", order: DESC}]) {
@@ -1469,6 +1720,17 @@ class GQLClient(BaseClientOpenTelemetry):
                 nodes {
                   ...CompletionData
                 }
+              }
+            }
+
+            fragment CompletionComparisonFeedbackData on Completion {
+              id
+              completion
+              source
+              model {
+                id
+                key
+                name
               }
             }
 
@@ -1496,9 +1758,35 @@ class GQLClient(BaseClientOpenTelemetry):
                 details
                 createdAt
               }
+              comparisonFeedbacks {
+                id
+                createdAt
+                usecase {
+                  id
+                  key
+                  name
+                }
+                metric {
+                  id
+                  key
+                  name
+                }
+                preferedCompletion {
+                  ...CompletionComparisonFeedbackData
+                }
+                otherCompletion {
+                  ...CompletionComparisonFeedbackData
+                }
+              }
               labels {
                 key
                 value
+              }
+              metadata {
+                parameters
+                timings
+                usage
+                system
               }
               createdAt
             }
@@ -1515,18 +1803,25 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'filter': filter, 'page': page,
-            'order': order}
-        response = self.execute(query=query, operation_name=
-            'ListInteractions', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"filter": filter, "page": page, "order": order}
+        response = self.execute(
+            query=query,
+            operation_name="ListInteractions",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return ListInteractions.model_validate(data)
 
-    def list_grouped_interactions(self, filter: ListCompletionsFilterInput,
-        group_by: CompletionGroupBy, page: CursorPageInput, order: Union[
-        Optional[List[OrderPair]], UnsetType]=UNSET, **kwargs: Any
-        ) ->ListGroupedInteractions:
+    def list_grouped_interactions(
+        self,
+        filter: ListCompletionsFilterInput,
+        group_by: CompletionGroupBy,
+        page: CursorPageInput,
+        order: Union[Optional[List[OrderPair]], UnsetType] = UNSET,
+        **kwargs: Any,
+    ) -> ListGroupedInteractions:
         query = gql(
             """
             query ListGroupedInteractions($filter: ListCompletionsFilterInput!, $groupBy: CompletionGroupBy!, $page: CursorPageInput!, $order: [OrderPair!] = [{field: "group", order: ASC}]) {
@@ -1565,6 +1860,17 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
 
+            fragment CompletionComparisonFeedbackData on Completion {
+              id
+              completion
+              source
+              model {
+                id
+                key
+                name
+              }
+            }
+
             fragment CompletionData on Completion {
               id
               prompt
@@ -1589,9 +1895,35 @@ class GQLClient(BaseClientOpenTelemetry):
                 details
                 createdAt
               }
+              comparisonFeedbacks {
+                id
+                createdAt
+                usecase {
+                  id
+                  key
+                  name
+                }
+                metric {
+                  id
+                  key
+                  name
+                }
+                preferedCompletion {
+                  ...CompletionComparisonFeedbackData
+                }
+                otherCompletion {
+                  ...CompletionComparisonFeedbackData
+                }
+              }
               labels {
                 key
                 value
+              }
+              metadata {
+                parameters
+                timings
+                usage
+                system
               }
               createdAt
             }
@@ -1608,16 +1940,25 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'filter': filter, 'groupBy':
-            group_by, 'page': page, 'order': order}
-        response = self.execute(query=query, operation_name=
-            'ListGroupedInteractions', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {
+            "filter": filter,
+            "groupBy": group_by,
+            "page": page,
+            "order": order,
+        }
+        response = self.execute(
+            query=query,
+            operation_name="ListGroupedInteractions",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return ListGroupedInteractions.model_validate(data)
 
-    def describe_interaction(self, use_case: str, id: Any, **kwargs: Any
-        ) ->DescribeInteraction:
+    def describe_interaction(
+        self, use_case: str, id: Any, **kwargs: Any
+    ) -> DescribeInteraction:
         query = gql(
             """
             query DescribeInteraction($useCase: IdOrKey!, $id: UUID!) {
@@ -1626,6 +1967,17 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
 
+            fragment CompletionComparisonFeedbackData on Completion {
+              id
+              completion
+              source
+              model {
+                id
+                key
+                name
+              }
+            }
+
             fragment CompletionData on Completion {
               id
               prompt
@@ -1650,9 +2002,35 @@ class GQLClient(BaseClientOpenTelemetry):
                 details
                 createdAt
               }
+              comparisonFeedbacks {
+                id
+                createdAt
+                usecase {
+                  id
+                  key
+                  name
+                }
+                metric {
+                  id
+                  key
+                  name
+                }
+                preferedCompletion {
+                  ...CompletionComparisonFeedbackData
+                }
+                otherCompletion {
+                  ...CompletionComparisonFeedbackData
+                }
+              }
               labels {
                 key
                 value
+              }
+              metadata {
+                parameters
+                timings
+                usage
+                system
               }
               createdAt
             }
@@ -1669,15 +2047,18 @@ class GQLClient(BaseClientOpenTelemetry):
               hasComparisonFeedbacks
             }
             """
-            )
-        variables: Dict[str, object] = {'useCase': use_case, 'id': id}
-        response = self.execute(query=query, operation_name=
-            'DescribeInteraction', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"useCase": use_case, "id": id}
+        response = self.execute(
+            query=query,
+            operation_name="DescribeInteraction",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return DescribeInteraction.model_validate(data)
 
-    def describe_training_job(self, id: Any, **kwargs: Any
-        ) ->DescribeTrainingJob:
+    def describe_training_job(self, id: Any, **kwargs: Any) -> DescribeTrainingJob:
         query = gql(
             """
             query DescribeTrainingJob($id: UUID!) {
@@ -1694,7 +2075,7 @@ class GQLClient(BaseClientOpenTelemetry):
               info {
                 __typename
                 ... on TrainingJobStageOutput {
-                  trainingMonitoringLink
+                  monitoringLink
                   totalNumSamples
                   processedNumSamples
                   checkpoints
@@ -1702,10 +2083,12 @@ class GQLClient(BaseClientOpenTelemetry):
                 ... on EvalJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
                 ... on BatchInferenceJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
               }
               startedAt
@@ -1751,6 +2134,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -1801,7 +2185,10 @@ class GQLClient(BaseClientOpenTelemetry):
                 }
                 ... on GuidelinesTrainingParamsOutput {
                   judgeModel
-                  judgeModelPrompt
+                  judgeModelPrompt {
+                    name
+                    description
+                  }
                 }
               }
             }
@@ -1836,10 +2223,18 @@ class GQLClient(BaseClientOpenTelemetry):
                 outputName
                 sampleConfig {
                   feedbackType
-                  selectionType
-                  maxSamples
-                  filter {
-                    ...ListCompletionsFilterOutputData
+                  datasource {
+                    __typename
+                    ... on SampleDatasourceCompletionsOutput {
+                      selectionType
+                      maxSamples
+                      filter {
+                        ...ListCompletionsFilterOutputData
+                      }
+                    }
+                    ... on SampleDatasourceDatasetOutput {
+                      datasetKey
+                    }
                   }
                 }
                 trainingConfig {
@@ -1867,14 +2262,18 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
-        variables: Dict[str, object] = {'id': id}
-        response = self.execute(query=query, operation_name=
-            'DescribeTrainingJob', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"id": id}
+        response = self.execute(
+            query=query,
+            operation_name="DescribeTrainingJob",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return DescribeTrainingJob.model_validate(data)
 
-    def list_training_jobs(self, **kwargs: Any) ->ListTrainingJobs:
+    def list_training_jobs(self, **kwargs: Any) -> ListTrainingJobs:
         query = gql(
             """
             query ListTrainingJobs {
@@ -1891,7 +2290,7 @@ class GQLClient(BaseClientOpenTelemetry):
               info {
                 __typename
                 ... on TrainingJobStageOutput {
-                  trainingMonitoringLink
+                  monitoringLink
                   totalNumSamples
                   processedNumSamples
                   checkpoints
@@ -1899,10 +2298,12 @@ class GQLClient(BaseClientOpenTelemetry):
                 ... on EvalJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
                 ... on BatchInferenceJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
               }
               startedAt
@@ -1948,6 +2349,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -1998,7 +2400,10 @@ class GQLClient(BaseClientOpenTelemetry):
                 }
                 ... on GuidelinesTrainingParamsOutput {
                   judgeModel
-                  judgeModelPrompt
+                  judgeModelPrompt {
+                    name
+                    description
+                  }
                 }
               }
             }
@@ -2033,10 +2438,18 @@ class GQLClient(BaseClientOpenTelemetry):
                 outputName
                 sampleConfig {
                   feedbackType
-                  selectionType
-                  maxSamples
-                  filter {
-                    ...ListCompletionsFilterOutputData
+                  datasource {
+                    __typename
+                    ... on SampleDatasourceCompletionsOutput {
+                      selectionType
+                      maxSamples
+                      filter {
+                        ...ListCompletionsFilterOutputData
+                      }
+                    }
+                    ... on SampleDatasourceDatasetOutput {
+                      datasetKey
+                    }
                   }
                 }
                 trainingConfig {
@@ -2064,15 +2477,18 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
+        )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name=
-            'ListTrainingJobs', variables=variables, **kwargs)
+        response = self.execute(
+            query=query,
+            operation_name="ListTrainingJobs",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return ListTrainingJobs.model_validate(data)
 
-    def describe_evaluation_job(self, id: Any, **kwargs: Any
-        ) ->DescribeEvaluationJob:
+    def describe_evaluation_job(self, id: Any, **kwargs: Any) -> DescribeEvaluationJob:
         query = gql(
             """
             query DescribeEvaluationJob($id: UUID!) {
@@ -2115,6 +2531,15 @@ class GQLClient(BaseClientOpenTelemetry):
               key
               name
               createdAt
+              kind
+              records
+              metricsUsage {
+                feedbackCount
+                comparisonCount
+                metric {
+                  ...MetricData
+                }
+              }
             }
 
             fragment EvaluationJobData on EvaluationJob {
@@ -2158,7 +2583,7 @@ class GQLClient(BaseClientOpenTelemetry):
               info {
                 __typename
                 ... on TrainingJobStageOutput {
-                  trainingMonitoringLink
+                  monitoringLink
                   totalNumSamples
                   processedNumSamples
                   checkpoints
@@ -2166,14 +2591,28 @@ class GQLClient(BaseClientOpenTelemetry):
                 ... on EvalJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
                 ... on BatchInferenceJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
               }
               startedAt
               endedAt
+            }
+
+            fragment MetricData on Metric {
+              id
+              key
+              name
+              kind
+              description
+              scoringType
+              createdAt
+              hasDirectFeedbacks
+              hasComparisonFeedbacks
             }
 
             fragment MetricWithContextData on MetricWithContext {
@@ -2197,6 +2636,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -2229,14 +2669,18 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
-        variables: Dict[str, object] = {'id': id}
-        response = self.execute(query=query, operation_name=
-            'DescribeEvaluationJob', variables=variables, **kwargs)
+        )
+        variables: Dict[str, object] = {"id": id}
+        response = self.execute(
+            query=query,
+            operation_name="DescribeEvaluationJob",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return DescribeEvaluationJob.model_validate(data)
 
-    def list_evaluation_jobs(self, **kwargs: Any) ->ListEvaluationJobs:
+    def list_evaluation_jobs(self, **kwargs: Any) -> ListEvaluationJobs:
         query = gql(
             """
             query ListEvaluationJobs {
@@ -2279,6 +2723,15 @@ class GQLClient(BaseClientOpenTelemetry):
               key
               name
               createdAt
+              kind
+              records
+              metricsUsage {
+                feedbackCount
+                comparisonCount
+                metric {
+                  ...MetricData
+                }
+              }
             }
 
             fragment EvaluationJobData on EvaluationJob {
@@ -2322,7 +2775,7 @@ class GQLClient(BaseClientOpenTelemetry):
               info {
                 __typename
                 ... on TrainingJobStageOutput {
-                  trainingMonitoringLink
+                  monitoringLink
                   totalNumSamples
                   processedNumSamples
                   checkpoints
@@ -2330,14 +2783,28 @@ class GQLClient(BaseClientOpenTelemetry):
                 ... on EvalJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
                 ... on BatchInferenceJobStageOutput {
                   totalNumSamples
                   processedNumSamples
+                  monitoringLink
                 }
               }
               startedAt
               endedAt
+            }
+
+            fragment MetricData on Metric {
+              id
+              key
+              name
+              kind
+              description
+              scoringType
+              createdAt
+              hasDirectFeedbacks
+              hasComparisonFeedbacks
             }
 
             fragment MetricWithContextData on MetricWithContext {
@@ -2361,6 +2828,7 @@ class GQLClient(BaseClientOpenTelemetry):
               isTraining
               createdAt
               kind
+              size
             }
 
             fragment ModelServiceData on ModelService {
@@ -2393,14 +2861,18 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
+        )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name=
-            'ListEvaluationJobs', variables=variables, **kwargs)
+        response = self.execute(
+            query=query,
+            operation_name="ListEvaluationJobs",
+            variables=variables,
+            **kwargs,
+        )
         data = self.get_data(response)
         return ListEvaluationJobs.model_validate(data)
 
-    def list_users(self, **kwargs: Any) ->ListUsers:
+    def list_users(self, **kwargs: Any) -> ListUsers:
         query = gql(
             """
             query ListUsers {
@@ -2431,14 +2903,15 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
+        )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='ListUsers',
-            variables=variables, **kwargs)
+        response = self.execute(
+            query=query, operation_name="ListUsers", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return ListUsers.model_validate(data)
 
-    def me(self, **kwargs: Any) ->Me:
+    def me(self, **kwargs: Any) -> Me:
         query = gql(
             """
             query Me {
@@ -2473,14 +2946,15 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
+        )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='Me', variables
-            =variables, **kwargs)
+        response = self.execute(
+            query=query, operation_name="Me", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return Me.model_validate(data)
 
-    def list_teams(self, **kwargs: Any) ->ListTeams:
+    def list_teams(self, **kwargs: Any) -> ListTeams:
         query = gql(
             """
             query ListTeams {
@@ -2492,63 +2966,234 @@ class GQLClient(BaseClientOpenTelemetry):
               }
             }
             """
-            )
+        )
         variables: Dict[str, object] = {}
-        response = self.execute(query=query, operation_name='ListTeams',
-            variables=variables, **kwargs)
+        response = self.execute(
+            query=query, operation_name="ListTeams", variables=variables, **kwargs
+        )
         data = self.get_data(response)
         return ListTeams.model_validate(data)
 
-    async def execute_custom_operation(self, *fields: GraphQLField,
-        operation_type: OperationType, operation_name: str) ->Dict[str, Any]:
+    def list_roles(self, **kwargs: Any) -> ListRoles:
+        query = gql(
+            """
+            query ListRoles {
+              roles {
+                id
+                key
+                name
+                createdAt
+                permissions
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {}
+        response = self.execute(
+            query=query, operation_name="ListRoles", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return ListRoles.model_validate(data)
+
+    def list_permissions(self, **kwargs: Any) -> ListPermissions:
+        query = gql(
+            """
+            query ListPermissions {
+              permissions
+            }
+            """
+        )
+        variables: Dict[str, object] = {}
+        response = self.execute(
+            query=query, operation_name="ListPermissions", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return ListPermissions.model_validate(data)
+
+    def list_partitions(self, **kwargs: Any) -> ListPartitions:
+        query = gql(
+            """
+            query ListPartitions {
+              partitions {
+                ...PartitionData
+              }
+            }
+
+            fragment ModelData on Model {
+              id
+              key
+              name
+              online
+              isExternal
+              providerName
+              isAdapter
+              isTraining
+              createdAt
+              kind
+              size
+            }
+
+            fragment PartitionData on Partition {
+              id
+              key
+              computePool {
+                key
+                name
+              }
+              status
+              url
+              worldSize
+              gpuTypes
+              createdAt
+              onlineModels {
+                ...ModelData
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {}
+        response = self.execute(
+            query=query, operation_name="ListPartitions", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return ListPartitions.model_validate(data)
+
+    def list_compute_pools(self, **kwargs: Any) -> ListComputePools:
+        query = gql(
+            """
+            query ListComputePools {
+              computePools {
+                key
+                name
+                capabilities
+                partitions {
+                  ...PartitionData
+                }
+              }
+            }
+
+            fragment ModelData on Model {
+              id
+              key
+              name
+              online
+              isExternal
+              providerName
+              isAdapter
+              isTraining
+              createdAt
+              kind
+              size
+            }
+
+            fragment PartitionData on Partition {
+              id
+              key
+              computePool {
+                key
+                name
+              }
+              status
+              url
+              worldSize
+              gpuTypes
+              createdAt
+              onlineModels {
+                ...ModelData
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {}
+        response = self.execute(
+            query=query,
+            operation_name="ListComputePools",
+            variables=variables,
+            **kwargs,
+        )
+        data = self.get_data(response)
+        return ListComputePools.model_validate(data)
+
+    async def execute_custom_operation(
+        self, *fields: GraphQLField, operation_type: OperationType, operation_name: str
+    ) -> Dict[str, Any]:
         selections = self._build_selection_set(fields)
         combined_variables = self._combine_variables(fields)
         variable_definitions = self._build_variable_definitions(
-            combined_variables['types'])
-        operation_ast = self._build_operation_ast(selections,
-            operation_type, operation_name, variable_definitions)
-        response = await self.execute(print_ast(operation_ast), variables=
-            combined_variables['values'], operation_name=operation_name)
+            combined_variables["types"]
+        )
+        operation_ast = self._build_operation_ast(
+            selections, operation_type, operation_name, variable_definitions
+        )
+        response = await self.execute(
+            print_ast(operation_ast),
+            variables=combined_variables["values"],
+            operation_name=operation_name,
+        )
         return self.get_data(response)
 
-    def _combine_variables(self, fields: Tuple[GraphQLField, ...]) ->Dict[
-        str, Dict[str, Any]]:
+    def _combine_variables(
+        self, fields: Tuple[GraphQLField, ...]
+    ) -> Dict[str, Dict[str, Any]]:
         variables_types_combined = {}
         processed_variables_combined = {}
         for field in fields:
             formatted_variables = field.get_formatted_variables()
-            variables_types_combined.update({k: v['type'] for k, v in
-                formatted_variables.items()})
-            processed_variables_combined.update({k: v['value'] for k, v in
-                formatted_variables.items()})
-        return {'types': variables_types_combined, 'values':
-            processed_variables_combined}
+            variables_types_combined.update(
+                {k: v["type"] for k, v in formatted_variables.items()}
+            )
+            processed_variables_combined.update(
+                {k: v["value"] for k, v in formatted_variables.items()}
+            )
+        return {
+            "types": variables_types_combined,
+            "values": processed_variables_combined,
+        }
 
-    def _build_variable_definitions(self, variables_types_combined: Dict[
-        str, str]) ->List[VariableDefinitionNode]:
-        return [VariableDefinitionNode(variable=VariableNode(name=NameNode(
-            value=var_name)), type=NamedTypeNode(name=NameNode(value=
-            var_value))) for var_name, var_value in
-            variables_types_combined.items()]
+    def _build_variable_definitions(
+        self, variables_types_combined: Dict[str, str]
+    ) -> List[VariableDefinitionNode]:
+        return [
+            VariableDefinitionNode(
+                variable=VariableNode(name=NameNode(value=var_name)),
+                type=NamedTypeNode(name=NameNode(value=var_value)),
+            )
+            for var_name, var_value in variables_types_combined.items()
+        ]
 
-    def _build_operation_ast(self, selections: List[SelectionNode],
-        operation_type: OperationType, operation_name: str,
-        variable_definitions: List[VariableDefinitionNode]) ->DocumentNode:
-        return DocumentNode(definitions=[OperationDefinitionNode(operation=
-            operation_type, name=NameNode(value=operation_name),
-            variable_definitions=variable_definitions, selection_set=
-            SelectionSetNode(selections=selections))])
+    def _build_operation_ast(
+        self,
+        selections: List[SelectionNode],
+        operation_type: OperationType,
+        operation_name: str,
+        variable_definitions: List[VariableDefinitionNode],
+    ) -> DocumentNode:
+        return DocumentNode(
+            definitions=[
+                OperationDefinitionNode(
+                    operation=operation_type,
+                    name=NameNode(value=operation_name),
+                    variable_definitions=variable_definitions,
+                    selection_set=SelectionSetNode(selections=selections),
+                )
+            ]
+        )
 
-    def _build_selection_set(self, fields: Tuple[GraphQLField, ...]) ->List[
-        SelectionNode]:
+    def _build_selection_set(
+        self, fields: Tuple[GraphQLField, ...]
+    ) -> List[SelectionNode]:
         return [field.to_ast(idx) for idx, field in enumerate(fields)]
 
-    async def query(self, *fields: GraphQLField, operation_name: str) ->Dict[
-        str, Any]:
-        return await self.execute_custom_operation(*fields, operation_type=
-            OperationType.QUERY, operation_name=operation_name)
+    async def query(self, *fields: GraphQLField, operation_name: str) -> Dict[str, Any]:
+        return await self.execute_custom_operation(
+            *fields, operation_type=OperationType.QUERY, operation_name=operation_name
+        )
 
-    async def mutation(self, *fields: GraphQLField, operation_name: str
-        ) ->Dict[str, Any]:
-        return await self.execute_custom_operation(*fields, operation_type=
-            OperationType.MUTATION, operation_name=operation_name)
+    async def mutation(
+        self, *fields: GraphQLField, operation_name: str
+    ) -> Dict[str, Any]:
+        return await self.execute_custom_operation(
+            *fields,
+            operation_type=OperationType.MUTATION,
+            operation_name=operation_name,
+        )

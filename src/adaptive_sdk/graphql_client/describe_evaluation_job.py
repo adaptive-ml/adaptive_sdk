@@ -6,12 +6,15 @@ from .fragments import EvaluationJobData
 
 class DescribeEvaluationJob(BaseModel):
     """@public"""
-    evaluation_job: Optional['DescribeEvaluationJobEvaluationJob'] = Field(
-        alias='evaluationJob')
+
+    evaluation_job: Optional["DescribeEvaluationJobEvaluationJob"] = Field(
+        alias="evaluationJob"
+    )
 
 
 class DescribeEvaluationJobEvaluationJob(EvaluationJobData):
     """@public"""
+
     pass
 
 

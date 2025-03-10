@@ -1,24 +1,125 @@
 from typing import Any, Dict, Optional, Union
 from .base_operation import GraphQLField
-from .custom_typing_fields import AbcampaignGraphQLField, AbReportGraphQLField, AbVariantReportComparisonGraphQLField, AbVariantReportGraphQLField, ActivityGraphQLField, ActivityOutputGraphQLField, AdaptRequestConfigOutputGraphQLField, ApiKeyGraphQLField, AuthProviderGraphQLField, BaseTrainingParamsOutputGraphQLField, BatchInferenceJobStageOutputGraphQLField, ChatMessageGraphQLField, ComparisonFeedbackGraphQLField, CompletionConnectionGraphQLField, CompletionEdgeGraphQLField, CompletionFeedbackFilterOutputGraphQLField, CompletionGraphQLField, CompletionGroupDataConnectionGraphQLField, CompletionGroupDataEdgeGraphQLField, CompletionGroupDataGraphQLField, CompletionGroupFeedbackStatsGraphQLField, CompletionHistoryEntryOuputGraphQLField, CompletionLabelFilterOutputGraphQLField, CompletionLabelGraphQLField, CompletionMetadataGraphQLField, DatasetGraphQLField, DirectFeedbackGraphQLField, DpotrainingParamsOutputGraphQLField, EmojiGraphQLField, EvalJobStageOutputGraphQLField, EvaluationCustomRecipeGraphQLField, EvaluationFaithfulnessRecipeGraphQLField, EvaluationJobGraphQLField, EvaluationRecipeUnion, GuidelinesTrainingParamsOutputGraphQLField, InteractionOutputGraphQLField, IntervalGraphQLField, JobStageInfoOutputUnion, JobStageOutputGraphQLField, LabelKeyUsageGraphQLField, LabelUsageGraphQLField, LabelValueUsageGraphQLField, ListCompletionsFilterOutputGraphQLField, MetaObjectGraphQLField, MetricActivityGraphQLField, MetricGraphQLField, MetricTrainingParamsMetadataOutputUnion, MetricTrainingParamsOutputGraphQLField, MetricWithContextGraphQLField, ModelGraphQLField, ModelServiceGraphQLField, PageInfoGraphQLField, PpotrainingParamsOutputGraphQLField, ProviderListGraphQLField, RoleGraphQLField, SampleConfigOutputGraphQLField, ScalarMetricConfigOutputGraphQLField, SessionGraphQLField, SettingsGraphQLField, ShareGraphQLField, SystemPromptTemplateGraphQLField, TeamGraphQLField, TeamMemberGraphQLField, TeamWithroleGraphQLField, TimeRangeOutputGraphQLField, TimeseriesGraphQLField, TrainingConfigOutputGraphQLField, TrainingJobGraphQLField, TrainingJobStageOutputGraphQLField, TrainingMetadataOutputGraphQLField, TrainingMetadataOutputParametersUnion, TrainingObjectiveOutputUnion, TrendResultGraphQLField, UnitConfigGraphQLField, UseCaseGraphQLField, UseCaseMetadataGraphQLField, UserGraphQLField, WidgetGraphQLField
-from .input_types import AbCampaignFilter, CursorPageInput, ListCompletionsFilterInput, MetricTrendInput, ModelServiceFilter, OrderPair, TimeRange, TimeseriesInput, UseCaseFilter
+from .custom_typing_fields import (
+    AbcampaignGraphQLField,
+    AbReportGraphQLField,
+    AbVariantReportComparisonGraphQLField,
+    AbVariantReportGraphQLField,
+    ActivityGraphQLField,
+    ActivityOutputGraphQLField,
+    AdaptRequestConfigOutputGraphQLField,
+    ApiKeyGraphQLField,
+    AuthProviderGraphQLField,
+    BaseTrainingParamsOutputGraphQLField,
+    BatchInferenceJobStageOutputGraphQLField,
+    ChatMessageGraphQLField,
+    ComparisonFeedbackGraphQLField,
+    CompletionConnectionGraphQLField,
+    CompletionEdgeGraphQLField,
+    CompletionFeedbackFilterOutputGraphQLField,
+    CompletionGraphQLField,
+    CompletionGroupDataConnectionGraphQLField,
+    CompletionGroupDataEdgeGraphQLField,
+    CompletionGroupDataGraphQLField,
+    CompletionGroupFeedbackStatsGraphQLField,
+    CompletionHistoryEntryOuputGraphQLField,
+    CompletionLabelFilterOutputGraphQLField,
+    CompletionLabelGraphQLField,
+    CompletionMetadataGraphQLField,
+    ComputePoolGraphQLField,
+    DatasetGraphQLField,
+    DatasetMetricUsageGraphQLField,
+    DirectFeedbackGraphQLField,
+    DpotrainingParamsOutputGraphQLField,
+    EmojiGraphQLField,
+    EvalJobStageOutputGraphQLField,
+    EvaluationCustomRecipeGraphQLField,
+    EvaluationFaithfulnessRecipeGraphQLField,
+    EvaluationJobGraphQLField,
+    EvaluationRecipeUnion,
+    GuidelineGraphQLField,
+    GuidelinesTrainingParamsOutputGraphQLField,
+    InteractionOutputGraphQLField,
+    IntervalGraphQLField,
+    JobStageInfoOutputUnion,
+    JobStageOutputGraphQLField,
+    LabelKeyUsageGraphQLField,
+    LabelUsageGraphQLField,
+    LabelValueUsageGraphQLField,
+    ListCompletionsFilterOutputGraphQLField,
+    MetaObjectGraphQLField,
+    MetricActivityGraphQLField,
+    MetricGraphQLField,
+    MetricTrainingParamsMetadataOutputUnion,
+    MetricTrainingParamsOutputGraphQLField,
+    MetricWithContextGraphQLField,
+    ModelGraphQLField,
+    ModelPlacementOutputGraphQLField,
+    ModelServiceGraphQLField,
+    PageInfoGraphQLField,
+    PartitionGraphQLField,
+    PpotrainingParamsOutputGraphQLField,
+    ProviderListGraphQLField,
+    RoleGraphQLField,
+    SampleConfigOutputGraphQLField,
+    SampleDatasourceCompletionsOutputGraphQLField,
+    SampleDatasourceDatasetOutputGraphQLField,
+    SampleDatasourceOutputUnion,
+    ScalarMetricConfigOutputGraphQLField,
+    SessionGraphQLField,
+    SettingsGraphQLField,
+    SfttrainingParamsOutputGraphQLField,
+    ShareGraphQLField,
+    SystemPromptTemplateGraphQLField,
+    TeamGraphQLField,
+    TeamMemberGraphQLField,
+    TeamWithroleGraphQLField,
+    TimeRangeOutputGraphQLField,
+    TimeseriesGraphQLField,
+    TrainingConfigOutputGraphQLField,
+    TrainingJobGraphQLField,
+    TrainingJobStageOutputGraphQLField,
+    TrainingMetadataOutputGraphQLField,
+    TrainingMetadataOutputParametersUnion,
+    TrainingObjectiveOutputUnion,
+    TrendResultGraphQLField,
+    UnitConfigGraphQLField,
+    UseCaseGraphQLField,
+    UseCaseMetadataGraphQLField,
+    UserGraphQLField,
+    WidgetGraphQLField,
+)
+from .input_types import (
+    AbCampaignFilter,
+    CursorPageInput,
+    FeedbackFilterInput,
+    ListCompletionsFilterInput,
+    MetricTrendInput,
+    ModelServiceFilter,
+    OrderPair,
+    TimeRange,
+    TimeseriesInput,
+    UseCaseFilter,
+)
 
 
 class AbReportFields(GraphQLField):
     """@private"""
-    p_value: 'AbReportGraphQLField' = AbReportGraphQLField('pValue')
+
+    p_value: "AbReportGraphQLField" = AbReportGraphQLField("pValue")
 
     @classmethod
-    def variants(cls) ->'AbVariantReportFields':
-        return AbVariantReportFields('variants')
+    def variants(cls) -> "AbVariantReportFields":
+        return AbVariantReportFields("variants")
 
-    def fields(self, *subfields: Union[AbReportGraphQLField,
-        'AbVariantReportFields']) ->'AbReportFields':
+    def fields(
+        self, *subfields: Union[AbReportGraphQLField, "AbVariantReportFields"]
+    ) -> "AbReportFields":
         """Subfields should come from the AbReportFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'AbReportFields':
+    def alias(self, alias: str) -> "AbReportFields":
         self._alias = alias
         return self
 
@@ -27,28 +128,34 @@ class AbVariantReportFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def variant(cls) ->'ModelServiceFields':
-        return ModelServiceFields('variant')
+    def variant(cls) -> "ModelServiceFields":
+        return ModelServiceFields("variant")
 
     @classmethod
-    def interval(cls) ->'IntervalFields':
-        return IntervalFields('interval')
-    mean: 'AbVariantReportGraphQLField' = AbVariantReportGraphQLField('mean')
-    feedbacks: 'AbVariantReportGraphQLField' = AbVariantReportGraphQLField(
-        'feedbacks')
+    def interval(cls) -> "IntervalFields":
+        return IntervalFields("interval")
+
+    mean: "AbVariantReportGraphQLField" = AbVariantReportGraphQLField("mean")
+    feedbacks: "AbVariantReportGraphQLField" = AbVariantReportGraphQLField("feedbacks")
 
     @classmethod
-    def comparisons(cls) ->'AbVariantReportComparisonFields':
-        return AbVariantReportComparisonFields('comparisons')
+    def comparisons(cls) -> "AbVariantReportComparisonFields":
+        return AbVariantReportComparisonFields("comparisons")
 
-    def fields(self, *subfields: Union[AbVariantReportGraphQLField,
-        'AbVariantReportComparisonFields', 'IntervalFields',
-        'ModelServiceFields']) ->'AbVariantReportFields':
+    def fields(
+        self,
+        *subfields: Union[
+            AbVariantReportGraphQLField,
+            "AbVariantReportComparisonFields",
+            "IntervalFields",
+            "ModelServiceFields",
+        ],
+    ) -> "AbVariantReportFields":
         """Subfields should come from the AbVariantReportFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'AbVariantReportFields':
+    def alias(self, alias: str) -> "AbVariantReportFields":
         self._alias = alias
         return self
 
@@ -57,74 +164,89 @@ class AbVariantReportComparisonFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def variant(cls) ->'ModelServiceFields':
-        return ModelServiceFields('variant')
-    feedbacks: 'AbVariantReportComparisonGraphQLField' = (
-        AbVariantReportComparisonGraphQLField('feedbacks'))
-    wins: 'AbVariantReportComparisonGraphQLField' = (
-        AbVariantReportComparisonGraphQLField('wins'))
-    losses: 'AbVariantReportComparisonGraphQLField' = (
-        AbVariantReportComparisonGraphQLField('losses'))
-    ties_good: 'AbVariantReportComparisonGraphQLField' = (
-        AbVariantReportComparisonGraphQLField('tiesGood'))
-    ties_bad: 'AbVariantReportComparisonGraphQLField' = (
-        AbVariantReportComparisonGraphQLField('tiesBad'))
+    def variant(cls) -> "ModelServiceFields":
+        return ModelServiceFields("variant")
 
-    def fields(self, *subfields: Union[
-        AbVariantReportComparisonGraphQLField, 'ModelServiceFields']
-        ) ->'AbVariantReportComparisonFields':
+    feedbacks: "AbVariantReportComparisonGraphQLField" = (
+        AbVariantReportComparisonGraphQLField("feedbacks")
+    )
+    wins: "AbVariantReportComparisonGraphQLField" = (
+        AbVariantReportComparisonGraphQLField("wins")
+    )
+    losses: "AbVariantReportComparisonGraphQLField" = (
+        AbVariantReportComparisonGraphQLField("losses")
+    )
+    ties_good: "AbVariantReportComparisonGraphQLField" = (
+        AbVariantReportComparisonGraphQLField("tiesGood")
+    )
+    ties_bad: "AbVariantReportComparisonGraphQLField" = (
+        AbVariantReportComparisonGraphQLField("tiesBad")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[AbVariantReportComparisonGraphQLField, "ModelServiceFields"],
+    ) -> "AbVariantReportComparisonFields":
         """Subfields should come from the AbVariantReportComparisonFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'AbVariantReportComparisonFields':
+    def alias(self, alias: str) -> "AbVariantReportComparisonFields":
         self._alias = alias
         return self
 
 
 class AbcampaignFields(GraphQLField):
     """@private"""
-    id: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('id')
-    key: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('key')
-    name: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('name')
+
+    id: "AbcampaignGraphQLField" = AbcampaignGraphQLField("id")
+    key: "AbcampaignGraphQLField" = AbcampaignGraphQLField("key")
+    name: "AbcampaignGraphQLField" = AbcampaignGraphQLField("name")
 
     @classmethod
-    def metric(cls) ->'MetricFields':
-        return MetricFields('metric')
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
 
     @classmethod
-    def use_case(cls) ->'UseCaseFields':
-        return UseCaseFields('use_case')
-    auto_deploy: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('autoDeploy'
-        )
-    status: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('status')
-    feedback_type: 'AbcampaignGraphQLField' = AbcampaignGraphQLField(
-        'feedbackType')
-    traffic_split: 'AbcampaignGraphQLField' = AbcampaignGraphQLField(
-        'trafficSplit')
-    begin_date: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('beginDate')
-    end_date: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('endDate')
-    created_at: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('createdAt')
+    def use_case(cls) -> "UseCaseFields":
+        return UseCaseFields("use_case")
+
+    auto_deploy: "AbcampaignGraphQLField" = AbcampaignGraphQLField("autoDeploy")
+    status: "AbcampaignGraphQLField" = AbcampaignGraphQLField("status")
+    feedback_type: "AbcampaignGraphQLField" = AbcampaignGraphQLField("feedbackType")
+    traffic_split: "AbcampaignGraphQLField" = AbcampaignGraphQLField("trafficSplit")
+    begin_date: "AbcampaignGraphQLField" = AbcampaignGraphQLField("beginDate")
+    end_date: "AbcampaignGraphQLField" = AbcampaignGraphQLField("endDate")
+    created_at: "AbcampaignGraphQLField" = AbcampaignGraphQLField("createdAt")
 
     @classmethod
-    def report(cls) ->'AbReportFields':
-        return AbReportFields('report')
+    def report(cls) -> "AbReportFields":
+        return AbReportFields("report")
 
     @classmethod
-    def models(cls) ->'ModelServiceFields':
-        return ModelServiceFields('models')
-    feedbacks: 'AbcampaignGraphQLField' = AbcampaignGraphQLField('feedbacks')
-    has_enough_feedbacks: 'AbcampaignGraphQLField' = AbcampaignGraphQLField(
-        'hasEnoughFeedbacks')
+    def models(cls) -> "ModelServiceFields":
+        return ModelServiceFields("models")
 
-    def fields(self, *subfields: Union[AbcampaignGraphQLField,
-        'AbReportFields', 'MetricFields', 'ModelServiceFields',
-        'UseCaseFields']) ->'AbcampaignFields':
+    feedbacks: "AbcampaignGraphQLField" = AbcampaignGraphQLField("feedbacks")
+    has_enough_feedbacks: "AbcampaignGraphQLField" = AbcampaignGraphQLField(
+        "hasEnoughFeedbacks"
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            AbcampaignGraphQLField,
+            "AbReportFields",
+            "MetricFields",
+            "ModelServiceFields",
+            "UseCaseFields",
+        ],
+    ) -> "AbcampaignFields":
         """Subfields should come from the AbcampaignFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'AbcampaignFields':
+    def alias(self, alias: str) -> "AbcampaignFields":
         self._alias = alias
         return self
 
@@ -133,280 +255,340 @@ class ActivityFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def interactions(cls) ->'InteractionOutputFields':
-        return InteractionOutputFields('interactions')
+    def interactions(cls) -> "InteractionOutputFields":
+        return InteractionOutputFields("interactions")
 
     @classmethod
-    def feedbacks(cls) ->'ActivityOutputFields':
-        return ActivityOutputFields('feedbacks')
+    def feedbacks(cls) -> "ActivityOutputFields":
+        return ActivityOutputFields("feedbacks")
 
     @classmethod
-    def unique_users(cls) ->'ActivityOutputFields':
-        return ActivityOutputFields('unique_users')
+    def unique_users(cls) -> "ActivityOutputFields":
+        return ActivityOutputFields("unique_users")
 
-    def fields(self, *subfields: Union[ActivityGraphQLField,
-        'ActivityOutputFields', 'InteractionOutputFields']) ->'ActivityFields':
+    def fields(
+        self,
+        *subfields: Union[
+            ActivityGraphQLField, "ActivityOutputFields", "InteractionOutputFields"
+        ],
+    ) -> "ActivityFields":
         """Subfields should come from the ActivityFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ActivityFields':
+    def alias(self, alias: str) -> "ActivityFields":
         self._alias = alias
         return self
 
 
 class ActivityOutputFields(GraphQLField):
     """@private"""
-    value: 'ActivityOutputGraphQLField' = ActivityOutputGraphQLField('value')
-    trend: 'ActivityOutputGraphQLField' = ActivityOutputGraphQLField('trend')
 
-    def fields(self, *subfields: ActivityOutputGraphQLField
-        ) ->'ActivityOutputFields':
+    value: "ActivityOutputGraphQLField" = ActivityOutputGraphQLField("value")
+    trend: "ActivityOutputGraphQLField" = ActivityOutputGraphQLField("trend")
+
+    def fields(self, *subfields: ActivityOutputGraphQLField) -> "ActivityOutputFields":
         """Subfields should come from the ActivityOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ActivityOutputFields':
+    def alias(self, alias: str) -> "ActivityOutputFields":
         self._alias = alias
         return self
 
 
 class AdaptRequestConfigOutputFields(GraphQLField):
     """@private"""
-    output_name: 'AdaptRequestConfigOutputGraphQLField' = (
-        AdaptRequestConfigOutputGraphQLField('outputName'))
+
+    output_name: "AdaptRequestConfigOutputGraphQLField" = (
+        AdaptRequestConfigOutputGraphQLField("outputName")
+    )
 
     @classmethod
-    def sample_config(cls) ->'SampleConfigOutputFields':
-        return SampleConfigOutputFields('sample_config')
+    def sample_config(cls) -> "SampleConfigOutputFields":
+        return SampleConfigOutputFields("sample_config")
 
     @classmethod
-    def training_config(cls) ->'TrainingConfigOutputFields':
-        return TrainingConfigOutputFields('training_config')
+    def training_config(cls) -> "TrainingConfigOutputFields":
+        return TrainingConfigOutputFields("training_config")
 
-    def fields(self, *subfields: Union[AdaptRequestConfigOutputGraphQLField,
-        'SampleConfigOutputFields', 'TrainingConfigOutputFields']
-        ) ->'AdaptRequestConfigOutputFields':
+    def fields(
+        self,
+        *subfields: Union[
+            AdaptRequestConfigOutputGraphQLField,
+            "SampleConfigOutputFields",
+            "TrainingConfigOutputFields",
+        ],
+    ) -> "AdaptRequestConfigOutputFields":
         """Subfields should come from the AdaptRequestConfigOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'AdaptRequestConfigOutputFields':
+    def alias(self, alias: str) -> "AdaptRequestConfigOutputFields":
         self._alias = alias
         return self
 
 
 class ApiKeyFields(GraphQLField):
     """@private"""
-    key: 'ApiKeyGraphQLField' = ApiKeyGraphQLField('key')
-    created_at: 'ApiKeyGraphQLField' = ApiKeyGraphQLField('createdAt')
 
-    def fields(self, *subfields: ApiKeyGraphQLField) ->'ApiKeyFields':
+    key: "ApiKeyGraphQLField" = ApiKeyGraphQLField("key")
+    created_at: "ApiKeyGraphQLField" = ApiKeyGraphQLField("createdAt")
+
+    def fields(self, *subfields: ApiKeyGraphQLField) -> "ApiKeyFields":
         """Subfields should come from the ApiKeyFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ApiKeyFields':
+    def alias(self, alias: str) -> "ApiKeyFields":
         self._alias = alias
         return self
 
 
 class AuthProviderFields(GraphQLField):
     """@private"""
-    name: 'AuthProviderGraphQLField' = AuthProviderGraphQLField('name')
-    key: 'AuthProviderGraphQLField' = AuthProviderGraphQLField('key')
-    kind: 'AuthProviderGraphQLField' = AuthProviderGraphQLField('kind')
-    login_url: 'AuthProviderGraphQLField' = AuthProviderGraphQLField('loginUrl'
-        )
 
-    def fields(self, *subfields: AuthProviderGraphQLField
-        ) ->'AuthProviderFields':
+    name: "AuthProviderGraphQLField" = AuthProviderGraphQLField("name")
+    key: "AuthProviderGraphQLField" = AuthProviderGraphQLField("key")
+    kind: "AuthProviderGraphQLField" = AuthProviderGraphQLField("kind")
+    login_url: "AuthProviderGraphQLField" = AuthProviderGraphQLField("loginUrl")
+
+    def fields(self, *subfields: AuthProviderGraphQLField) -> "AuthProviderFields":
         """Subfields should come from the AuthProviderFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'AuthProviderFields':
+    def alias(self, alias: str) -> "AuthProviderFields":
         self._alias = alias
         return self
 
 
 class BaseTrainingParamsOutputFields(GraphQLField):
     """@private"""
-    learning_rate: 'BaseTrainingParamsOutputGraphQLField' = (
-        BaseTrainingParamsOutputGraphQLField('learningRate'))
-    num_epochs: 'BaseTrainingParamsOutputGraphQLField' = (
-        BaseTrainingParamsOutputGraphQLField('numEpochs'))
-    batch_size: 'BaseTrainingParamsOutputGraphQLField' = (
-        BaseTrainingParamsOutputGraphQLField('batchSize'))
-    num_validations: 'BaseTrainingParamsOutputGraphQLField' = (
-        BaseTrainingParamsOutputGraphQLField('numValidations'))
 
-    def fields(self, *subfields: BaseTrainingParamsOutputGraphQLField
-        ) ->'BaseTrainingParamsOutputFields':
+    learning_rate: "BaseTrainingParamsOutputGraphQLField" = (
+        BaseTrainingParamsOutputGraphQLField("learningRate")
+    )
+    num_epochs: "BaseTrainingParamsOutputGraphQLField" = (
+        BaseTrainingParamsOutputGraphQLField("numEpochs")
+    )
+    batch_size: "BaseTrainingParamsOutputGraphQLField" = (
+        BaseTrainingParamsOutputGraphQLField("batchSize")
+    )
+    num_validations: "BaseTrainingParamsOutputGraphQLField" = (
+        BaseTrainingParamsOutputGraphQLField("numValidations")
+    )
+
+    def fields(
+        self, *subfields: BaseTrainingParamsOutputGraphQLField
+    ) -> "BaseTrainingParamsOutputFields":
         """Subfields should come from the BaseTrainingParamsOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'BaseTrainingParamsOutputFields':
+    def alias(self, alias: str) -> "BaseTrainingParamsOutputFields":
         self._alias = alias
         return self
 
 
 class BatchInferenceJobStageOutputFields(GraphQLField):
     """@private"""
-    total_num_samples: 'BatchInferenceJobStageOutputGraphQLField' = (
-        BatchInferenceJobStageOutputGraphQLField('totalNumSamples'))
-    processed_num_samples: 'BatchInferenceJobStageOutputGraphQLField' = (
-        BatchInferenceJobStageOutputGraphQLField('processedNumSamples'))
 
-    def fields(self, *subfields: BatchInferenceJobStageOutputGraphQLField
-        ) ->'BatchInferenceJobStageOutputFields':
+    total_num_samples: "BatchInferenceJobStageOutputGraphQLField" = (
+        BatchInferenceJobStageOutputGraphQLField("totalNumSamples")
+    )
+    processed_num_samples: "BatchInferenceJobStageOutputGraphQLField" = (
+        BatchInferenceJobStageOutputGraphQLField("processedNumSamples")
+    )
+    monitoring_link: "BatchInferenceJobStageOutputGraphQLField" = (
+        BatchInferenceJobStageOutputGraphQLField("monitoringLink")
+    )
+
+    def fields(
+        self, *subfields: BatchInferenceJobStageOutputGraphQLField
+    ) -> "BatchInferenceJobStageOutputFields":
         """Subfields should come from the BatchInferenceJobStageOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'BatchInferenceJobStageOutputFields':
+    def alias(self, alias: str) -> "BatchInferenceJobStageOutputFields":
         self._alias = alias
         return self
 
 
 class ChatMessageFields(GraphQLField):
     """@private"""
-    role: 'ChatMessageGraphQLField' = ChatMessageGraphQLField('role')
-    content: 'ChatMessageGraphQLField' = ChatMessageGraphQLField('content')
 
-    def fields(self, *subfields: ChatMessageGraphQLField
-        ) ->'ChatMessageFields':
+    role: "ChatMessageGraphQLField" = ChatMessageGraphQLField("role")
+    content: "ChatMessageGraphQLField" = ChatMessageGraphQLField("content")
+
+    def fields(self, *subfields: ChatMessageGraphQLField) -> "ChatMessageFields":
         """Subfields should come from the ChatMessageFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ChatMessageFields':
+    def alias(self, alias: str) -> "ChatMessageFields":
         self._alias = alias
         return self
 
 
 class ComparisonFeedbackFields(GraphQLField):
     """@private"""
-    id: 'ComparisonFeedbackGraphQLField' = ComparisonFeedbackGraphQLField('id')
-    created_at: 'ComparisonFeedbackGraphQLField' = (
-        ComparisonFeedbackGraphQLField('createdAt'))
+
+    id: "ComparisonFeedbackGraphQLField" = ComparisonFeedbackGraphQLField("id")
+    created_at: "ComparisonFeedbackGraphQLField" = ComparisonFeedbackGraphQLField(
+        "createdAt"
+    )
 
     @classmethod
-    def usecase(cls) ->'UseCaseFields':
-        return UseCaseFields('usecase')
+    def usecase(cls) -> "UseCaseFields":
+        return UseCaseFields("usecase")
 
     @classmethod
-    def metric(cls) ->'MetricFields':
-        return MetricFields('metric')
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
 
     @classmethod
-    def prefered_completion(cls) ->'CompletionFields':
-        return CompletionFields('prefered_completion')
+    def prefered_completion(cls) -> "CompletionFields":
+        return CompletionFields("prefered_completion")
 
     @classmethod
-    def other_completion(cls) ->'CompletionFields':
-        return CompletionFields('other_completion')
+    def other_completion(cls) -> "CompletionFields":
+        return CompletionFields("other_completion")
 
-    def fields(self, *subfields: Union[ComparisonFeedbackGraphQLField,
-        'CompletionFields', 'MetricFields', 'UseCaseFields']
-        ) ->'ComparisonFeedbackFields':
+    def fields(
+        self,
+        *subfields: Union[
+            ComparisonFeedbackGraphQLField,
+            "CompletionFields",
+            "MetricFields",
+            "UseCaseFields",
+        ],
+    ) -> "ComparisonFeedbackFields":
         """Subfields should come from the ComparisonFeedbackFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ComparisonFeedbackFields':
+    def alias(self, alias: str) -> "ComparisonFeedbackFields":
         self._alias = alias
         return self
 
 
 class CompletionFields(GraphQLField):
     """@private"""
-    id: 'CompletionGraphQLField' = CompletionGraphQLField('id')
+
+    id: "CompletionGraphQLField" = CompletionGraphQLField("id")
 
     @classmethod
-    def prompt(cls, *, max_length: Optional[int]=None
-        ) ->'CompletionGraphQLField':
-        arguments: Dict[str, Dict[str, Any]] = {'maxLength': {'type': 'Int',
-            'value': max_length}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return CompletionGraphQLField('prompt', arguments=cleared_arguments)
-    prompt_hash: 'CompletionGraphQLField' = CompletionGraphQLField('promptHash'
-        )
+    def prompt(cls, *, max_length: Optional[int] = None) -> "CompletionGraphQLField":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "maxLength": {"type": "Int", "value": max_length}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return CompletionGraphQLField("prompt", arguments=cleared_arguments)
+
+    prompt_hash: "CompletionGraphQLField" = CompletionGraphQLField("promptHash")
 
     @classmethod
-    def chat_messages(cls) ->'ChatMessageFields':
-        return ChatMessageFields('chat_messages')
+    def chat_messages(cls) -> "ChatMessageFields":
+        return ChatMessageFields("chat_messages")
 
     @classmethod
-    def completion(cls, *, max_length: Optional[int]=None
-        ) ->'CompletionGraphQLField':
-        arguments: Dict[str, Dict[str, Any]] = {'maxLength': {'type': 'Int',
-            'value': max_length}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return CompletionGraphQLField('completion', arguments=cleared_arguments
-            )
-    source: 'CompletionGraphQLField' = CompletionGraphQLField('source')
+    def completion(
+        cls, *, max_length: Optional[int] = None
+    ) -> "CompletionGraphQLField":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "maxLength": {"type": "Int", "value": max_length}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return CompletionGraphQLField("completion", arguments=cleared_arguments)
+
+    source: "CompletionGraphQLField" = CompletionGraphQLField("source")
 
     @classmethod
-    def model_service(cls) ->'ModelServiceFields':
-        return ModelServiceFields('model_service')
+    def model_service(cls) -> "ModelServiceFields":
+        return ModelServiceFields("model_service")
 
     @classmethod
-    def model(cls) ->'ModelFields':
-        return ModelFields('model')
+    def model(cls) -> "ModelFields":
+        return ModelFields("model")
 
     @classmethod
-    def direct_feedbacks(cls) ->'DirectFeedbackFields':
-        return DirectFeedbackFields('direct_feedbacks')
+    def direct_feedbacks(
+        cls, *, filter: Optional[FeedbackFilterInput] = None
+    ) -> "DirectFeedbackFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "FeedbackFilterInput", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return DirectFeedbackFields("direct_feedbacks", arguments=cleared_arguments)
 
     @classmethod
-    def comparison_feedbacks(cls) ->'ComparisonFeedbackFields':
-        return ComparisonFeedbackFields('comparison_feedbacks')
+    def comparison_feedbacks(cls) -> "ComparisonFeedbackFields":
+        return ComparisonFeedbackFields("comparison_feedbacks")
 
     @classmethod
-    def session(cls) ->'SessionFields':
-        return SessionFields('session')
+    def session(cls) -> "SessionFields":
+        return SessionFields("session")
 
     @classmethod
-    def history(cls) ->'CompletionHistoryEntryOuputFields':
-        return CompletionHistoryEntryOuputFields('history')
+    def history(cls) -> "CompletionHistoryEntryOuputFields":
+        return CompletionHistoryEntryOuputFields("history")
 
     @classmethod
-    def labels(cls, with_protected: bool) ->'CompletionLabelFields':
-        arguments: Dict[str, Dict[str, Any]] = {'withProtected': {'type':
-            'Boolean!', 'value': with_protected}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return CompletionLabelFields('labels', arguments=cleared_arguments)
-    created_at: 'CompletionGraphQLField' = CompletionGraphQLField('createdAt')
+    def labels(cls, with_protected: bool) -> "CompletionLabelFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "withProtected": {"type": "Boolean!", "value": with_protected}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return CompletionLabelFields("labels", arguments=cleared_arguments)
+
+    created_at: "CompletionGraphQLField" = CompletionGraphQLField("createdAt")
 
     @classmethod
-    def siblings_count(cls, filter: ListCompletionsFilterInput
-        ) ->'CompletionGraphQLField':
-        arguments: Dict[str, Dict[str, Any]] = {'filter': {'type':
-            'ListCompletionsFilterInput!', 'value': filter}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return CompletionGraphQLField('siblings_count', arguments=
-            cleared_arguments)
+    def siblings_count(
+        cls, filter: ListCompletionsFilterInput
+    ) -> "CompletionGraphQLField":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "ListCompletionsFilterInput!", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return CompletionGraphQLField("siblings_count", arguments=cleared_arguments)
 
     @classmethod
-    def metadata(cls) ->'CompletionMetadataFields':
-        return CompletionMetadataFields('metadata')
+    def metadata(cls) -> "CompletionMetadataFields":
+        return CompletionMetadataFields("metadata")
 
-    def fields(self, *subfields: Union[CompletionGraphQLField,
-        'ChatMessageFields', 'ComparisonFeedbackFields',
-        'CompletionHistoryEntryOuputFields', 'CompletionLabelFields',
-        'CompletionMetadataFields', 'DirectFeedbackFields', 'ModelFields',
-        'ModelServiceFields', 'SessionFields']) ->'CompletionFields':
+    def fields(
+        self,
+        *subfields: Union[
+            CompletionGraphQLField,
+            "ChatMessageFields",
+            "ComparisonFeedbackFields",
+            "CompletionHistoryEntryOuputFields",
+            "CompletionLabelFields",
+            "CompletionMetadataFields",
+            "DirectFeedbackFields",
+            "ModelFields",
+            "ModelServiceFields",
+            "SessionFields",
+        ],
+    ) -> "CompletionFields":
         """Subfields should come from the CompletionFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionFields':
+    def alias(self, alias: str) -> "CompletionFields":
         self._alias = alias
         return self
 
@@ -415,27 +597,35 @@ class CompletionConnectionFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def page_info(cls) ->'PageInfoFields':
-        return PageInfoFields('page_info')
+    def page_info(cls) -> "PageInfoFields":
+        return PageInfoFields("page_info")
 
     @classmethod
-    def edges(cls) ->'CompletionEdgeFields':
-        return CompletionEdgeFields('edges')
+    def edges(cls) -> "CompletionEdgeFields":
+        return CompletionEdgeFields("edges")
 
     @classmethod
-    def nodes(cls) ->'CompletionFields':
-        return CompletionFields('nodes')
-    total_count: 'CompletionConnectionGraphQLField' = (
-        CompletionConnectionGraphQLField('totalCount'))
+    def nodes(cls) -> "CompletionFields":
+        return CompletionFields("nodes")
 
-    def fields(self, *subfields: Union[CompletionConnectionGraphQLField,
-        'CompletionEdgeFields', 'CompletionFields', 'PageInfoFields']
-        ) ->'CompletionConnectionFields':
+    total_count: "CompletionConnectionGraphQLField" = CompletionConnectionGraphQLField(
+        "totalCount"
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            CompletionConnectionGraphQLField,
+            "CompletionEdgeFields",
+            "CompletionFields",
+            "PageInfoFields",
+        ],
+    ) -> "CompletionConnectionFields":
         """Subfields should come from the CompletionConnectionFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionConnectionFields':
+    def alias(self, alias: str) -> "CompletionConnectionFields":
         self._alias = alias
         return self
 
@@ -444,83 +634,102 @@ class CompletionEdgeFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def node(cls) ->'CompletionFields':
-        return CompletionFields('node')
-    cursor: 'CompletionEdgeGraphQLField' = CompletionEdgeGraphQLField('cursor')
+    def node(cls) -> "CompletionFields":
+        return CompletionFields("node")
 
-    def fields(self, *subfields: Union[CompletionEdgeGraphQLField,
-        'CompletionFields']) ->'CompletionEdgeFields':
+    cursor: "CompletionEdgeGraphQLField" = CompletionEdgeGraphQLField("cursor")
+
+    def fields(
+        self, *subfields: Union[CompletionEdgeGraphQLField, "CompletionFields"]
+    ) -> "CompletionEdgeFields":
         """Subfields should come from the CompletionEdgeFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionEdgeFields':
+    def alias(self, alias: str) -> "CompletionEdgeFields":
         self._alias = alias
         return self
 
 
 class CompletionFeedbackFilterOutputFields(GraphQLField):
     """@private"""
-    metric: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('metric'))
-    gt: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('gt'))
-    gte: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('gte'))
-    eq: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('eq'))
-    neq: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('neq'))
-    lt: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('lt'))
-    lte: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('lte'))
-    reasons: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('reasons'))
-    user: 'CompletionFeedbackFilterOutputGraphQLField' = (
-        CompletionFeedbackFilterOutputGraphQLField('user'))
 
-    def fields(self, *subfields: CompletionFeedbackFilterOutputGraphQLField
-        ) ->'CompletionFeedbackFilterOutputFields':
+    metric: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("metric")
+    )
+    gt: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("gt")
+    )
+    gte: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("gte")
+    )
+    eq: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("eq")
+    )
+    neq: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("neq")
+    )
+    lt: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("lt")
+    )
+    lte: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("lte")
+    )
+    reasons: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("reasons")
+    )
+    user: "CompletionFeedbackFilterOutputGraphQLField" = (
+        CompletionFeedbackFilterOutputGraphQLField("user")
+    )
+
+    def fields(
+        self, *subfields: CompletionFeedbackFilterOutputGraphQLField
+    ) -> "CompletionFeedbackFilterOutputFields":
         """Subfields should come from the CompletionFeedbackFilterOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionFeedbackFilterOutputFields':
+    def alias(self, alias: str) -> "CompletionFeedbackFilterOutputFields":
         self._alias = alias
         return self
 
 
 class CompletionGroupDataFields(GraphQLField):
     """@private"""
-    key: 'CompletionGroupDataGraphQLField' = CompletionGroupDataGraphQLField(
-        'key')
-    count: 'CompletionGroupDataGraphQLField' = CompletionGroupDataGraphQLField(
-        'count')
+
+    key: "CompletionGroupDataGraphQLField" = CompletionGroupDataGraphQLField("key")
+    count: "CompletionGroupDataGraphQLField" = CompletionGroupDataGraphQLField("count")
 
     @classmethod
-    def direct_feedbacks_stats(cls) ->'CompletionGroupFeedbackStatsFields':
-        return CompletionGroupFeedbackStatsFields('direct_feedbacks_stats')
+    def direct_feedbacks_stats(cls) -> "CompletionGroupFeedbackStatsFields":
+        return CompletionGroupFeedbackStatsFields("direct_feedbacks_stats")
 
     @classmethod
-    def completions(cls, page: CursorPageInput, order: OrderPair
-        ) ->'CompletionConnectionFields':
-        arguments: Dict[str, Dict[str, Any]] = {'page': {'type':
-            'CursorPageInput!', 'value': page}, 'order': {'type':
-            'OrderPair!', 'value': order}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return CompletionConnectionFields('completions', arguments=
-            cleared_arguments)
+    def completions(
+        cls, page: CursorPageInput, order: OrderPair
+    ) -> "CompletionConnectionFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "page": {"type": "CursorPageInput!", "value": page},
+            "order": {"type": "OrderPair!", "value": order},
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return CompletionConnectionFields("completions", arguments=cleared_arguments)
 
-    def fields(self, *subfields: Union[CompletionGroupDataGraphQLField,
-        'CompletionConnectionFields', 'CompletionGroupFeedbackStatsFields']
-        ) ->'CompletionGroupDataFields':
+    def fields(
+        self,
+        *subfields: Union[
+            CompletionGroupDataGraphQLField,
+            "CompletionConnectionFields",
+            "CompletionGroupFeedbackStatsFields",
+        ],
+    ) -> "CompletionGroupDataFields":
         """Subfields should come from the CompletionGroupDataFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionGroupDataFields':
+    def alias(self, alias: str) -> "CompletionGroupDataFields":
         self._alias = alias
         return self
 
@@ -529,30 +738,38 @@ class CompletionGroupDataConnectionFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def page_info(cls) ->'PageInfoFields':
-        return PageInfoFields('page_info')
+    def page_info(cls) -> "PageInfoFields":
+        return PageInfoFields("page_info")
 
     @classmethod
-    def edges(cls) ->'CompletionGroupDataEdgeFields':
-        return CompletionGroupDataEdgeFields('edges')
+    def edges(cls) -> "CompletionGroupDataEdgeFields":
+        return CompletionGroupDataEdgeFields("edges")
 
     @classmethod
-    def nodes(cls) ->'CompletionGroupDataFields':
-        return CompletionGroupDataFields('nodes')
-    group_by: 'CompletionGroupDataConnectionGraphQLField' = (
-        CompletionGroupDataConnectionGraphQLField('groupBy'))
-    total_count: 'CompletionGroupDataConnectionGraphQLField' = (
-        CompletionGroupDataConnectionGraphQLField('totalCount'))
+    def nodes(cls) -> "CompletionGroupDataFields":
+        return CompletionGroupDataFields("nodes")
 
-    def fields(self, *subfields: Union[
-        CompletionGroupDataConnectionGraphQLField,
-        'CompletionGroupDataEdgeFields', 'CompletionGroupDataFields',
-        'PageInfoFields']) ->'CompletionGroupDataConnectionFields':
+    group_by: "CompletionGroupDataConnectionGraphQLField" = (
+        CompletionGroupDataConnectionGraphQLField("groupBy")
+    )
+    total_count: "CompletionGroupDataConnectionGraphQLField" = (
+        CompletionGroupDataConnectionGraphQLField("totalCount")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            CompletionGroupDataConnectionGraphQLField,
+            "CompletionGroupDataEdgeFields",
+            "CompletionGroupDataFields",
+            "PageInfoFields",
+        ],
+    ) -> "CompletionGroupDataConnectionFields":
         """Subfields should come from the CompletionGroupDataConnectionFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionGroupDataConnectionFields':
+    def alias(self, alias: str) -> "CompletionGroupDataConnectionFields":
         self._alias = alias
         return self
 
@@ -561,18 +778,24 @@ class CompletionGroupDataEdgeFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def node(cls) ->'CompletionGroupDataFields':
-        return CompletionGroupDataFields('node')
-    cursor: 'CompletionGroupDataEdgeGraphQLField' = (
-        CompletionGroupDataEdgeGraphQLField('cursor'))
+    def node(cls) -> "CompletionGroupDataFields":
+        return CompletionGroupDataFields("node")
 
-    def fields(self, *subfields: Union[CompletionGroupDataEdgeGraphQLField,
-        'CompletionGroupDataFields']) ->'CompletionGroupDataEdgeFields':
+    cursor: "CompletionGroupDataEdgeGraphQLField" = CompletionGroupDataEdgeGraphQLField(
+        "cursor"
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            CompletionGroupDataEdgeGraphQLField, "CompletionGroupDataFields"
+        ],
+    ) -> "CompletionGroupDataEdgeFields":
         """Subfields should come from the CompletionGroupDataEdgeFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionGroupDataEdgeFields':
+    def alias(self, alias: str) -> "CompletionGroupDataEdgeFields":
         self._alias = alias
         return self
 
@@ -581,221 +804,326 @@ class CompletionGroupFeedbackStatsFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def metric(cls) ->'MetricFields':
-        return MetricFields('metric')
-    feedbacks: 'CompletionGroupFeedbackStatsGraphQLField' = (
-        CompletionGroupFeedbackStatsGraphQLField('feedbacks'))
-    average: 'CompletionGroupFeedbackStatsGraphQLField' = (
-        CompletionGroupFeedbackStatsGraphQLField('average'))
-    max: 'CompletionGroupFeedbackStatsGraphQLField' = (
-        CompletionGroupFeedbackStatsGraphQLField('max'))
-    min: 'CompletionGroupFeedbackStatsGraphQLField' = (
-        CompletionGroupFeedbackStatsGraphQLField('min'))
-    stddev: 'CompletionGroupFeedbackStatsGraphQLField' = (
-        CompletionGroupFeedbackStatsGraphQLField('stddev'))
-    sum: 'CompletionGroupFeedbackStatsGraphQLField' = (
-        CompletionGroupFeedbackStatsGraphQLField('sum'))
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
 
-    def fields(self, *subfields: Union[
-        CompletionGroupFeedbackStatsGraphQLField, 'MetricFields']
-        ) ->'CompletionGroupFeedbackStatsFields':
+    feedbacks: "CompletionGroupFeedbackStatsGraphQLField" = (
+        CompletionGroupFeedbackStatsGraphQLField("feedbacks")
+    )
+    average: "CompletionGroupFeedbackStatsGraphQLField" = (
+        CompletionGroupFeedbackStatsGraphQLField("average")
+    )
+    max: "CompletionGroupFeedbackStatsGraphQLField" = (
+        CompletionGroupFeedbackStatsGraphQLField("max")
+    )
+    min: "CompletionGroupFeedbackStatsGraphQLField" = (
+        CompletionGroupFeedbackStatsGraphQLField("min")
+    )
+    stddev: "CompletionGroupFeedbackStatsGraphQLField" = (
+        CompletionGroupFeedbackStatsGraphQLField("stddev")
+    )
+    sum: "CompletionGroupFeedbackStatsGraphQLField" = (
+        CompletionGroupFeedbackStatsGraphQLField("sum")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[CompletionGroupFeedbackStatsGraphQLField, "MetricFields"],
+    ) -> "CompletionGroupFeedbackStatsFields":
         """Subfields should come from the CompletionGroupFeedbackStatsFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionGroupFeedbackStatsFields':
+    def alias(self, alias: str) -> "CompletionGroupFeedbackStatsFields":
         self._alias = alias
         return self
 
 
 class CompletionHistoryEntryOuputFields(GraphQLField):
     """@private"""
-    level: 'CompletionHistoryEntryOuputGraphQLField' = (
-        CompletionHistoryEntryOuputGraphQLField('level'))
-    completion_id: 'CompletionHistoryEntryOuputGraphQLField' = (
-        CompletionHistoryEntryOuputGraphQLField('completionId'))
-    prompt: 'CompletionHistoryEntryOuputGraphQLField' = (
-        CompletionHistoryEntryOuputGraphQLField('prompt'))
-    completion: 'CompletionHistoryEntryOuputGraphQLField' = (
-        CompletionHistoryEntryOuputGraphQLField('completion'))
-    created_at: 'CompletionHistoryEntryOuputGraphQLField' = (
-        CompletionHistoryEntryOuputGraphQLField('createdAt'))
 
-    def fields(self, *subfields: CompletionHistoryEntryOuputGraphQLField
-        ) ->'CompletionHistoryEntryOuputFields':
+    level: "CompletionHistoryEntryOuputGraphQLField" = (
+        CompletionHistoryEntryOuputGraphQLField("level")
+    )
+    completion_id: "CompletionHistoryEntryOuputGraphQLField" = (
+        CompletionHistoryEntryOuputGraphQLField("completionId")
+    )
+    prompt: "CompletionHistoryEntryOuputGraphQLField" = (
+        CompletionHistoryEntryOuputGraphQLField("prompt")
+    )
+    completion: "CompletionHistoryEntryOuputGraphQLField" = (
+        CompletionHistoryEntryOuputGraphQLField("completion")
+    )
+    created_at: "CompletionHistoryEntryOuputGraphQLField" = (
+        CompletionHistoryEntryOuputGraphQLField("createdAt")
+    )
+
+    def fields(
+        self, *subfields: CompletionHistoryEntryOuputGraphQLField
+    ) -> "CompletionHistoryEntryOuputFields":
         """Subfields should come from the CompletionHistoryEntryOuputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionHistoryEntryOuputFields':
+    def alias(self, alias: str) -> "CompletionHistoryEntryOuputFields":
         self._alias = alias
         return self
 
 
 class CompletionLabelFields(GraphQLField):
     """@private"""
-    key: 'CompletionLabelGraphQLField' = CompletionLabelGraphQLField('key')
-    value: 'CompletionLabelGraphQLField' = CompletionLabelGraphQLField('value')
 
-    def fields(self, *subfields: CompletionLabelGraphQLField
-        ) ->'CompletionLabelFields':
+    key: "CompletionLabelGraphQLField" = CompletionLabelGraphQLField("key")
+    value: "CompletionLabelGraphQLField" = CompletionLabelGraphQLField("value")
+
+    def fields(
+        self, *subfields: CompletionLabelGraphQLField
+    ) -> "CompletionLabelFields":
         """Subfields should come from the CompletionLabelFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionLabelFields':
+    def alias(self, alias: str) -> "CompletionLabelFields":
         self._alias = alias
         return self
 
 
 class CompletionLabelFilterOutputFields(GraphQLField):
     """@private"""
-    key: 'CompletionLabelFilterOutputGraphQLField' = (
-        CompletionLabelFilterOutputGraphQLField('key'))
-    value: 'CompletionLabelFilterOutputGraphQLField' = (
-        CompletionLabelFilterOutputGraphQLField('value'))
 
-    def fields(self, *subfields: CompletionLabelFilterOutputGraphQLField
-        ) ->'CompletionLabelFilterOutputFields':
+    key: "CompletionLabelFilterOutputGraphQLField" = (
+        CompletionLabelFilterOutputGraphQLField("key")
+    )
+    value: "CompletionLabelFilterOutputGraphQLField" = (
+        CompletionLabelFilterOutputGraphQLField("value")
+    )
+
+    def fields(
+        self, *subfields: CompletionLabelFilterOutputGraphQLField
+    ) -> "CompletionLabelFilterOutputFields":
         """Subfields should come from the CompletionLabelFilterOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionLabelFilterOutputFields':
+    def alias(self, alias: str) -> "CompletionLabelFilterOutputFields":
         self._alias = alias
         return self
 
 
 class CompletionMetadataFields(GraphQLField):
     """@private"""
-    parameters: 'CompletionMetadataGraphQLField' = (
-        CompletionMetadataGraphQLField('parameters'))
-    timings: 'CompletionMetadataGraphQLField' = CompletionMetadataGraphQLField(
-        'timings')
-    usage: 'CompletionMetadataGraphQLField' = CompletionMetadataGraphQLField(
-        'usage')
 
-    def fields(self, *subfields: CompletionMetadataGraphQLField
-        ) ->'CompletionMetadataFields':
+    parameters: "CompletionMetadataGraphQLField" = CompletionMetadataGraphQLField(
+        "parameters"
+    )
+    timings: "CompletionMetadataGraphQLField" = CompletionMetadataGraphQLField(
+        "timings"
+    )
+    usage: "CompletionMetadataGraphQLField" = CompletionMetadataGraphQLField("usage")
+    system: "CompletionMetadataGraphQLField" = CompletionMetadataGraphQLField("system")
+
+    def fields(
+        self, *subfields: CompletionMetadataGraphQLField
+    ) -> "CompletionMetadataFields":
         """Subfields should come from the CompletionMetadataFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'CompletionMetadataFields':
+    def alias(self, alias: str) -> "CompletionMetadataFields":
+        self._alias = alias
+        return self
+
+
+class ComputePoolFields(GraphQLField):
+    """@private"""
+
+    id: "ComputePoolGraphQLField" = ComputePoolGraphQLField("id")
+    key: "ComputePoolGraphQLField" = ComputePoolGraphQLField("key")
+    name: "ComputePoolGraphQLField" = ComputePoolGraphQLField("name")
+    created_at: "ComputePoolGraphQLField" = ComputePoolGraphQLField("createdAt")
+
+    @classmethod
+    def partitions(cls) -> "PartitionFields":
+        return PartitionFields("partitions")
+
+    capabilities: "ComputePoolGraphQLField" = ComputePoolGraphQLField("capabilities")
+
+    def fields(
+        self, *subfields: Union[ComputePoolGraphQLField, "PartitionFields"]
+    ) -> "ComputePoolFields":
+        """Subfields should come from the ComputePoolFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "ComputePoolFields":
         self._alias = alias
         return self
 
 
 class DatasetFields(GraphQLField):
     """@private"""
-    id: 'DatasetGraphQLField' = DatasetGraphQLField('id')
-    key: 'DatasetGraphQLField' = DatasetGraphQLField('key')
-    name: 'DatasetGraphQLField' = DatasetGraphQLField('name')
-    created_at: 'DatasetGraphQLField' = DatasetGraphQLField('createdAt')
 
-    def fields(self, *subfields: DatasetGraphQLField) ->'DatasetFields':
+    id: "DatasetGraphQLField" = DatasetGraphQLField("id")
+    key: "DatasetGraphQLField" = DatasetGraphQLField("key")
+    name: "DatasetGraphQLField" = DatasetGraphQLField("name")
+    created_at: "DatasetGraphQLField" = DatasetGraphQLField("createdAt")
+    kind: "DatasetGraphQLField" = DatasetGraphQLField("kind")
+    records: "DatasetGraphQLField" = DatasetGraphQLField("records")
+
+    @classmethod
+    def metrics_usage(cls) -> "DatasetMetricUsageFields":
+        return DatasetMetricUsageFields("metrics_usage")
+
+    def fields(
+        self, *subfields: Union[DatasetGraphQLField, "DatasetMetricUsageFields"]
+    ) -> "DatasetFields":
         """Subfields should come from the DatasetFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'DatasetFields':
+    def alias(self, alias: str) -> "DatasetFields":
+        self._alias = alias
+        return self
+
+
+class DatasetMetricUsageFields(GraphQLField):
+    """@private"""
+
+    @classmethod
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
+
+    feedback_count: "DatasetMetricUsageGraphQLField" = DatasetMetricUsageGraphQLField(
+        "feedbackCount"
+    )
+    comparison_count: "DatasetMetricUsageGraphQLField" = DatasetMetricUsageGraphQLField(
+        "comparisonCount"
+    )
+
+    def fields(
+        self, *subfields: Union[DatasetMetricUsageGraphQLField, "MetricFields"]
+    ) -> "DatasetMetricUsageFields":
+        """Subfields should come from the DatasetMetricUsageFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "DatasetMetricUsageFields":
         self._alias = alias
         return self
 
 
 class DirectFeedbackFields(GraphQLField):
     """@private"""
-    id: 'DirectFeedbackGraphQLField' = DirectFeedbackGraphQLField('id')
-    value: 'DirectFeedbackGraphQLField' = DirectFeedbackGraphQLField('value')
-    user_id: 'DirectFeedbackGraphQLField' = DirectFeedbackGraphQLField('userId'
-        )
+
+    id: "DirectFeedbackGraphQLField" = DirectFeedbackGraphQLField("id")
+    value: "DirectFeedbackGraphQLField" = DirectFeedbackGraphQLField("value")
+    user_id: "DirectFeedbackGraphQLField" = DirectFeedbackGraphQLField("userId")
 
     @classmethod
-    def metric(cls) ->'MetricFields':
-        return MetricFields('metric')
-    reason: 'DirectFeedbackGraphQLField' = DirectFeedbackGraphQLField('reason')
-    details: 'DirectFeedbackGraphQLField' = DirectFeedbackGraphQLField(
-        'details')
-    created_at: 'DirectFeedbackGraphQLField' = DirectFeedbackGraphQLField(
-        'createdAt')
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
 
-    def fields(self, *subfields: Union[DirectFeedbackGraphQLField,
-        'MetricFields']) ->'DirectFeedbackFields':
+    reason: "DirectFeedbackGraphQLField" = DirectFeedbackGraphQLField("reason")
+    details: "DirectFeedbackGraphQLField" = DirectFeedbackGraphQLField("details")
+    created_at: "DirectFeedbackGraphQLField" = DirectFeedbackGraphQLField("createdAt")
+
+    def fields(
+        self, *subfields: Union[DirectFeedbackGraphQLField, "MetricFields"]
+    ) -> "DirectFeedbackFields":
         """Subfields should come from the DirectFeedbackFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'DirectFeedbackFields':
+    def alias(self, alias: str) -> "DirectFeedbackFields":
         self._alias = alias
         return self
 
 
 class DpotrainingParamsOutputFields(GraphQLField):
     """@private"""
-    kl_div_coeff: 'DpotrainingParamsOutputGraphQLField' = (
-        DpotrainingParamsOutputGraphQLField('klDivCoeff'))
 
-    def fields(self, *subfields: DpotrainingParamsOutputGraphQLField
-        ) ->'DpotrainingParamsOutputFields':
+    kl_div_coeff: "DpotrainingParamsOutputGraphQLField" = (
+        DpotrainingParamsOutputGraphQLField("klDivCoeff")
+    )
+
+    def fields(
+        self, *subfields: DpotrainingParamsOutputGraphQLField
+    ) -> "DpotrainingParamsOutputFields":
         """Subfields should come from the DpotrainingParamsOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'DpotrainingParamsOutputFields':
+    def alias(self, alias: str) -> "DpotrainingParamsOutputFields":
         self._alias = alias
         return self
 
 
 class EmojiFields(GraphQLField):
     """@private"""
-    native: 'EmojiGraphQLField' = EmojiGraphQLField('native')
 
-    def fields(self, *subfields: EmojiGraphQLField) ->'EmojiFields':
+    native: "EmojiGraphQLField" = EmojiGraphQLField("native")
+
+    def fields(self, *subfields: EmojiGraphQLField) -> "EmojiFields":
         """Subfields should come from the EmojiFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'EmojiFields':
+    def alias(self, alias: str) -> "EmojiFields":
         self._alias = alias
         return self
 
 
 class EvalJobStageOutputFields(GraphQLField):
     """@private"""
-    total_num_samples: 'EvalJobStageOutputGraphQLField' = (
-        EvalJobStageOutputGraphQLField('totalNumSamples'))
-    processed_num_samples: 'EvalJobStageOutputGraphQLField' = (
-        EvalJobStageOutputGraphQLField('processedNumSamples'))
 
-    def fields(self, *subfields: EvalJobStageOutputGraphQLField
-        ) ->'EvalJobStageOutputFields':
+    total_num_samples: "EvalJobStageOutputGraphQLField" = (
+        EvalJobStageOutputGraphQLField("totalNumSamples")
+    )
+    processed_num_samples: "EvalJobStageOutputGraphQLField" = (
+        EvalJobStageOutputGraphQLField("processedNumSamples")
+    )
+    monitoring_link: "EvalJobStageOutputGraphQLField" = EvalJobStageOutputGraphQLField(
+        "monitoringLink"
+    )
+
+    def fields(
+        self, *subfields: EvalJobStageOutputGraphQLField
+    ) -> "EvalJobStageOutputFields":
         """Subfields should come from the EvalJobStageOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'EvalJobStageOutputFields':
+    def alias(self, alias: str) -> "EvalJobStageOutputFields":
         self._alias = alias
         return self
 
 
 class EvaluationCustomRecipeFields(GraphQLField):
     """@private"""
-    guidelines: 'EvaluationCustomRecipeGraphQLField' = (
-        EvaluationCustomRecipeGraphQLField('guidelines'))
-    criteria: 'EvaluationCustomRecipeGraphQLField' = (
-        EvaluationCustomRecipeGraphQLField('criteria'))
 
     @classmethod
-    def metric(cls) ->'MetricFields':
-        return MetricFields('metric')
+    def guidelines(cls) -> "GuidelineFields":
+        return GuidelineFields("guidelines")
 
-    def fields(self, *subfields: Union[EvaluationCustomRecipeGraphQLField,
-        'MetricFields']) ->'EvaluationCustomRecipeFields':
+    criteria: "EvaluationCustomRecipeGraphQLField" = EvaluationCustomRecipeGraphQLField(
+        "criteria"
+    )
+
+    @classmethod
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
+
+    def fields(
+        self,
+        *subfields: Union[
+            EvaluationCustomRecipeGraphQLField, "GuidelineFields", "MetricFields"
+        ],
+    ) -> "EvaluationCustomRecipeFields":
         """Subfields should come from the EvaluationCustomRecipeFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'EvaluationCustomRecipeFields':
+    def alias(self, alias: str) -> "EvaluationCustomRecipeFields":
         self._alias = alias
         return self
 
@@ -804,178 +1132,214 @@ class EvaluationFaithfulnessRecipeFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def metric(cls) ->'MetricFields':
-        return MetricFields('metric')
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
 
-    def fields(self, *subfields: Union[
-        EvaluationFaithfulnessRecipeGraphQLField, 'MetricFields']
-        ) ->'EvaluationFaithfulnessRecipeFields':
+    def fields(
+        self,
+        *subfields: Union[EvaluationFaithfulnessRecipeGraphQLField, "MetricFields"],
+    ) -> "EvaluationFaithfulnessRecipeFields":
         """Subfields should come from the EvaluationFaithfulnessRecipeFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'EvaluationFaithfulnessRecipeFields':
+    def alias(self, alias: str) -> "EvaluationFaithfulnessRecipeFields":
         self._alias = alias
         return self
 
 
 class EvaluationJobFields(GraphQLField):
     """@private"""
-    id: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField('id')
-    name: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField('name')
-    created_at: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField(
-        'createdAt')
-    status: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField('status')
-    started_at: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField(
-        'startedAt')
-    ended_at: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField('endedAt'
-        )
-    duration_ms: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField(
-        'durationMs')
+
+    id: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("id")
+    name: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("name")
+    created_at: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("createdAt")
+    status: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("status")
+    started_at: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("startedAt")
+    ended_at: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("endedAt")
+    duration_ms: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("durationMs")
 
     @classmethod
-    def model_services(cls) ->'ModelServiceFields':
-        return ModelServiceFields('model_services')
+    def model_services(cls) -> "ModelServiceFields":
+        return ModelServiceFields("model_services")
 
     @classmethod
-    def judge(cls) ->'ModelFields':
-        return ModelFields('judge')
+    def judge(cls) -> "ModelFields":
+        return ModelFields("judge")
 
     @classmethod
-    def use_case(cls) ->'UseCaseFields':
-        return UseCaseFields('use_case')
+    def use_case(cls) -> "UseCaseFields":
+        return UseCaseFields("use_case")
 
     @classmethod
-    def stages(cls) ->'JobStageOutputFields':
-        return JobStageOutputFields('stages')
+    def stages(cls) -> "JobStageOutputFields":
+        return JobStageOutputFields("stages")
 
     @classmethod
-    def report(cls) ->'AbReportFields':
-        return AbReportFields('report')
+    def report(cls) -> "AbReportFields":
+        return AbReportFields("report")
 
     @classmethod
-    def created_by(cls) ->'UserFields':
-        return UserFields('created_by')
+    def created_by(cls) -> "UserFields":
+        return UserFields("created_by")
 
     @classmethod
-    def dataset(cls) ->'DatasetFields':
-        return DatasetFields('dataset')
+    def dataset(cls) -> "DatasetFields":
+        return DatasetFields("dataset")
 
     @classmethod
-    def metric(cls) ->'MetricFields':
-        return MetricFields('metric')
-    recipe: 'EvaluationRecipeUnion' = EvaluationRecipeUnion('recipe')
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
 
-    def fields(self, *subfields: Union[EvaluationJobGraphQLField,
-        'AbReportFields', 'DatasetFields', 'EvaluationRecipeUnion',
-        'JobStageOutputFields', 'MetricFields', 'ModelFields',
-        'ModelServiceFields', 'UseCaseFields', 'UserFields']
-        ) ->'EvaluationJobFields':
+    recipe: "EvaluationRecipeUnion" = EvaluationRecipeUnion("recipe")
+
+    def fields(
+        self,
+        *subfields: Union[
+            EvaluationJobGraphQLField,
+            "AbReportFields",
+            "DatasetFields",
+            "EvaluationRecipeUnion",
+            "JobStageOutputFields",
+            "MetricFields",
+            "ModelFields",
+            "ModelServiceFields",
+            "UseCaseFields",
+            "UserFields",
+        ],
+    ) -> "EvaluationJobFields":
         """Subfields should come from the EvaluationJobFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'EvaluationJobFields':
+    def alias(self, alias: str) -> "EvaluationJobFields":
+        self._alias = alias
+        return self
+
+
+class GuidelineFields(GraphQLField):
+    """@private"""
+
+    name: "GuidelineGraphQLField" = GuidelineGraphQLField("name")
+    description: "GuidelineGraphQLField" = GuidelineGraphQLField("description")
+
+    def fields(self, *subfields: GuidelineGraphQLField) -> "GuidelineFields":
+        """Subfields should come from the GuidelineFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "GuidelineFields":
         self._alias = alias
         return self
 
 
 class GuidelinesTrainingParamsOutputFields(GraphQLField):
     """@private"""
-    judge_model: 'GuidelinesTrainingParamsOutputGraphQLField' = (
-        GuidelinesTrainingParamsOutputGraphQLField('judgeModel'))
-    judge_model_prompt: 'GuidelinesTrainingParamsOutputGraphQLField' = (
-        GuidelinesTrainingParamsOutputGraphQLField('judgeModelPrompt'))
 
-    def fields(self, *subfields: GuidelinesTrainingParamsOutputGraphQLField
-        ) ->'GuidelinesTrainingParamsOutputFields':
+    judge_model: "GuidelinesTrainingParamsOutputGraphQLField" = (
+        GuidelinesTrainingParamsOutputGraphQLField("judgeModel")
+    )
+
+    @classmethod
+    def judge_model_prompt(cls) -> "GuidelineFields":
+        return GuidelineFields("judge_model_prompt")
+
+    def fields(
+        self,
+        *subfields: Union[
+            GuidelinesTrainingParamsOutputGraphQLField, "GuidelineFields"
+        ],
+    ) -> "GuidelinesTrainingParamsOutputFields":
         """Subfields should come from the GuidelinesTrainingParamsOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'GuidelinesTrainingParamsOutputFields':
+    def alias(self, alias: str) -> "GuidelinesTrainingParamsOutputFields":
         self._alias = alias
         return self
 
 
 class InteractionOutputFields(GraphQLField):
     """@private"""
-    value: 'InteractionOutputGraphQLField' = InteractionOutputGraphQLField(
-        'value')
-    per_second: 'InteractionOutputGraphQLField' = (
-        InteractionOutputGraphQLField('perSecond'))
-    trend: 'InteractionOutputGraphQLField' = InteractionOutputGraphQLField(
-        'trend')
 
-    def fields(self, *subfields: InteractionOutputGraphQLField
-        ) ->'InteractionOutputFields':
+    value: "InteractionOutputGraphQLField" = InteractionOutputGraphQLField("value")
+    per_second: "InteractionOutputGraphQLField" = InteractionOutputGraphQLField(
+        "perSecond"
+    )
+    trend: "InteractionOutputGraphQLField" = InteractionOutputGraphQLField("trend")
+
+    def fields(
+        self, *subfields: InteractionOutputGraphQLField
+    ) -> "InteractionOutputFields":
         """Subfields should come from the InteractionOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'InteractionOutputFields':
+    def alias(self, alias: str) -> "InteractionOutputFields":
         self._alias = alias
         return self
 
 
 class IntervalFields(GraphQLField):
     """@private"""
-    start: 'IntervalGraphQLField' = IntervalGraphQLField('start')
-    middle: 'IntervalGraphQLField' = IntervalGraphQLField('middle')
-    end: 'IntervalGraphQLField' = IntervalGraphQLField('end')
 
-    def fields(self, *subfields: IntervalGraphQLField) ->'IntervalFields':
+    start: "IntervalGraphQLField" = IntervalGraphQLField("start")
+    middle: "IntervalGraphQLField" = IntervalGraphQLField("middle")
+    end: "IntervalGraphQLField" = IntervalGraphQLField("end")
+
+    def fields(self, *subfields: IntervalGraphQLField) -> "IntervalFields":
         """Subfields should come from the IntervalFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'IntervalFields':
+    def alias(self, alias: str) -> "IntervalFields":
         self._alias = alias
         return self
 
 
 class JobStageOutputFields(GraphQLField):
     """@private"""
-    name: 'JobStageOutputGraphQLField' = JobStageOutputGraphQLField('name')
-    status: 'JobStageOutputGraphQLField' = JobStageOutputGraphQLField('status')
-    parent: 'JobStageOutputGraphQLField' = JobStageOutputGraphQLField('parent')
-    stage_id: 'JobStageOutputGraphQLField' = JobStageOutputGraphQLField(
-        'stageId')
-    info: 'JobStageInfoOutputUnion' = JobStageInfoOutputUnion('info')
-    started_at: 'JobStageOutputGraphQLField' = JobStageOutputGraphQLField(
-        'startedAt')
-    ended_at: 'JobStageOutputGraphQLField' = JobStageOutputGraphQLField(
-        'endedAt')
 
-    def fields(self, *subfields: Union[JobStageOutputGraphQLField,
-        'JobStageInfoOutputUnion']) ->'JobStageOutputFields':
+    name: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("name")
+    status: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("status")
+    parent: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("parent")
+    stage_id: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("stageId")
+    info: "JobStageInfoOutputUnion" = JobStageInfoOutputUnion("info")
+    started_at: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("startedAt")
+    ended_at: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("endedAt")
+
+    def fields(
+        self, *subfields: Union[JobStageOutputGraphQLField, "JobStageInfoOutputUnion"]
+    ) -> "JobStageOutputFields":
         """Subfields should come from the JobStageOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'JobStageOutputFields':
+    def alias(self, alias: str) -> "JobStageOutputFields":
         self._alias = alias
         return self
 
 
 class LabelKeyUsageFields(GraphQLField):
     """@private"""
-    key: 'LabelKeyUsageGraphQLField' = LabelKeyUsageGraphQLField('key')
-    count: 'LabelKeyUsageGraphQLField' = LabelKeyUsageGraphQLField('count')
+
+    key: "LabelKeyUsageGraphQLField" = LabelKeyUsageGraphQLField("key")
+    count: "LabelKeyUsageGraphQLField" = LabelKeyUsageGraphQLField("count")
 
     @classmethod
-    def values(cls) ->'LabelValueUsageFields':
-        return LabelValueUsageFields('values')
-    last_used: 'LabelKeyUsageGraphQLField' = LabelKeyUsageGraphQLField(
-        'lastUsed')
+    def values(cls) -> "LabelValueUsageFields":
+        return LabelValueUsageFields("values")
 
-    def fields(self, *subfields: Union[LabelKeyUsageGraphQLField,
-        'LabelValueUsageFields']) ->'LabelKeyUsageFields':
+    last_used: "LabelKeyUsageGraphQLField" = LabelKeyUsageGraphQLField("lastUsed")
+
+    def fields(
+        self, *subfields: Union[LabelKeyUsageGraphQLField, "LabelValueUsageFields"]
+    ) -> "LabelKeyUsageFields":
         """Subfields should come from the LabelKeyUsageFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'LabelKeyUsageFields':
+    def alias(self, alias: str) -> "LabelKeyUsageFields":
         self._alias = alias
         return self
 
@@ -984,79 +1348,96 @@ class LabelUsageFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def keys(cls) ->'LabelKeyUsageFields':
-        return LabelKeyUsageFields('keys')
+    def keys(cls) -> "LabelKeyUsageFields":
+        return LabelKeyUsageFields("keys")
 
-    def fields(self, *subfields: Union[LabelUsageGraphQLField,
-        'LabelKeyUsageFields']) ->'LabelUsageFields':
+    def fields(
+        self, *subfields: Union[LabelUsageGraphQLField, "LabelKeyUsageFields"]
+    ) -> "LabelUsageFields":
         """Subfields should come from the LabelUsageFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'LabelUsageFields':
+    def alias(self, alias: str) -> "LabelUsageFields":
         self._alias = alias
         return self
 
 
 class LabelValueUsageFields(GraphQLField):
     """@private"""
-    value: 'LabelValueUsageGraphQLField' = LabelValueUsageGraphQLField('value')
-    count: 'LabelValueUsageGraphQLField' = LabelValueUsageGraphQLField('count')
-    last_used: 'LabelValueUsageGraphQLField' = LabelValueUsageGraphQLField(
-        'lastUsed')
 
-    def fields(self, *subfields: LabelValueUsageGraphQLField
-        ) ->'LabelValueUsageFields':
+    value: "LabelValueUsageGraphQLField" = LabelValueUsageGraphQLField("value")
+    count: "LabelValueUsageGraphQLField" = LabelValueUsageGraphQLField("count")
+    last_used: "LabelValueUsageGraphQLField" = LabelValueUsageGraphQLField("lastUsed")
+
+    def fields(
+        self, *subfields: LabelValueUsageGraphQLField
+    ) -> "LabelValueUsageFields":
         """Subfields should come from the LabelValueUsageFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'LabelValueUsageFields':
+    def alias(self, alias: str) -> "LabelValueUsageFields":
         self._alias = alias
         return self
 
 
 class ListCompletionsFilterOutputFields(GraphQLField):
     """@private"""
-    use_case: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('useCase'))
-    models: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('models'))
+
+    use_case: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("useCase")
+    )
+    models: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("models")
+    )
 
     @classmethod
-    def timerange(cls) ->'TimeRangeOutputFields':
-        return TimeRangeOutputFields('timerange')
-    session_id: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('sessionId'))
-    user_id: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('userId'))
+    def timerange(cls) -> "TimeRangeOutputFields":
+        return TimeRangeOutputFields("timerange")
+
+    session_id: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("sessionId")
+    )
+    user_id: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("userId")
+    )
 
     @classmethod
-    def feedbacks(cls) ->'CompletionFeedbackFilterOutputFields':
-        return CompletionFeedbackFilterOutputFields('feedbacks')
+    def feedbacks(cls) -> "CompletionFeedbackFilterOutputFields":
+        return CompletionFeedbackFilterOutputFields("feedbacks")
 
     @classmethod
-    def labels(cls) ->'CompletionLabelFilterOutputFields':
-        return CompletionLabelFilterOutputFields('labels')
-    prompt_hash: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('promptHash'))
-    completion_id: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('completionId'))
-    tags: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('tags'))
-    source: 'ListCompletionsFilterOutputGraphQLField' = (
-        ListCompletionsFilterOutputGraphQLField('source'))
+    def labels(cls) -> "CompletionLabelFilterOutputFields":
+        return CompletionLabelFilterOutputFields("labels")
 
-    def fields(self, *subfields: Union[
-        ListCompletionsFilterOutputGraphQLField,
-        'CompletionFeedbackFilterOutputFields',
-        'CompletionLabelFilterOutputFields', 'TimeRangeOutputFields']
-        ) ->'ListCompletionsFilterOutputFields':
+    prompt_hash: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("promptHash")
+    )
+    completion_id: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("completionId")
+    )
+    tags: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("tags")
+    )
+    source: "ListCompletionsFilterOutputGraphQLField" = (
+        ListCompletionsFilterOutputGraphQLField("source")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            ListCompletionsFilterOutputGraphQLField,
+            "CompletionFeedbackFilterOutputFields",
+            "CompletionLabelFilterOutputFields",
+            "TimeRangeOutputFields",
+        ],
+    ) -> "ListCompletionsFilterOutputFields":
         """Subfields should come from the ListCompletionsFilterOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ListCompletionsFilterOutputFields':
+    def alias(self, alias: str) -> "ListCompletionsFilterOutputFields":
         self._alias = alias
         return self
 
@@ -1065,58 +1446,70 @@ class MetaObjectFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def auth_providers(cls) ->'ProviderListFields':
-        return ProviderListFields('auth_providers')
+    def auth_providers(cls) -> "ProviderListFields":
+        return ProviderListFields("auth_providers")
 
-    def fields(self, *subfields: Union[MetaObjectGraphQLField,
-        'ProviderListFields']) ->'MetaObjectFields':
+    def fields(
+        self, *subfields: Union[MetaObjectGraphQLField, "ProviderListFields"]
+    ) -> "MetaObjectFields":
         """Subfields should come from the MetaObjectFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'MetaObjectFields':
+    def alias(self, alias: str) -> "MetaObjectFields":
         self._alias = alias
         return self
 
 
 class MetricFields(GraphQLField):
     """@private"""
-    id: 'MetricGraphQLField' = MetricGraphQLField('id')
-    key: 'MetricGraphQLField' = MetricGraphQLField('key')
-    name: 'MetricGraphQLField' = MetricGraphQLField('name')
-    created_at: 'MetricGraphQLField' = MetricGraphQLField('createdAt')
-    kind: 'MetricGraphQLField' = MetricGraphQLField('kind')
-    description: 'MetricGraphQLField' = MetricGraphQLField('description')
-    scoring_type: 'MetricGraphQLField' = MetricGraphQLField('scoringType')
+
+    id: "MetricGraphQLField" = MetricGraphQLField("id")
+    key: "MetricGraphQLField" = MetricGraphQLField("key")
+    name: "MetricGraphQLField" = MetricGraphQLField("name")
+    created_at: "MetricGraphQLField" = MetricGraphQLField("createdAt")
+    kind: "MetricGraphQLField" = MetricGraphQLField("kind")
+    description: "MetricGraphQLField" = MetricGraphQLField("description")
+    scoring_type: "MetricGraphQLField" = MetricGraphQLField("scoringType")
 
     @classmethod
-    def use_cases(cls, filter: UseCaseFilter) ->'UseCaseFields':
-        arguments: Dict[str, Dict[str, Any]] = {'filter': {'type':
-            'UseCaseFilter!', 'value': filter}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return UseCaseFields('use_cases', arguments=cleared_arguments)
+    def use_cases(cls, filter: UseCaseFilter) -> "UseCaseFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "UseCaseFilter!", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return UseCaseFields("use_cases", arguments=cleared_arguments)
 
     @classmethod
-    def activity(cls, *, timerange: Optional[TimeRange]=None
-        ) ->'MetricActivityFields':
-        arguments: Dict[str, Dict[str, Any]] = {'timerange': {'type':
-            'TimeRange', 'value': timerange}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return MetricActivityFields('activity', arguments=cleared_arguments)
-    has_direct_feedbacks: 'MetricGraphQLField' = MetricGraphQLField(
-        'hasDirectFeedbacks')
-    has_comparison_feedbacks: 'MetricGraphQLField' = MetricGraphQLField(
-        'hasComparisonFeedbacks')
+    def activity(
+        cls, *, timerange: Optional[TimeRange] = None
+    ) -> "MetricActivityFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "timerange": {"type": "TimeRange", "value": timerange}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return MetricActivityFields("activity", arguments=cleared_arguments)
 
-    def fields(self, *subfields: Union[MetricGraphQLField,
-        'MetricActivityFields', 'UseCaseFields']) ->'MetricFields':
+    has_direct_feedbacks: "MetricGraphQLField" = MetricGraphQLField(
+        "hasDirectFeedbacks"
+    )
+    has_comparison_feedbacks: "MetricGraphQLField" = MetricGraphQLField(
+        "hasComparisonFeedbacks"
+    )
+
+    def fields(
+        self,
+        *subfields: Union[MetricGraphQLField, "MetricActivityFields", "UseCaseFields"],
+    ) -> "MetricFields":
         """Subfields should come from the MetricFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'MetricFields':
+    def alias(self, alias: str) -> "MetricFields":
         self._alias = alias
         return self
 
@@ -1125,250 +1518,381 @@ class MetricActivityFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def feedbacks(cls) ->'ActivityOutputFields':
-        return ActivityOutputFields('feedbacks')
+    def feedbacks(cls) -> "ActivityOutputFields":
+        return ActivityOutputFields("feedbacks")
 
-    def fields(self, *subfields: Union[MetricActivityGraphQLField,
-        'ActivityOutputFields']) ->'MetricActivityFields':
+    def fields(
+        self, *subfields: Union[MetricActivityGraphQLField, "ActivityOutputFields"]
+    ) -> "MetricActivityFields":
         """Subfields should come from the MetricActivityFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'MetricActivityFields':
+    def alias(self, alias: str) -> "MetricActivityFields":
         self._alias = alias
         return self
 
 
 class MetricTrainingParamsOutputFields(GraphQLField):
     """@private"""
-    metric_key: 'MetricTrainingParamsOutputGraphQLField' = (
-        MetricTrainingParamsOutputGraphQLField('metricKey'))
-    metric_metadata: 'MetricTrainingParamsMetadataOutputUnion' = (
-        MetricTrainingParamsMetadataOutputUnion('metricMetadata'))
 
-    def fields(self, *subfields: Union[
-        MetricTrainingParamsOutputGraphQLField,
-        'MetricTrainingParamsMetadataOutputUnion']
-        ) ->'MetricTrainingParamsOutputFields':
+    metric_key: "MetricTrainingParamsOutputGraphQLField" = (
+        MetricTrainingParamsOutputGraphQLField("metricKey")
+    )
+    metric_metadata: "MetricTrainingParamsMetadataOutputUnion" = (
+        MetricTrainingParamsMetadataOutputUnion("metricMetadata")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            MetricTrainingParamsOutputGraphQLField,
+            "MetricTrainingParamsMetadataOutputUnion",
+        ],
+    ) -> "MetricTrainingParamsOutputFields":
         """Subfields should come from the MetricTrainingParamsOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'MetricTrainingParamsOutputFields':
+    def alias(self, alias: str) -> "MetricTrainingParamsOutputFields":
         self._alias = alias
         return self
 
 
 class MetricWithContextFields(GraphQLField):
     """@private"""
-    id: 'MetricWithContextGraphQLField' = MetricWithContextGraphQLField('id')
-    key: 'MetricWithContextGraphQLField' = MetricWithContextGraphQLField('key')
-    name: 'MetricWithContextGraphQLField' = MetricWithContextGraphQLField(
-        'name')
-    kind: 'MetricWithContextGraphQLField' = MetricWithContextGraphQLField(
-        'kind')
-    scoring_type: 'MetricWithContextGraphQLField' = (
-        MetricWithContextGraphQLField('scoringType'))
-    description: 'MetricWithContextGraphQLField' = (
-        MetricWithContextGraphQLField('description'))
-    created_at: 'MetricWithContextGraphQLField' = (
-        MetricWithContextGraphQLField('createdAt'))
+
+    id: "MetricWithContextGraphQLField" = MetricWithContextGraphQLField("id")
+    key: "MetricWithContextGraphQLField" = MetricWithContextGraphQLField("key")
+    name: "MetricWithContextGraphQLField" = MetricWithContextGraphQLField("name")
+    kind: "MetricWithContextGraphQLField" = MetricWithContextGraphQLField("kind")
+    scoring_type: "MetricWithContextGraphQLField" = MetricWithContextGraphQLField(
+        "scoringType"
+    )
+    description: "MetricWithContextGraphQLField" = MetricWithContextGraphQLField(
+        "description"
+    )
+    created_at: "MetricWithContextGraphQLField" = MetricWithContextGraphQLField(
+        "createdAt"
+    )
 
     @classmethod
-    def feedback_count(cls, *, timerange: Optional[TimeRange]=None
-        ) ->'MetricWithContextGraphQLField':
-        arguments: Dict[str, Dict[str, Any]] = {'timerange': {'type':
-            'TimeRange', 'value': timerange}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return MetricWithContextGraphQLField('feedback_count', arguments=
-            cleared_arguments)
+    def feedback_count(
+        cls, *, timerange: Optional[TimeRange] = None
+    ) -> "MetricWithContextGraphQLField":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "timerange": {"type": "TimeRange", "value": timerange}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return MetricWithContextGraphQLField(
+            "feedback_count", arguments=cleared_arguments
+        )
 
     @classmethod
-    def comparison_count(cls, *, timerange: Optional[TimeRange]=None
-        ) ->'MetricWithContextGraphQLField':
-        arguments: Dict[str, Dict[str, Any]] = {'timerange': {'type':
-            'TimeRange', 'value': timerange}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return MetricWithContextGraphQLField('comparison_count', arguments=
-            cleared_arguments)
+    def comparison_count(
+        cls, *, timerange: Optional[TimeRange] = None
+    ) -> "MetricWithContextGraphQLField":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "timerange": {"type": "TimeRange", "value": timerange}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return MetricWithContextGraphQLField(
+            "comparison_count", arguments=cleared_arguments
+        )
 
     @classmethod
-    def trend(cls, input: MetricTrendInput) ->'TrendResultFields':
-        arguments: Dict[str, Dict[str, Any]] = {'input': {'type':
-            'MetricTrendInput!', 'value': input}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return TrendResultFields('trend', arguments=cleared_arguments)
+    def trend(cls, input: MetricTrendInput) -> "TrendResultFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "input": {"type": "MetricTrendInput!", "value": input}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return TrendResultFields("trend", arguments=cleared_arguments)
 
     @classmethod
-    def timeseries(cls, input: TimeseriesInput) ->'TimeseriesFields':
-        arguments: Dict[str, Dict[str, Any]] = {'input': {'type':
-            'TimeseriesInput!', 'value': input}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return TimeseriesFields('timeseries', arguments=cleared_arguments)
-    has_comparison_feedbacks: 'MetricWithContextGraphQLField' = (
-        MetricWithContextGraphQLField('hasComparisonFeedbacks'))
-    has_direct_feedbacks: 'MetricWithContextGraphQLField' = (
-        MetricWithContextGraphQLField('hasDirectFeedbacks'))
+    def timeseries(cls, input: TimeseriesInput) -> "TimeseriesFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "input": {"type": "TimeseriesInput!", "value": input}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return TimeseriesFields("timeseries", arguments=cleared_arguments)
 
-    def fields(self, *subfields: Union[MetricWithContextGraphQLField,
-        'TimeseriesFields', 'TrendResultFields']) ->'MetricWithContextFields':
+    has_comparison_feedbacks: "MetricWithContextGraphQLField" = (
+        MetricWithContextGraphQLField("hasComparisonFeedbacks")
+    )
+    has_direct_feedbacks: "MetricWithContextGraphQLField" = (
+        MetricWithContextGraphQLField("hasDirectFeedbacks")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            MetricWithContextGraphQLField, "TimeseriesFields", "TrendResultFields"
+        ],
+    ) -> "MetricWithContextFields":
         """Subfields should come from the MetricWithContextFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'MetricWithContextFields':
+    def alias(self, alias: str) -> "MetricWithContextFields":
         self._alias = alias
         return self
 
 
 class ModelFields(GraphQLField):
     """@private"""
-    id: 'ModelGraphQLField' = ModelGraphQLField('id')
-    name: 'ModelGraphQLField' = ModelGraphQLField('name')
-    key: 'ModelGraphQLField' = ModelGraphQLField('key')
-    created_at: 'ModelGraphQLField' = ModelGraphQLField('createdAt')
-    online: 'ModelGraphQLField' = ModelGraphQLField('online')
+
+    id: "ModelGraphQLField" = ModelGraphQLField("id")
+    name: "ModelGraphQLField" = ModelGraphQLField("name")
+    key: "ModelGraphQLField" = ModelGraphQLField("key")
+    created_at: "ModelGraphQLField" = ModelGraphQLField("createdAt")
+    online: "ModelGraphQLField" = ModelGraphQLField("online")
 
     @classmethod
-    def activity(cls, *, timerange: Optional[TimeRange]=None
-        ) ->'ActivityFields':
-        arguments: Dict[str, Dict[str, Any]] = {'timerange': {'type':
-            'TimeRange', 'value': timerange}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return ActivityFields('activity', arguments=cleared_arguments)
+    def activity(cls, *, timerange: Optional[TimeRange] = None) -> "ActivityFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "timerange": {"type": "TimeRange", "value": timerange}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return ActivityFields("activity", arguments=cleared_arguments)
 
     @classmethod
-    def metrics(cls) ->'MetricWithContextFields':
-        return MetricWithContextFields('metrics')
+    def metrics(cls) -> "MetricWithContextFields":
+        return MetricWithContextFields("metrics")
 
     @classmethod
-    def use_cases(cls, filter: UseCaseFilter, attached: bool
-        ) ->'UseCaseFields':
-        arguments: Dict[str, Dict[str, Any]] = {'filter': {'type':
-            'UseCaseFilter!', 'value': filter}, 'attached': {'type':
-            'Boolean!', 'value': attached}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return UseCaseFields('use_cases', arguments=cleared_arguments)
-    provider_name: 'ModelGraphQLField' = ModelGraphQLField('providerName')
-    is_external: 'ModelGraphQLField' = ModelGraphQLField('isExternal')
-    order: 'ModelGraphQLField' = ModelGraphQLField('order')
-    in_storage: 'ModelGraphQLField' = ModelGraphQLField('inStorage')
-    is_adapter: 'ModelGraphQLField' = ModelGraphQLField('isAdapter')
+    def use_cases(cls, filter: UseCaseFilter, attached: bool) -> "UseCaseFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "UseCaseFilter!", "value": filter},
+            "attached": {"type": "Boolean!", "value": attached},
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return UseCaseFields("use_cases", arguments=cleared_arguments)
 
     @classmethod
-    def backbone(cls) ->'ModelFields':
-        return ModelFields('backbone')
-    is_training: 'ModelGraphQLField' = ModelGraphQLField('isTraining')
+    def model_services(
+        cls, filter: UseCaseFilter, attached: bool
+    ) -> "ModelServiceFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "UseCaseFilter!", "value": filter},
+            "attached": {"type": "Boolean!", "value": attached},
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return ModelServiceFields("model_services", arguments=cleared_arguments)
+
+    provider_name: "ModelGraphQLField" = ModelGraphQLField("providerName")
+    is_external: "ModelGraphQLField" = ModelGraphQLField("isExternal")
+    order: "ModelGraphQLField" = ModelGraphQLField("order")
+    in_storage: "ModelGraphQLField" = ModelGraphQLField("inStorage")
+    is_adapter: "ModelGraphQLField" = ModelGraphQLField("isAdapter")
 
     @classmethod
-    def training_job(cls) ->'TrainingJobFields':
-        return TrainingJobFields('training_job')
-    kind: 'ModelGraphQLField' = ModelGraphQLField('kind')
+    def backbone(cls) -> "ModelFields":
+        return ModelFields("backbone")
 
-    def fields(self, *subfields: Union[ModelGraphQLField, 'ActivityFields',
-        'MetricWithContextFields', 'ModelFields', 'TrainingJobFields',
-        'UseCaseFields']) ->'ModelFields':
+    is_training: "ModelGraphQLField" = ModelGraphQLField("isTraining")
+
+    @classmethod
+    def training_job(cls) -> "TrainingJobFields":
+        return TrainingJobFields("training_job")
+
+    kind: "ModelGraphQLField" = ModelGraphQLField("kind")
+    size: "ModelGraphQLField" = ModelGraphQLField("size")
+
+    def fields(
+        self,
+        *subfields: Union[
+            ModelGraphQLField,
+            "ActivityFields",
+            "MetricWithContextFields",
+            "ModelFields",
+            "ModelServiceFields",
+            "TrainingJobFields",
+            "UseCaseFields",
+        ],
+    ) -> "ModelFields":
         """Subfields should come from the ModelFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ModelFields':
+    def alias(self, alias: str) -> "ModelFields":
+        self._alias = alias
+        return self
+
+
+class ModelPlacementOutputFields(GraphQLField):
+    """@private"""
+
+    compute_pools: "ModelPlacementOutputGraphQLField" = (
+        ModelPlacementOutputGraphQLField("computePools")
+    )
+    max_ttft_ms: "ModelPlacementOutputGraphQLField" = ModelPlacementOutputGraphQLField(
+        "maxTtftMs"
+    )
+
+    def fields(
+        self, *subfields: ModelPlacementOutputGraphQLField
+    ) -> "ModelPlacementOutputFields":
+        """Subfields should come from the ModelPlacementOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "ModelPlacementOutputFields":
         self._alias = alias
         return self
 
 
 class ModelServiceFields(GraphQLField):
     """@private"""
-    id: 'ModelServiceGraphQLField' = ModelServiceGraphQLField('id')
-    use_case_id: 'ModelServiceGraphQLField' = ModelServiceGraphQLField(
-        'useCaseId')
-    key: 'ModelServiceGraphQLField' = ModelServiceGraphQLField('key')
-    name: 'ModelServiceGraphQLField' = ModelServiceGraphQLField('name')
-    created_at: 'ModelServiceGraphQLField' = ModelServiceGraphQLField(
-        'createdAt')
+
+    id: "ModelServiceGraphQLField" = ModelServiceGraphQLField("id")
+    use_case_id: "ModelServiceGraphQLField" = ModelServiceGraphQLField("useCaseId")
+    key: "ModelServiceGraphQLField" = ModelServiceGraphQLField("key")
+    name: "ModelServiceGraphQLField" = ModelServiceGraphQLField("name")
+    created_at: "ModelServiceGraphQLField" = ModelServiceGraphQLField("createdAt")
 
     @classmethod
-    def model(cls) ->'ModelFields':
-        return ModelFields('model')
-    attached: 'ModelServiceGraphQLField' = ModelServiceGraphQLField('attached')
-    is_default: 'ModelServiceGraphQLField' = ModelServiceGraphQLField(
-        'isDefault')
-    desired_online: 'ModelServiceGraphQLField' = ModelServiceGraphQLField(
-        'desiredOnline')
+    def model(cls) -> "ModelFields":
+        return ModelFields("model")
+
+    attached: "ModelServiceGraphQLField" = ModelServiceGraphQLField("attached")
+    is_default: "ModelServiceGraphQLField" = ModelServiceGraphQLField("isDefault")
+    desired_online: "ModelServiceGraphQLField" = ModelServiceGraphQLField(
+        "desiredOnline"
+    )
 
     @classmethod
-    def activity(cls, *, timerange: Optional[TimeRange]=None
-        ) ->'ActivityFields':
-        arguments: Dict[str, Dict[str, Any]] = {'timerange': {'type':
-            'TimeRange', 'value': timerange}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return ActivityFields('activity', arguments=cleared_arguments)
+    def activity(cls, *, timerange: Optional[TimeRange] = None) -> "ActivityFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "timerange": {"type": "TimeRange", "value": timerange}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return ActivityFields("activity", arguments=cleared_arguments)
 
     @classmethod
-    def system_prompt_template(cls) ->'SystemPromptTemplateFields':
-        return SystemPromptTemplateFields('system_prompt_template')
+    def system_prompt_template(cls) -> "SystemPromptTemplateFields":
+        return SystemPromptTemplateFields("system_prompt_template")
 
     @classmethod
-    def metrics(cls) ->'MetricWithContextFields':
-        return MetricWithContextFields('metrics')
+    def metrics(cls) -> "MetricWithContextFields":
+        return MetricWithContextFields("metrics")
 
     @classmethod
-    def ab_campaigns(cls, filter: AbCampaignFilter) ->'AbcampaignFields':
-        arguments: Dict[str, Dict[str, Any]] = {'filter': {'type':
-            'AbCampaignFilter!', 'value': filter}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return AbcampaignFields('ab_campaigns', arguments=cleared_arguments)
+    def ab_campaigns(cls, filter: AbCampaignFilter) -> "AbcampaignFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "AbCampaignFilter!", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return AbcampaignFields("ab_campaigns", arguments=cleared_arguments)
 
-    def fields(self, *subfields: Union[ModelServiceGraphQLField,
-        'AbcampaignFields', 'ActivityFields', 'MetricWithContextFields',
-        'ModelFields', 'SystemPromptTemplateFields']) ->'ModelServiceFields':
+    @classmethod
+    def placement(cls) -> "ModelPlacementOutputFields":
+        return ModelPlacementOutputFields("placement")
+
+    def fields(
+        self,
+        *subfields: Union[
+            ModelServiceGraphQLField,
+            "AbcampaignFields",
+            "ActivityFields",
+            "MetricWithContextFields",
+            "ModelFields",
+            "ModelPlacementOutputFields",
+            "SystemPromptTemplateFields",
+        ],
+    ) -> "ModelServiceFields":
         """Subfields should come from the ModelServiceFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ModelServiceFields':
+    def alias(self, alias: str) -> "ModelServiceFields":
         self._alias = alias
         return self
 
 
 class PageInfoFields(GraphQLField):
     """@private"""
-    has_previous_page: 'PageInfoGraphQLField' = PageInfoGraphQLField(
-        'hasPreviousPage')
-    has_next_page: 'PageInfoGraphQLField' = PageInfoGraphQLField('hasNextPage')
-    start_cursor: 'PageInfoGraphQLField' = PageInfoGraphQLField('startCursor')
-    end_cursor: 'PageInfoGraphQLField' = PageInfoGraphQLField('endCursor')
 
-    def fields(self, *subfields: PageInfoGraphQLField) ->'PageInfoFields':
+    has_previous_page: "PageInfoGraphQLField" = PageInfoGraphQLField("hasPreviousPage")
+    has_next_page: "PageInfoGraphQLField" = PageInfoGraphQLField("hasNextPage")
+    start_cursor: "PageInfoGraphQLField" = PageInfoGraphQLField("startCursor")
+    end_cursor: "PageInfoGraphQLField" = PageInfoGraphQLField("endCursor")
+
+    def fields(self, *subfields: PageInfoGraphQLField) -> "PageInfoFields":
         """Subfields should come from the PageInfoFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'PageInfoFields':
+    def alias(self, alias: str) -> "PageInfoFields":
+        self._alias = alias
+        return self
+
+
+class PartitionFields(GraphQLField):
+    """@private"""
+
+    id: "PartitionGraphQLField" = PartitionGraphQLField("id")
+    key: "PartitionGraphQLField" = PartitionGraphQLField("key")
+
+    @classmethod
+    def compute_pool(cls) -> "ComputePoolFields":
+        return ComputePoolFields("compute_pool")
+
+    status: "PartitionGraphQLField" = PartitionGraphQLField("status")
+    url: "PartitionGraphQLField" = PartitionGraphQLField("url")
+    world_size: "PartitionGraphQLField" = PartitionGraphQLField("worldSize")
+    gpu_types: "PartitionGraphQLField" = PartitionGraphQLField("gpuTypes")
+    created_at: "PartitionGraphQLField" = PartitionGraphQLField("createdAt")
+
+    @classmethod
+    def online_models(cls) -> "ModelFields":
+        return ModelFields("online_models")
+
+    def fields(
+        self,
+        *subfields: Union[PartitionGraphQLField, "ComputePoolFields", "ModelFields"],
+    ) -> "PartitionFields":
+        """Subfields should come from the PartitionFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "PartitionFields":
         self._alias = alias
         return self
 
 
 class PpotrainingParamsOutputFields(GraphQLField):
     """@private"""
-    kl_div_coeff: 'PpotrainingParamsOutputGraphQLField' = (
-        PpotrainingParamsOutputGraphQLField('klDivCoeff'))
 
-    def fields(self, *subfields: PpotrainingParamsOutputGraphQLField
-        ) ->'PpotrainingParamsOutputFields':
+    kl_div_coeff: "PpotrainingParamsOutputGraphQLField" = (
+        PpotrainingParamsOutputGraphQLField("klDivCoeff")
+    )
+
+    def fields(
+        self, *subfields: PpotrainingParamsOutputGraphQLField
+    ) -> "PpotrainingParamsOutputFields":
         """Subfields should come from the PpotrainingParamsOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'PpotrainingParamsOutputFields':
+    def alias(self, alias: str) -> "PpotrainingParamsOutputFields":
         self._alias = alias
         return self
 
@@ -1377,93 +1901,150 @@ class ProviderListFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def providers(cls) ->'AuthProviderFields':
-        return AuthProviderFields('providers')
+    def providers(cls) -> "AuthProviderFields":
+        return AuthProviderFields("providers")
 
-    def fields(self, *subfields: Union[ProviderListGraphQLField,
-        'AuthProviderFields']) ->'ProviderListFields':
+    def fields(
+        self, *subfields: Union[ProviderListGraphQLField, "AuthProviderFields"]
+    ) -> "ProviderListFields":
         """Subfields should come from the ProviderListFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ProviderListFields':
+    def alias(self, alias: str) -> "ProviderListFields":
         self._alias = alias
         return self
 
 
 class RoleFields(GraphQLField):
     """@private"""
-    id: 'RoleGraphQLField' = RoleGraphQLField('id')
-    key: 'RoleGraphQLField' = RoleGraphQLField('key')
-    name: 'RoleGraphQLField' = RoleGraphQLField('name')
-    created_at: 'RoleGraphQLField' = RoleGraphQLField('createdAt')
-    permissions: 'RoleGraphQLField' = RoleGraphQLField('permissions')
 
-    def fields(self, *subfields: RoleGraphQLField) ->'RoleFields':
+    id: "RoleGraphQLField" = RoleGraphQLField("id")
+    key: "RoleGraphQLField" = RoleGraphQLField("key")
+    name: "RoleGraphQLField" = RoleGraphQLField("name")
+    created_at: "RoleGraphQLField" = RoleGraphQLField("createdAt")
+    permissions: "RoleGraphQLField" = RoleGraphQLField("permissions")
+
+    def fields(self, *subfields: RoleGraphQLField) -> "RoleFields":
         """Subfields should come from the RoleFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'RoleFields':
+    def alias(self, alias: str) -> "RoleFields":
         self._alias = alias
         return self
 
 
 class SampleConfigOutputFields(GraphQLField):
     """@private"""
-    feedback_type: 'SampleConfigOutputGraphQLField' = (
-        SampleConfigOutputGraphQLField('feedbackType'))
-    selection_type: 'SampleConfigOutputGraphQLField' = (
-        SampleConfigOutputGraphQLField('selectionType'))
-    max_samples: 'SampleConfigOutputGraphQLField' = (
-        SampleConfigOutputGraphQLField('maxSamples'))
 
-    @classmethod
-    def filter(cls) ->'ListCompletionsFilterOutputFields':
-        return ListCompletionsFilterOutputFields('filter')
+    feedback_type: "SampleConfigOutputGraphQLField" = SampleConfigOutputGraphQLField(
+        "feedbackType"
+    )
+    datasource: "SampleDatasourceOutputUnion" = SampleDatasourceOutputUnion(
+        "datasource"
+    )
 
-    def fields(self, *subfields: Union[SampleConfigOutputGraphQLField,
-        'ListCompletionsFilterOutputFields']) ->'SampleConfigOutputFields':
+    def fields(
+        self,
+        *subfields: Union[
+            SampleConfigOutputGraphQLField, "SampleDatasourceOutputUnion"
+        ],
+    ) -> "SampleConfigOutputFields":
         """Subfields should come from the SampleConfigOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'SampleConfigOutputFields':
+    def alias(self, alias: str) -> "SampleConfigOutputFields":
+        self._alias = alias
+        return self
+
+
+class SampleDatasourceCompletionsOutputFields(GraphQLField):
+    """@private"""
+
+    selection_type: "SampleDatasourceCompletionsOutputGraphQLField" = (
+        SampleDatasourceCompletionsOutputGraphQLField("selectionType")
+    )
+    max_samples: "SampleDatasourceCompletionsOutputGraphQLField" = (
+        SampleDatasourceCompletionsOutputGraphQLField("maxSamples")
+    )
+
+    @classmethod
+    def filter(cls) -> "ListCompletionsFilterOutputFields":
+        return ListCompletionsFilterOutputFields("filter")
+
+    def fields(
+        self,
+        *subfields: Union[
+            SampleDatasourceCompletionsOutputGraphQLField,
+            "ListCompletionsFilterOutputFields",
+        ],
+    ) -> "SampleDatasourceCompletionsOutputFields":
+        """Subfields should come from the SampleDatasourceCompletionsOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "SampleDatasourceCompletionsOutputFields":
+        self._alias = alias
+        return self
+
+
+class SampleDatasourceDatasetOutputFields(GraphQLField):
+    """@private"""
+
+    dataset_key: "SampleDatasourceDatasetOutputGraphQLField" = (
+        SampleDatasourceDatasetOutputGraphQLField("datasetKey")
+    )
+
+    def fields(
+        self, *subfields: SampleDatasourceDatasetOutputGraphQLField
+    ) -> "SampleDatasourceDatasetOutputFields":
+        """Subfields should come from the SampleDatasourceDatasetOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "SampleDatasourceDatasetOutputFields":
         self._alias = alias
         return self
 
 
 class ScalarMetricConfigOutputFields(GraphQLField):
     """@private"""
-    threshold: 'ScalarMetricConfigOutputGraphQLField' = (
-        ScalarMetricConfigOutputGraphQLField('threshold'))
 
-    def fields(self, *subfields: ScalarMetricConfigOutputGraphQLField
-        ) ->'ScalarMetricConfigOutputFields':
+    threshold: "ScalarMetricConfigOutputGraphQLField" = (
+        ScalarMetricConfigOutputGraphQLField("threshold")
+    )
+
+    def fields(
+        self, *subfields: ScalarMetricConfigOutputGraphQLField
+    ) -> "ScalarMetricConfigOutputFields":
         """Subfields should come from the ScalarMetricConfigOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ScalarMetricConfigOutputFields':
+    def alias(self, alias: str) -> "ScalarMetricConfigOutputFields":
         self._alias = alias
         return self
 
 
 class SessionFields(GraphQLField):
     """@private"""
-    id: 'SessionGraphQLField' = SessionGraphQLField('id')
+
+    id: "SessionGraphQLField" = SessionGraphQLField("id")
 
     @classmethod
-    def turns(cls) ->'CompletionFields':
-        return CompletionFields('turns')
+    def turns(cls) -> "CompletionFields":
+        return CompletionFields("turns")
 
-    def fields(self, *subfields: Union[SessionGraphQLField, 'CompletionFields']
-        ) ->'SessionFields':
+    def fields(
+        self, *subfields: Union[SessionGraphQLField, "CompletionFields"]
+    ) -> "SessionFields":
         """Subfields should come from the SessionFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'SessionFields':
+    def alias(self, alias: str) -> "SessionFields":
         self._alias = alias
         return self
 
@@ -1472,16 +2053,36 @@ class SettingsFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def default_metric(cls) ->'MetricWithContextFields':
-        return MetricWithContextFields('default_metric')
+    def default_metric(cls) -> "MetricWithContextFields":
+        return MetricWithContextFields("default_metric")
 
-    def fields(self, *subfields: Union[SettingsGraphQLField,
-        'MetricWithContextFields']) ->'SettingsFields':
+    def fields(
+        self, *subfields: Union[SettingsGraphQLField, "MetricWithContextFields"]
+    ) -> "SettingsFields":
         """Subfields should come from the SettingsFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'SettingsFields':
+    def alias(self, alias: str) -> "SettingsFields":
+        self._alias = alias
+        return self
+
+
+class SfttrainingParamsOutputFields(GraphQLField):
+    """@private"""
+
+    empty: "SfttrainingParamsOutputGraphQLField" = SfttrainingParamsOutputGraphQLField(
+        "empty"
+    )
+
+    def fields(
+        self, *subfields: SfttrainingParamsOutputGraphQLField
+    ) -> "SfttrainingParamsOutputFields":
+        """Subfields should come from the SfttrainingParamsOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "SfttrainingParamsOutputFields":
         self._alias = alias
         return self
 
@@ -1490,64 +2091,71 @@ class ShareFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def team(cls) ->'TeamFields':
-        return TeamFields('team')
+    def team(cls) -> "TeamFields":
+        return TeamFields("team")
 
     @classmethod
-    def role(cls) ->'RoleFields':
-        return RoleFields('role')
-    is_owner: 'ShareGraphQLField' = ShareGraphQLField('isOwner')
+    def role(cls) -> "RoleFields":
+        return RoleFields("role")
 
-    def fields(self, *subfields: Union[ShareGraphQLField, 'RoleFields',
-        'TeamFields']) ->'ShareFields':
+    is_owner: "ShareGraphQLField" = ShareGraphQLField("isOwner")
+
+    def fields(
+        self, *subfields: Union[ShareGraphQLField, "RoleFields", "TeamFields"]
+    ) -> "ShareFields":
         """Subfields should come from the ShareFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'ShareFields':
+    def alias(self, alias: str) -> "ShareFields":
         self._alias = alias
         return self
 
 
 class SystemPromptTemplateFields(GraphQLField):
     """@private"""
-    id: 'SystemPromptTemplateGraphQLField' = SystemPromptTemplateGraphQLField(
-        'id')
-    name: 'SystemPromptTemplateGraphQLField' = (
-        SystemPromptTemplateGraphQLField('name'))
-    template: 'SystemPromptTemplateGraphQLField' = (
-        SystemPromptTemplateGraphQLField('template'))
-    arguments: 'SystemPromptTemplateGraphQLField' = (
-        SystemPromptTemplateGraphQLField('arguments'))
-    created_at: 'SystemPromptTemplateGraphQLField' = (
-        SystemPromptTemplateGraphQLField('createdAt'))
-    created_by: 'SystemPromptTemplateGraphQLField' = (
-        SystemPromptTemplateGraphQLField('createdBy'))
 
-    def fields(self, *subfields: SystemPromptTemplateGraphQLField
-        ) ->'SystemPromptTemplateFields':
+    id: "SystemPromptTemplateGraphQLField" = SystemPromptTemplateGraphQLField("id")
+    name: "SystemPromptTemplateGraphQLField" = SystemPromptTemplateGraphQLField("name")
+    template: "SystemPromptTemplateGraphQLField" = SystemPromptTemplateGraphQLField(
+        "template"
+    )
+    arguments: "SystemPromptTemplateGraphQLField" = SystemPromptTemplateGraphQLField(
+        "arguments"
+    )
+    created_at: "SystemPromptTemplateGraphQLField" = SystemPromptTemplateGraphQLField(
+        "createdAt"
+    )
+    created_by: "SystemPromptTemplateGraphQLField" = SystemPromptTemplateGraphQLField(
+        "createdBy"
+    )
+
+    def fields(
+        self, *subfields: SystemPromptTemplateGraphQLField
+    ) -> "SystemPromptTemplateFields":
         """Subfields should come from the SystemPromptTemplateFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'SystemPromptTemplateFields':
+    def alias(self, alias: str) -> "SystemPromptTemplateFields":
         self._alias = alias
         return self
 
 
 class TeamFields(GraphQLField):
     """@private"""
-    id: 'TeamGraphQLField' = TeamGraphQLField('id')
-    key: 'TeamGraphQLField' = TeamGraphQLField('key')
-    name: 'TeamGraphQLField' = TeamGraphQLField('name')
-    created_at: 'TeamGraphQLField' = TeamGraphQLField('createdAt')
 
-    def fields(self, *subfields: TeamGraphQLField) ->'TeamFields':
+    id: "TeamGraphQLField" = TeamGraphQLField("id")
+    key: "TeamGraphQLField" = TeamGraphQLField("key")
+    name: "TeamGraphQLField" = TeamGraphQLField("name")
+    created_at: "TeamGraphQLField" = TeamGraphQLField("createdAt")
+
+    def fields(self, *subfields: TeamGraphQLField) -> "TeamFields":
         """Subfields should come from the TeamFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TeamFields':
+    def alias(self, alias: str) -> "TeamFields":
         self._alias = alias
         return self
 
@@ -1556,24 +2164,28 @@ class TeamMemberFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def user(cls) ->'UserFields':
-        return UserFields('user')
+    def user(cls) -> "UserFields":
+        return UserFields("user")
 
     @classmethod
-    def team(cls) ->'TeamFields':
-        return TeamFields('team')
+    def team(cls) -> "TeamFields":
+        return TeamFields("team")
 
     @classmethod
-    def role(cls) ->'RoleFields':
-        return RoleFields('role')
+    def role(cls) -> "RoleFields":
+        return RoleFields("role")
 
-    def fields(self, *subfields: Union[TeamMemberGraphQLField, 'RoleFields',
-        'TeamFields', 'UserFields']) ->'TeamMemberFields':
+    def fields(
+        self,
+        *subfields: Union[
+            TeamMemberGraphQLField, "RoleFields", "TeamFields", "UserFields"
+        ],
+    ) -> "TeamMemberFields":
         """Subfields should come from the TeamMemberFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TeamMemberFields':
+    def alias(self, alias: str) -> "TeamMemberFields":
         self._alias = alias
         return self
 
@@ -1582,36 +2194,39 @@ class TeamWithroleFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def team(cls) ->'TeamFields':
-        return TeamFields('team')
+    def team(cls) -> "TeamFields":
+        return TeamFields("team")
 
     @classmethod
-    def role(cls) ->'RoleFields':
-        return RoleFields('role')
+    def role(cls) -> "RoleFields":
+        return RoleFields("role")
 
-    def fields(self, *subfields: Union[TeamWithroleGraphQLField,
-        'RoleFields', 'TeamFields']) ->'TeamWithroleFields':
+    def fields(
+        self, *subfields: Union[TeamWithroleGraphQLField, "RoleFields", "TeamFields"]
+    ) -> "TeamWithroleFields":
         """Subfields should come from the TeamWithroleFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TeamWithroleFields':
+    def alias(self, alias: str) -> "TeamWithroleFields":
         self._alias = alias
         return self
 
 
 class TimeRangeOutputFields(GraphQLField):
     """@private"""
-    from_: 'TimeRangeOutputGraphQLField' = TimeRangeOutputGraphQLField('from')
-    to: 'TimeRangeOutputGraphQLField' = TimeRangeOutputGraphQLField('to')
 
-    def fields(self, *subfields: TimeRangeOutputGraphQLField
-        ) ->'TimeRangeOutputFields':
+    from_: "TimeRangeOutputGraphQLField" = TimeRangeOutputGraphQLField("from")
+    to: "TimeRangeOutputGraphQLField" = TimeRangeOutputGraphQLField("to")
+
+    def fields(
+        self, *subfields: TimeRangeOutputGraphQLField
+    ) -> "TimeRangeOutputFields":
         """Subfields should come from the TimeRangeOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TimeRangeOutputFields':
+    def alias(self, alias: str) -> "TimeRangeOutputFields":
         self._alias = alias
         return self
 
@@ -1620,22 +2235,22 @@ class TimeseriesFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def model(cls) ->'ModelFields':
-        return ModelFields('model')
-    time_buckets: 'TimeseriesGraphQLField' = TimeseriesGraphQLField(
-        'timeBuckets')
-    count: 'TimeseriesGraphQLField' = TimeseriesGraphQLField('count')
-    values: 'TimeseriesGraphQLField' = TimeseriesGraphQLField('values')
-    aggregation: 'TimeseriesGraphQLField' = TimeseriesGraphQLField(
-        'aggregation')
+    def model(cls) -> "ModelFields":
+        return ModelFields("model")
 
-    def fields(self, *subfields: Union[TimeseriesGraphQLField, 'ModelFields']
-        ) ->'TimeseriesFields':
+    time_buckets: "TimeseriesGraphQLField" = TimeseriesGraphQLField("timeBuckets")
+    count: "TimeseriesGraphQLField" = TimeseriesGraphQLField("count")
+    values: "TimeseriesGraphQLField" = TimeseriesGraphQLField("values")
+    aggregation: "TimeseriesGraphQLField" = TimeseriesGraphQLField("aggregation")
+
+    def fields(
+        self, *subfields: Union[TimeseriesGraphQLField, "ModelFields"]
+    ) -> "TimeseriesFields":
         """Subfields should come from the TimeseriesFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TimeseriesFields':
+    def alias(self, alias: str) -> "TimeseriesFields":
         self._alias = alias
         return self
 
@@ -1644,250 +2259,305 @@ class TrainingConfigOutputFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def base_training_params(cls) ->'BaseTrainingParamsOutputFields':
-        return BaseTrainingParamsOutputFields('base_training_params')
+    def base_training_params(cls) -> "BaseTrainingParamsOutputFields":
+        return BaseTrainingParamsOutputFields("base_training_params")
 
     @classmethod
-    def training_metadata(cls) ->'TrainingMetadataOutputFields':
-        return TrainingMetadataOutputFields('training_metadata')
-    training_objective: 'TrainingObjectiveOutputUnion' = (
-        TrainingObjectiveOutputUnion('trainingObjective'))
+    def training_metadata(cls) -> "TrainingMetadataOutputFields":
+        return TrainingMetadataOutputFields("training_metadata")
 
-    def fields(self, *subfields: Union[TrainingConfigOutputGraphQLField,
-        'BaseTrainingParamsOutputFields', 'TrainingMetadataOutputFields',
-        'TrainingObjectiveOutputUnion']) ->'TrainingConfigOutputFields':
+    training_objective: "TrainingObjectiveOutputUnion" = TrainingObjectiveOutputUnion(
+        "trainingObjective"
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            TrainingConfigOutputGraphQLField,
+            "BaseTrainingParamsOutputFields",
+            "TrainingMetadataOutputFields",
+            "TrainingObjectiveOutputUnion",
+        ],
+    ) -> "TrainingConfigOutputFields":
         """Subfields should come from the TrainingConfigOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TrainingConfigOutputFields':
+    def alias(self, alias: str) -> "TrainingConfigOutputFields":
         self._alias = alias
         return self
 
 
 class TrainingJobFields(GraphQLField):
     """@private"""
-    id: 'TrainingJobGraphQLField' = TrainingJobGraphQLField('id')
-    name: 'TrainingJobGraphQLField' = TrainingJobGraphQLField('name')
-    status: 'TrainingJobGraphQLField' = TrainingJobGraphQLField('status')
-    created_at: 'TrainingJobGraphQLField' = TrainingJobGraphQLField('createdAt'
-        )
-    started_at: 'TrainingJobGraphQLField' = TrainingJobGraphQLField('startedAt'
-        )
-    ended_at: 'TrainingJobGraphQLField' = TrainingJobGraphQLField('endedAt')
-    duration_ms: 'TrainingJobGraphQLField' = TrainingJobGraphQLField(
-        'durationMs')
+
+    id: "TrainingJobGraphQLField" = TrainingJobGraphQLField("id")
+    name: "TrainingJobGraphQLField" = TrainingJobGraphQLField("name")
+    status: "TrainingJobGraphQLField" = TrainingJobGraphQLField("status")
+    created_at: "TrainingJobGraphQLField" = TrainingJobGraphQLField("createdAt")
+    started_at: "TrainingJobGraphQLField" = TrainingJobGraphQLField("startedAt")
+    ended_at: "TrainingJobGraphQLField" = TrainingJobGraphQLField("endedAt")
+    duration_ms: "TrainingJobGraphQLField" = TrainingJobGraphQLField("durationMs")
 
     @classmethod
-    def stages(cls) ->'JobStageOutputFields':
-        return JobStageOutputFields('stages')
+    def stages(cls) -> "JobStageOutputFields":
+        return JobStageOutputFields("stages")
 
     @classmethod
-    def child_model(cls) ->'ModelFields':
-        return ModelFields('child_model')
+    def child_model(cls) -> "ModelFields":
+        return ModelFields("child_model")
 
     @classmethod
-    def parent_model(cls) ->'ModelFields':
-        return ModelFields('parent_model')
+    def parent_model(cls) -> "ModelFields":
+        return ModelFields("parent_model")
 
     @classmethod
-    def checkpoints(cls) ->'ModelFields':
-        return ModelFields('checkpoints')
+    def checkpoints(cls) -> "ModelFields":
+        return ModelFields("checkpoints")
 
     @classmethod
-    def use_case(cls) ->'UseCaseFields':
-        return UseCaseFields('use_case')
+    def use_case(cls) -> "UseCaseFields":
+        return UseCaseFields("use_case")
 
     @classmethod
-    def config(cls) ->'AdaptRequestConfigOutputFields':
-        return AdaptRequestConfigOutputFields('config')
+    def config(cls) -> "AdaptRequestConfigOutputFields":
+        return AdaptRequestConfigOutputFields("config")
 
     @classmethod
-    def created_by(cls) ->'UserFields':
-        return UserFields('created_by')
+    def created_by(cls) -> "UserFields":
+        return UserFields("created_by")
 
-    def fields(self, *subfields: Union[TrainingJobGraphQLField,
-        'AdaptRequestConfigOutputFields', 'JobStageOutputFields',
-        'ModelFields', 'UseCaseFields', 'UserFields']) ->'TrainingJobFields':
+    def fields(
+        self,
+        *subfields: Union[
+            TrainingJobGraphQLField,
+            "AdaptRequestConfigOutputFields",
+            "JobStageOutputFields",
+            "ModelFields",
+            "UseCaseFields",
+            "UserFields",
+        ],
+    ) -> "TrainingJobFields":
         """Subfields should come from the TrainingJobFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TrainingJobFields':
+    def alias(self, alias: str) -> "TrainingJobFields":
         self._alias = alias
         return self
 
 
 class TrainingJobStageOutputFields(GraphQLField):
     """@private"""
-    training_monitoring_link: 'TrainingJobStageOutputGraphQLField' = (
-        TrainingJobStageOutputGraphQLField('trainingMonitoringLink'))
-    total_num_samples: 'TrainingJobStageOutputGraphQLField' = (
-        TrainingJobStageOutputGraphQLField('totalNumSamples'))
-    processed_num_samples: 'TrainingJobStageOutputGraphQLField' = (
-        TrainingJobStageOutputGraphQLField('processedNumSamples'))
-    checkpoints: 'TrainingJobStageOutputGraphQLField' = (
-        TrainingJobStageOutputGraphQLField('checkpoints'))
 
-    def fields(self, *subfields: TrainingJobStageOutputGraphQLField
-        ) ->'TrainingJobStageOutputFields':
+    monitoring_link: "TrainingJobStageOutputGraphQLField" = (
+        TrainingJobStageOutputGraphQLField("monitoringLink")
+    )
+    total_num_samples: "TrainingJobStageOutputGraphQLField" = (
+        TrainingJobStageOutputGraphQLField("totalNumSamples")
+    )
+    processed_num_samples: "TrainingJobStageOutputGraphQLField" = (
+        TrainingJobStageOutputGraphQLField("processedNumSamples")
+    )
+    checkpoints: "TrainingJobStageOutputGraphQLField" = (
+        TrainingJobStageOutputGraphQLField("checkpoints")
+    )
+
+    def fields(
+        self, *subfields: TrainingJobStageOutputGraphQLField
+    ) -> "TrainingJobStageOutputFields":
         """Subfields should come from the TrainingJobStageOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TrainingJobStageOutputFields':
+    def alias(self, alias: str) -> "TrainingJobStageOutputFields":
         self._alias = alias
         return self
 
 
 class TrainingMetadataOutputFields(GraphQLField):
     """@private"""
-    training_type: 'TrainingMetadataOutputGraphQLField' = (
-        TrainingMetadataOutputGraphQLField('trainingType'))
-    alignment_method: 'TrainingMetadataOutputGraphQLField' = (
-        TrainingMetadataOutputGraphQLField('alignmentMethod'))
-    parameters: 'TrainingMetadataOutputParametersUnion' = (
-        TrainingMetadataOutputParametersUnion('parameters'))
 
-    def fields(self, *subfields: Union[TrainingMetadataOutputGraphQLField,
-        'TrainingMetadataOutputParametersUnion']
-        ) ->'TrainingMetadataOutputFields':
+    training_type: "TrainingMetadataOutputGraphQLField" = (
+        TrainingMetadataOutputGraphQLField("trainingType")
+    )
+    alignment_method: "TrainingMetadataOutputGraphQLField" = (
+        TrainingMetadataOutputGraphQLField("alignmentMethod")
+    )
+    parameters: "TrainingMetadataOutputParametersUnion" = (
+        TrainingMetadataOutputParametersUnion("parameters")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            TrainingMetadataOutputGraphQLField, "TrainingMetadataOutputParametersUnion"
+        ],
+    ) -> "TrainingMetadataOutputFields":
         """Subfields should come from the TrainingMetadataOutputFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TrainingMetadataOutputFields':
+    def alias(self, alias: str) -> "TrainingMetadataOutputFields":
         self._alias = alias
         return self
 
 
 class TrendResultFields(GraphQLField):
     """@private"""
-    trend: 'TrendResultGraphQLField' = TrendResultGraphQLField('trend')
-    previous: 'TrendResultGraphQLField' = TrendResultGraphQLField('previous')
-    current: 'TrendResultGraphQLField' = TrendResultGraphQLField('current')
 
-    def fields(self, *subfields: TrendResultGraphQLField
-        ) ->'TrendResultFields':
+    trend: "TrendResultGraphQLField" = TrendResultGraphQLField("trend")
+    previous: "TrendResultGraphQLField" = TrendResultGraphQLField("previous")
+    current: "TrendResultGraphQLField" = TrendResultGraphQLField("current")
+
+    def fields(self, *subfields: TrendResultGraphQLField) -> "TrendResultFields":
         """Subfields should come from the TrendResultFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'TrendResultFields':
+    def alias(self, alias: str) -> "TrendResultFields":
         self._alias = alias
         return self
 
 
 class UnitConfigFields(GraphQLField):
     """@private"""
-    symbol: 'UnitConfigGraphQLField' = UnitConfigGraphQLField('symbol')
-    position: 'UnitConfigGraphQLField' = UnitConfigGraphQLField('position')
 
-    def fields(self, *subfields: UnitConfigGraphQLField) ->'UnitConfigFields':
+    symbol: "UnitConfigGraphQLField" = UnitConfigGraphQLField("symbol")
+    position: "UnitConfigGraphQLField" = UnitConfigGraphQLField("position")
+
+    def fields(self, *subfields: UnitConfigGraphQLField) -> "UnitConfigFields":
         """Subfields should come from the UnitConfigFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'UnitConfigFields':
+    def alias(self, alias: str) -> "UnitConfigFields":
         self._alias = alias
         return self
 
 
 class UseCaseFields(GraphQLField):
     """@private"""
-    id: 'UseCaseGraphQLField' = UseCaseGraphQLField('id')
-    name: 'UseCaseGraphQLField' = UseCaseGraphQLField('name')
-    key: 'UseCaseGraphQLField' = UseCaseGraphQLField('key')
-    description: 'UseCaseGraphQLField' = UseCaseGraphQLField('description')
-    created_at: 'UseCaseGraphQLField' = UseCaseGraphQLField('createdAt')
-    is_archived: 'UseCaseGraphQLField' = UseCaseGraphQLField('isArchived')
+
+    id: "UseCaseGraphQLField" = UseCaseGraphQLField("id")
+    name: "UseCaseGraphQLField" = UseCaseGraphQLField("name")
+    key: "UseCaseGraphQLField" = UseCaseGraphQLField("key")
+    description: "UseCaseGraphQLField" = UseCaseGraphQLField("description")
+    created_at: "UseCaseGraphQLField" = UseCaseGraphQLField("createdAt")
+    is_archived: "UseCaseGraphQLField" = UseCaseGraphQLField("isArchived")
 
     @classmethod
-    def model_services(cls, *, filter: Optional[ModelServiceFilter]=None
-        ) ->'ModelServiceFields':
-        arguments: Dict[str, Dict[str, Any]] = {'filter': {'type':
-            'ModelServiceFilter', 'value': filter}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return ModelServiceFields('model_services', arguments=cleared_arguments
-            )
+    def model_services(
+        cls, *, filter: Optional[ModelServiceFilter] = None
+    ) -> "ModelServiceFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "ModelServiceFilter", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return ModelServiceFields("model_services", arguments=cleared_arguments)
 
     @classmethod
-    def model_service(cls, id_or_key: str) ->'ModelServiceFields':
-        arguments: Dict[str, Dict[str, Any]] = {'idOrKey': {'type':
-            'IdOrKey!', 'value': id_or_key}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return ModelServiceFields('model_service', arguments=cleared_arguments)
+    def model_service(cls, id_or_key: str) -> "ModelServiceFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "idOrKey": {"type": "IdOrKey!", "value": id_or_key}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return ModelServiceFields("model_service", arguments=cleared_arguments)
 
     @classmethod
-    def default_model_service(cls) ->'ModelServiceFields':
-        return ModelServiceFields('default_model_service')
+    def default_model_service(cls) -> "ModelServiceFields":
+        return ModelServiceFields("default_model_service")
 
     @classmethod
-    def activity(cls, *, timerange: Optional[TimeRange]=None
-        ) ->'ActivityFields':
-        arguments: Dict[str, Dict[str, Any]] = {'timerange': {'type':
-            'TimeRange', 'value': timerange}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return ActivityFields('activity', arguments=cleared_arguments)
+    def activity(cls, *, timerange: Optional[TimeRange] = None) -> "ActivityFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "timerange": {"type": "TimeRange", "value": timerange}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return ActivityFields("activity", arguments=cleared_arguments)
 
     @classmethod
-    def metrics(cls) ->'MetricWithContextFields':
-        return MetricWithContextFields('metrics')
+    def metrics(cls) -> "MetricWithContextFields":
+        return MetricWithContextFields("metrics")
 
     @classmethod
-    def metric(cls, metric: str) ->'MetricWithContextFields':
-        arguments: Dict[str, Dict[str, Any]] = {'metric': {'type':
-            'IdOrKey!', 'value': metric}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return MetricWithContextFields('metric', arguments=cleared_arguments)
+    def metric(cls, metric: str) -> "MetricWithContextFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "metric": {"type": "IdOrKey!", "value": metric}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return MetricWithContextFields("metric", arguments=cleared_arguments)
 
     @classmethod
-    def ab_campaigns(cls, filter: AbCampaignFilter) ->'AbcampaignFields':
-        arguments: Dict[str, Dict[str, Any]] = {'filter': {'type':
-            'AbCampaignFilter!', 'value': filter}}
-        cleared_arguments = {key: value for key, value in arguments.items() if
-            value['value'] is not None}
-        return AbcampaignFields('ab_campaigns', arguments=cleared_arguments)
+    def ab_campaigns(cls, filter: AbCampaignFilter) -> "AbcampaignFields":
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "AbCampaignFilter!", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return AbcampaignFields("ab_campaigns", arguments=cleared_arguments)
 
     @classmethod
-    def auto_evals(cls) ->'EvaluationJobFields':
-        return EvaluationJobFields('auto_evals')
+    def auto_evals(cls) -> "EvaluationJobFields":
+        return EvaluationJobFields("auto_evals")
 
     @classmethod
-    def widgets(cls) ->'WidgetFields':
-        return WidgetFields('widgets')
+    def training_jobs(cls) -> "TrainingJobFields":
+        return TrainingJobFields("training_jobs")
 
     @classmethod
-    def metadata(cls) ->'UseCaseMetadataFields':
-        return UseCaseMetadataFields('metadata')
-    permissions: 'UseCaseGraphQLField' = UseCaseGraphQLField('permissions')
+    def widgets(cls) -> "WidgetFields":
+        return WidgetFields("widgets")
 
     @classmethod
-    def shares(cls) ->'ShareFields':
-        return ShareFields('shares')
+    def metadata(cls) -> "UseCaseMetadataFields":
+        return UseCaseMetadataFields("metadata")
+
+    permissions: "UseCaseGraphQLField" = UseCaseGraphQLField("permissions")
 
     @classmethod
-    def settings(cls) ->'SettingsFields':
-        return SettingsFields('settings')
+    def shares(cls) -> "ShareFields":
+        return ShareFields("shares")
 
     @classmethod
-    def label_usage(cls) ->'LabelUsageFields':
-        return LabelUsageFields('label_usage')
+    def settings(cls) -> "SettingsFields":
+        return SettingsFields("settings")
 
-    def fields(self, *subfields: Union[UseCaseGraphQLField,
-        'AbcampaignFields', 'ActivityFields', 'EvaluationJobFields',
-        'LabelUsageFields', 'MetricWithContextFields', 'ModelServiceFields',
-        'SettingsFields', 'ShareFields', 'UseCaseMetadataFields',
-        'WidgetFields']) ->'UseCaseFields':
+    @classmethod
+    def label_usage(cls) -> "LabelUsageFields":
+        return LabelUsageFields("label_usage")
+
+    def fields(
+        self,
+        *subfields: Union[
+            UseCaseGraphQLField,
+            "AbcampaignFields",
+            "ActivityFields",
+            "EvaluationJobFields",
+            "LabelUsageFields",
+            "MetricWithContextFields",
+            "ModelServiceFields",
+            "SettingsFields",
+            "ShareFields",
+            "TrainingJobFields",
+            "UseCaseMetadataFields",
+            "WidgetFields",
+        ],
+    ) -> "UseCaseFields":
         """Subfields should come from the UseCaseFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'UseCaseFields':
+    def alias(self, alias: str) -> "UseCaseFields":
         self._alias = alias
         return self
 
@@ -1896,62 +2566,67 @@ class UseCaseMetadataFields(GraphQLField):
     """@private"""
 
     @classmethod
-    def emoji(cls) ->'EmojiFields':
-        return EmojiFields('emoji')
+    def emoji(cls) -> "EmojiFields":
+        return EmojiFields("emoji")
 
-    def fields(self, *subfields: Union[UseCaseMetadataGraphQLField,
-        'EmojiFields']) ->'UseCaseMetadataFields':
+    def fields(
+        self, *subfields: Union[UseCaseMetadataGraphQLField, "EmojiFields"]
+    ) -> "UseCaseMetadataFields":
         """Subfields should come from the UseCaseMetadataFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'UseCaseMetadataFields':
+    def alias(self, alias: str) -> "UseCaseMetadataFields":
         self._alias = alias
         return self
 
 
 class UserFields(GraphQLField):
     """@private"""
-    id: 'UserGraphQLField' = UserGraphQLField('id')
-    email: 'UserGraphQLField' = UserGraphQLField('email')
-    name: 'UserGraphQLField' = UserGraphQLField('name')
-    created_at: 'UserGraphQLField' = UserGraphQLField('createdAt')
+
+    id: "UserGraphQLField" = UserGraphQLField("id")
+    email: "UserGraphQLField" = UserGraphQLField("email")
+    name: "UserGraphQLField" = UserGraphQLField("name")
+    created_at: "UserGraphQLField" = UserGraphQLField("createdAt")
 
     @classmethod
-    def teams(cls) ->'TeamWithroleFields':
-        return TeamWithroleFields('teams')
+    def teams(cls) -> "TeamWithroleFields":
+        return TeamWithroleFields("teams")
 
     @classmethod
-    def api_keys(cls) ->'ApiKeyFields':
-        return ApiKeyFields('api_keys')
+    def api_keys(cls) -> "ApiKeyFields":
+        return ApiKeyFields("api_keys")
 
-    def fields(self, *subfields: Union[UserGraphQLField, 'ApiKeyFields',
-        'TeamWithroleFields']) ->'UserFields':
+    def fields(
+        self, *subfields: Union[UserGraphQLField, "ApiKeyFields", "TeamWithroleFields"]
+    ) -> "UserFields":
         """Subfields should come from the UserFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'UserFields':
+    def alias(self, alias: str) -> "UserFields":
         self._alias = alias
         return self
 
 
 class WidgetFields(GraphQLField):
     """@private"""
-    title: 'WidgetGraphQLField' = WidgetGraphQLField('title')
-    metric: 'WidgetGraphQLField' = WidgetGraphQLField('metric')
-    aggregation: 'WidgetGraphQLField' = WidgetGraphQLField('aggregation')
+
+    title: "WidgetGraphQLField" = WidgetGraphQLField("title")
+    metric: "WidgetGraphQLField" = WidgetGraphQLField("metric")
+    aggregation: "WidgetGraphQLField" = WidgetGraphQLField("aggregation")
 
     @classmethod
-    def unit(cls) ->'UnitConfigFields':
-        return UnitConfigFields('unit')
+    def unit(cls) -> "UnitConfigFields":
+        return UnitConfigFields("unit")
 
-    def fields(self, *subfields: Union[WidgetGraphQLField, 'UnitConfigFields']
-        ) ->'WidgetFields':
+    def fields(
+        self, *subfields: Union[WidgetGraphQLField, "UnitConfigFields"]
+    ) -> "WidgetFields":
         """Subfields should come from the WidgetFields class"""
         self._subfields.extend(subfields)
         return self
 
-    def alias(self, alias: str) ->'WidgetFields':
+    def alias(self, alias: str) -> "WidgetFields":
         self._alias = alias
         return self

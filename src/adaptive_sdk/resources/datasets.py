@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from adaptive_sdk.client import Adaptive, AsyncAdaptive
 
 
-class Datasets(SyncAPIResource, UseCaseResource):
+class Datasets(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     """
     Resource to interact with file datasets.
     """
@@ -45,11 +45,19 @@ class Datasets(SyncAPIResource, UseCaseResource):
         {"messages": [{"role": "system", "content": "<optional system prompt>"}, {"role": "user", "content": "<user content>"}, {"role": "assistant", "content": "<assistant answer>"}], "completion": "hey"}
         ```
         """
-        input = DatasetCreate(useCase=self.use_case_key(use_case), name=name if name else dataset_key, key=dataset_key)
+        input = DatasetCreate(
+            useCase=self.use_case_key(use_case),
+            name=name if name else dataset_key,
+            key=dataset_key,
+        )
         filename = Path(file_path).stem
         with open(file_path, "rb") as f:
-            file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
-            return self._gql_client.load_dataset(input=input, file=file_upload).create_dataset
+            file_upload = Upload(
+                filename=filename, content=f, content_type="application/jsonl"
+            )
+            return self._gql_client.load_dataset(
+                input=input, file=file_upload
+            ).create_dataset
 
     def list(
         self,
@@ -70,7 +78,7 @@ class Datasets(SyncAPIResource, UseCaseResource):
         return self._gql_client.describe_dataset(key).dataset
 
 
-class AsyncDatasets(AsyncAPIResource, UseCaseResource):
+class AsyncDatasets(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     def __init__(self, client: AsyncAdaptive) -> None:
         AsyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
@@ -95,11 +103,19 @@ class AsyncDatasets(AsyncAPIResource, UseCaseResource):
         {"messages": [{"role": "system", "content": "<optional system prompt>"}, {"role": "user", "content": "<user content>"}, {"role": "assistant", "content": "<assistant answer>"}], "completion": "hey"}
         ```
         """
-        input = DatasetCreate(useCase=self.use_case_key(use_case), name=name if name else dataset_key, key=dataset_key)
+        input = DatasetCreate(
+            useCase=self.use_case_key(use_case),
+            name=name if name else dataset_key,
+            key=dataset_key,
+        )
         filename = Path(file_path).stem
         with open(file_path, "rb") as f:
-            file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
-            upload_result = await self._gql_client.load_dataset(input=input, file=file_upload)
+            file_upload = Upload(
+                filename=filename, content=f, content_type="application/jsonl"
+            )
+            upload_result = await self._gql_client.load_dataset(
+                input=input, file=file_upload
+            )
             return upload_result.create_dataset
 
     async def list(

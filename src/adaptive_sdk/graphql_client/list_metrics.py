@@ -5,11 +5,13 @@ from .fragments import MetricDataAdmin
 
 class ListMetrics(BaseModel):
     """@public"""
-    metrics: List['ListMetricsMetrics']
+
+    metrics: List["ListMetricsMetrics"]
 
 
 class ListMetricsMetrics(MetricDataAdmin):
     """@public"""
+
     pass
 
 

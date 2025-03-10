@@ -6,7 +6,10 @@ class BaseModel(PydanticBaseModel):
     """@private"""
 
     model_config = ConfigDict(
-        populate_by_name=True, validate_assignment=True, arbitrary_types_allowed=True, protected_namespaces=()
+        populate_by_name=True,
+        validate_assignment=True,
+        arbitrary_types_allowed=True,
+        protected_namespaces=(),
     )
 
     def model_dump(self, *args, **kwargs) -> dict:

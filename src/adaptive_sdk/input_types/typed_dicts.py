@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TypedDict, Optional, List, Any, TypeAlias, Literal
+from typing import TypedDict, List, Any, TypeAlias, Literal
 from typing_extensions import Required, NotRequired
 
 
@@ -93,7 +93,7 @@ class CursorPageInput(TypedDict, total=False):
 
 
 class CustomRecipe(TypedDict, total=True):
-    guidelines: Required[str]
+    guidelines: Required[List[GuidelineInput]]
     feedback_key: Required[str]
 
 
@@ -124,9 +124,14 @@ class EvaluationDatasourceCompletions(TypedDict, total=True):
     replay_interactions: bool
 
 
+class GuidelineInput(TypedDict, total=True):
+    name: Required[str]
+    description: Required[str]
+
+
 class GuidelinesTrainingParamsInput(TypedDict, total=True):
     judge_model: Required[str]
-    judge_model_prompt: Required[str]
+    judge_model_prompt: Required[List[GuidelineInput]]
 
 
 class InteractionFeedbackDict(TypedDict):
@@ -181,19 +186,45 @@ class MetricTrainingParamsMetadata(TypedDict, total=False):
     scalar_metric: NotRequired["ScalarMetricConfigInput"]
 
 
+class ModelFilter(TypedDict, total=False):
+    in_storage: NotRequired[bool]
+    available: NotRequired[bool]
+    trainable: NotRequired[bool]
+    kind: NotRequired[List[Literal["Embedding", "Generation"]]]
+    view_all: NotRequired[bool]
+    online: NotRequired[List[Literal["ONLINE", "OFFLINE", "PENDING", "ERROR"]]]
+
+
 class PpotrainingParamsInput(TypedDict, total=True):
     kl_div_coeff: Required[float]
 
 
 class SampleConfigInput(TypedDict, total=False):
     feedback_type: NotRequired[Literal["DIRECT", "PREFERENCE"]]
+    datasource: Required[SampleDatasourceInput]
+
+
+class SampleDatasourceInput(TypedDict, total=False):
+    completions: NotRequired[SampleDatasourceCompletions]
+    dataset: NotRequired[SampleDatasourceDataset]
+
+
+class SampleDatasourceCompletions(TypedDict, total=True):
     selection_type: Required[Literal["ALL", "RANDOM", "LAST"]]
     max_samples: NotRequired[int]
     filter: NotRequired[ListCompletionsFilterInput]
 
 
+class SampleDatasourceDataset(TypedDict, total=True):
+    dataset: Required[str]
+
+
 class ScalarMetricConfigInput(TypedDict, total=False):
     threshold: NotRequired[float]
+
+
+class SftTrainingParamsInput(TypedDict, total=True):
+    pass
 
 
 class TimeRange(TypedDict, total=False):
@@ -217,7 +248,7 @@ class TrainingConfigInput(TypedDict, total=False):
 
 class TrainingMetadataInput(TypedDict, total=False):
     training_type: Required[Literal["PARAMETER_EFFICIENT", "FULL_WEIGHTS"]]
-    alignment_method: Required[Literal["PPO", "DPO"]]
+    alignment_method: Required[Literal["PPO", "DPO", "SFT"]]
     parameters: NotRequired["TrainingMetadataInputParameters"]
 
 
@@ -229,6 +260,7 @@ class TrainingMetadataInputParameters(TypedDict, total=False):
 class TrainingObjectiveInput(TypedDict, total=False):
     metric: NotRequired["MetricTrainingParamsInput"]
     guidelines: NotRequired["GuidelinesTrainingParamsInput"]
+    sft: NotRequired["SftTrainingParamsInput"]
 
 
 class Order(TypedDict, total=False):

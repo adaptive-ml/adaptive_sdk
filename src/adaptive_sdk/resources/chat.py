@@ -1,8 +1,16 @@
 from __future__ import annotations
 import json
 from uuid import UUID
-from typing import Dict, List, AsyncGenerator, Generator, Literal, overload, TYPE_CHECKING
-
+from typing import (
+    Dict,
+    List,
+    AsyncGenerator,
+    Generator,
+    Literal,
+    overload,
+    TYPE_CHECKING,
+)
+from typing_extensions import override
 from adaptive_sdk import input_types
 from adaptive_sdk.error_handling import rest_error_handler
 from adaptive_sdk.rest import rest_types
@@ -16,7 +24,8 @@ if TYPE_CHECKING:
 ROUTE = "/chat/completions"
 
 
-class Chat(SyncAPIResource, UseCaseResource):
+class Chat(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
+    @override
     def __init__(self, client: Adaptive) -> None:
         SyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
@@ -132,24 +141,29 @@ class Chat(SyncAPIResource, UseCaseResource):
         rest_error_handler(r)
         return rest_types.ChatResponse.model_validate(r.json())
 
-    def _stream(self, input: rest_types.ChatInput) -> Generator[rest_types.ChatResponseChunk, None, None]:
-        with self._rest_client.stream("POST", ROUTE, json=input.model_dump(exclude_none=True)) as r:
+    def _stream(
+        self, input: rest_types.ChatInput
+    ) -> Generator[rest_types.ChatResponseChunk, None, None]:
+        with self._rest_client.stream(
+            "POST", ROUTE, json=input.model_dump(exclude_none=True)
+        ) as r:
             rest_error_handler(r)
             for chunk in r.iter_lines():
                 if chunk:
                     chunk_data = chunk[6:]
                     if chunk_data == "[DONE]":
                         break
-                    yield rest_types.ChatResponseChunk.model_validate(json.loads(chunk_data))
+                    yield rest_types.ChatResponseChunk.model_validate(
+                        json.loads(chunk_data)
+                    )
 
 
-class AsyncChat(AsyncAPIResource, UseCaseResource):
+class AsyncChat(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
     def __init__(self, client: AsyncAdaptive) -> None:
         AsyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
 
-    @overload
-    async def create(
+    async def create(  # type: ignore[empty-body]
         self,
         messages: List[input_types.ChatMessage],
         stream: Literal[False] | None = None,
@@ -167,7 +181,7 @@ class AsyncChat(AsyncAPIResource, UseCaseResource):
         labels: Dict[str, str] | None = None,
     ) -> rest_types.ChatResponse: ...
 
-    @overload
+    @overload  # type: ignore[no-redef, misc]
     async def create(
         self,
         messages: List[input_types.ChatMessage],
@@ -255,16 +269,24 @@ class AsyncChat(AsyncAPIResource, UseCaseResource):
         )
         if input.stream:
             return self._stream(input)
-        r = await self._rest_client.post(ROUTE, json=input.model_dump(exclude_none=True))
+        r = await self._rest_client.post(
+            ROUTE, json=input.model_dump(exclude_none=True)
+        )
         rest_error_handler(r)
         return rest_types.ChatResponse.model_validate(r.json())
 
-    async def _stream(self, input: rest_types.ChatInput) -> AsyncGenerator[rest_types.ChatResponseChunk, None]:
-        async with self._rest_client.stream("POST", ROUTE, json=input.model_dump(exclude_none=True)) as r:
+    async def _stream(
+        self, input: rest_types.ChatInput
+    ) -> AsyncGenerator[rest_types.ChatResponseChunk, None]:
+        async with self._rest_client.stream(
+            "POST", ROUTE, json=input.model_dump(exclude_none=True)
+        ) as r:
             rest_error_handler(r)
             async for line in r.aiter_lines():
                 if line:
                     chunk_data = line[6:]
                     if chunk_data == "[DONE]":
                         break
-                    yield rest_types.ChatResponseChunk.model_validate(json.loads(chunk_data))
+                    yield rest_types.ChatResponseChunk.model_validate(
+                        json.loads(chunk_data)
+                    )

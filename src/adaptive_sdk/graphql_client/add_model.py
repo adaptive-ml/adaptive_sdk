@@ -6,16 +6,19 @@ from .fragments import ModelData
 
 class AddModel(BaseModel):
     """@public"""
-    add_model: 'AddModelAddModel' = Field(alias='addModel')
+
+    add_model: "AddModelAddModel" = Field(alias="addModel")
 
 
 class AddModelAddModel(ModelData):
     """@public"""
-    backbone: Optional['AddModelAddModelBackbone']
+
+    backbone: Optional["AddModelAddModelBackbone"]
 
 
 class AddModelAddModelBackbone(ModelData):
     """@public"""
+
     pass
 
 

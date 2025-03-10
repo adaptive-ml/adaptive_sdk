@@ -11,7 +11,9 @@ class EntityNotFoundDescriptor(BaseModel):
 
     def __post_init__(self):
         if self.error_message.count("{}") != len(self.code_suggestions):
-            raise ValueError("# of code suggestions must match # of placeholders in error message template")
+            raise ValueError(
+                "# of code suggestions must match # of placeholders in error message template"
+            )
 
 
 class AdaptiveEntityNotFoundError(Exception):
@@ -25,19 +27,27 @@ class AdaptiveEntityNotFoundError(Exception):
             EntityNotFoundDescriptor(
                 entity="metric",
                 error_message="Feedback key does not exist, or is not linked to the target use case. You can create it with `{}` or link it with `{}`",
-                code_suggestions=["client.feedback.register_key", "client.feedback.link"],
+                code_suggestions=[
+                    "client.feedback.register_key",
+                    "client.feedback.link",
+                ],
             ),
             EntityNotFoundDescriptor(
                 entity="model",
                 error_message="Model key does not exist, or is not attached to the target use case. You can attach it with `{}`",
                 code_suggestions=["client.models.attach"],
             ),
+            EntityNotFoundDescriptor(
+                entity="user", error_message="User does not exist.", code_suggestions=[]
+            ),
         ]
 
         new_error_message = None
         for descriptor in self.entity_descriptors:
             if descriptor.entity in original_error.lower():
-                new_error_message = descriptor.error_message.format(*descriptor.code_suggestions)
+                new_error_message = descriptor.error_message.format(
+                    *descriptor.code_suggestions
+                )
                 break
 
         super().__init__(new_error_message or original_error)

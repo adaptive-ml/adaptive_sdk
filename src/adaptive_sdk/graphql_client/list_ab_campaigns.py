@@ -6,12 +6,13 @@ from .fragments import AbCampaignDetailData
 
 class ListAbCampaigns(BaseModel):
     """@public"""
-    ab_campaigns: List['ListAbCampaignsAbCampaigns'] = Field(alias=
-        'abCampaigns')
+
+    ab_campaigns: List["ListAbCampaignsAbCampaigns"] = Field(alias="abCampaigns")
 
 
 class ListAbCampaignsAbCampaigns(AbCampaignDetailData):
     """@public"""
+
     pass
 
 

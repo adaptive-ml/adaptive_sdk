@@ -6,11 +6,13 @@ from .fragments import UseCaseData
 
 class DescribeUseCase(BaseModel):
     """@public"""
-    use_case: Optional['DescribeUseCaseUseCase'] = Field(alias='useCase')
+
+    use_case: Optional["DescribeUseCaseUseCase"] = Field(alias="useCase")
 
 
 class DescribeUseCaseUseCase(UseCaseData):
     """@public"""
+
     pass
 
 
