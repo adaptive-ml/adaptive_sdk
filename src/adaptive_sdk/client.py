@@ -17,7 +17,7 @@ class Adaptive(BaseSyncClient, UseCaseClient):
             use_case (str): A unique use case key; the client is bounded to this use case.
             base_url (str): The base URL for the Adaptive API.
             api_key (str, optional): API key for authentication.
-                Defaults to None, in which use environment variable `ADAPTIVE_KEY` needs to be set.
+                Defaults to None, in which use environment variable `ADAPTIVE_API_KEY` needs to be set.
 
         """
         super().__init__(base_url, api_key, default_headers)
@@ -71,7 +71,7 @@ class AsyncAdaptive(BaseAsyncClient, UseCaseClient):
             use_case (str): A unique use case key; the client is bounded to this use case.
             base_url (str): The base URL for the Adaptive API.
             api_key (str, optional): API key for authentication.
-                Defaults to None, in which use environment variable `ADAPTIVE_KEY` needs to be set.
+                Defaults to None, in which use environment variable `ADAPTIVE_API_KEY` needs to be set.
 
         """
         super().__init__(base_url, api_key, default_headers)
