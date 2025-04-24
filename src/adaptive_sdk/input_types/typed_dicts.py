@@ -101,19 +101,6 @@ class DpotrainingParamsInput(TypedDict, total=True):
     kl_div_coeff: Required[float]
 
 
-class EvaluationDatasource(TypedDict, total=False):
-    """
-    Datasource selection for evaluation.
-
-    Args:
-        dataset: Key of previously uploaded file dataset.
-        completions: Selection config for completions from the interaction store.
-    """
-
-    dataset: NotRequired[str]
-    completions: NotRequired["EvaluationDatasourceCompletions"]
-
-
 class EvaluationDatasourceCompletions(TypedDict, total=True):
     """
     Args:
@@ -186,6 +173,12 @@ class MetricTrainingParamsMetadata(TypedDict, total=False):
     scalar_metric: NotRequired["ScalarMetricConfigInput"]
 
 
+class ModelComputeConfigInput(TypedDict, total=False):
+    tp: NotRequired[int]
+    kv_cache_len: NotRequired[int]
+    max_seq_len: NotRequired[int]
+
+
 class ModelFilter(TypedDict, total=False):
     in_storage: NotRequired[bool]
     available: NotRequired[bool]
@@ -195,8 +188,19 @@ class ModelFilter(TypedDict, total=False):
     online: NotRequired[List[Literal["ONLINE", "OFFLINE", "PENDING", "ERROR"]]]
 
 
+class ModelPlacementInput(TypedDict, total=False):
+    compute_pools: Required[List[str]]
+    max_ttft_ms: NotRequired[int]
+
+
+class GrpotrainingParamsInput(TypedDict, total=True):
+    kl_div_coeff: Required[float]
+    steps: Required[int]
+
+
 class PpotrainingParamsInput(TypedDict, total=True):
     kl_div_coeff: Required[float]
+    steps: Required[int]
 
 
 class SampleConfigInput(TypedDict, total=False):
@@ -213,10 +217,15 @@ class SampleDatasourceCompletions(TypedDict, total=True):
     selection_type: Required[Literal["ALL", "RANDOM", "LAST"]]
     max_samples: NotRequired[int]
     filter: NotRequired[ListCompletionsFilterInput]
+    replay_interactions: NotRequired[bool]
 
 
 class SampleDatasourceDataset(TypedDict, total=True):
     dataset: Required[str]
+
+
+class RewardServerInput(TypedDict, total=True):
+    remote_env: Required[str]
 
 
 class ScalarMetricConfigInput(TypedDict, total=False):
@@ -248,19 +257,21 @@ class TrainingConfigInput(TypedDict, total=False):
 
 class TrainingMetadataInput(TypedDict, total=False):
     training_type: Required[Literal["PARAMETER_EFFICIENT", "FULL_WEIGHTS"]]
-    alignment_method: Required[Literal["PPO", "DPO", "SFT"]]
+    alignment_method: Required[Literal["PPO", "DPO", "SFT", "GRPO"]]
     parameters: NotRequired["TrainingMetadataInputParameters"]
 
 
 class TrainingMetadataInputParameters(TypedDict, total=False):
     dpo: NotRequired["DpotrainingParamsInput"]
     ppo: NotRequired["PpotrainingParamsInput"]
+    grpo: NotRequired["GrpotrainingParamsInput"]
 
 
 class TrainingObjectiveInput(TypedDict, total=False):
     metric: NotRequired["MetricTrainingParamsInput"]
     guidelines: NotRequired["GuidelinesTrainingParamsInput"]
     sft: NotRequired["SftTrainingParamsInput"]
+    reward_server: NotRequired["RewardServerInput"]
 
 
 class Order(TypedDict, total=False):

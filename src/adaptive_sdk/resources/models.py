@@ -16,6 +16,8 @@ from adaptive_sdk.graphql_client import (
     ListModelsModels,
     AddHFModelInput,
     ModelFilter,
+    ModelPlacementInput,
+    ModelComputeConfigInput,
 )
 from adaptive_sdk import input_types
 
@@ -27,9 +29,7 @@ if TYPE_CHECKING:
 provider_config = {
     "open_ai": {
         "provider_data": lambda api_key, model_id: ModelProviderDataInput(
-            openAI=OpenAIProviderDataInput(
-                apiKey=api_key, externalModelId=OpenAIModel(model_id)
-            )
+            openAI=OpenAIProviderDataInput(apiKey=api_key, externalModelId=OpenAIModel(model_id))
         ),
     },
     "google": {
@@ -39,9 +39,7 @@ provider_config = {
     },
     "azure": {
         "provider_data": lambda api_key, model_id, endpoint: ModelProviderDataInput(
-            azure=AzureProviderDataInput(
-                apiKey=api_key, externalModelId=model_id, endpoint=endpoint
-            )
+            azure=AzureProviderDataInput(apiKey=api_key, externalModelId=model_id, endpoint=endpoint)
         )
     },
 }
@@ -59,7 +57,11 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         UseCaseResource.__init__(self, client)
 
     def add_hf_model(
-        self, hf_model_id: SupportedHFModels, output_model_key: str, hf_token: str
+        self,
+        hf_model_id: SupportedHFModels,
+        output_model_key: str,
+        hf_token: str,
+        compute_pool: str | None = None,
     ) -> str:
         """
         Add model from the HuggingFace Model hub to Adaptive model registry.
@@ -71,7 +73,10 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             hf_token: Your HuggingFace Token, needed to validate access to gated/restricted model.
         """
         input = AddHFModelInput(
-            modelId=hf_model_id, outputModelKey=output_model_key, hfToken=hf_token
+            modelId=hf_model_id,
+            outputModelKey=output_model_key,
+            hfToken=hf_token,
+            computePool=compute_pool,
         )
         return self._gql_client.add_hf_model(input).import_hf_model
 
@@ -101,22 +106,16 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
                 provider_data = provider_data_fn(api_key, external_model_id)
             case "azure":
                 if not endpoint:
-                    raise ValueError(
-                        "`endpoint` is required to connect Azure external model."
-                    )
+                    raise ValueError("`endpoint` is required to connect Azure external model.")
                 provider_data = provider_data_fn(api_key, external_model_id, endpoint)
             case _:
                 raise ValueError(f"Provider {provider} is not supported")
 
         provider_enum = ExternalModelProviderName(provider.upper())
-        input = AddExternalModelInput(
-            name=name, provider=provider_enum, providerData=provider_data
-        )
+        input = AddExternalModelInput(name=name, provider=provider_enum, providerData=provider_data)
         return self._gql_client.add_external_model(input).add_external_model
 
-    def list(
-        self, filter: input_types.ModelFilter | None = None
-    ) -> Sequence[ListModelsModels]:
+    def list(self, filter: input_types.ModelFilter | None = None) -> Sequence[ListModelsModels]:
         """
         List all models in Adaptive model registry.
         """
@@ -138,6 +137,7 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         wait: bool = False,
         make_default: bool = False,
         use_case: str | None = None,
+        placement: input_types.ModelPlacementInput | None = None,
     ) -> ModelServiceData:
         """
         Attach a model to the client's use case.
@@ -149,7 +149,11 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             make_default: Make the model the use case's default on attachment.
         """
         input = AttachModel(
-            model=model, useCase=self.use_case_key(use_case), attached=True, wait=wait
+            model=model,
+            useCase=self.use_case_key(use_case),
+            attached=True,
+            wait=wait,
+            placement=(ModelPlacementInput.model_validate(placement) if placement else None),
         )
         result = self._gql_client.attach_model_to_use_case(input).attach_model
         if make_default:
@@ -169,6 +173,18 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         return self.update(model=model, attached=False, use_case=use_case)
 
+    def update_compute_config(
+        self,
+        model: str,
+        compute_config: input_types.ModelComputeConfigInput,
+    ) -> ModelData:
+        """
+        Update compute config of model.
+        """
+        return self._gql_client.update_model_compute_config(
+            id_or_key=model, input=ModelComputeConfigInput.model_validate(compute_config)
+        ).update_model_compute_config
+
     def update(
         self,
         model: str,
@@ -176,6 +192,7 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         attached: bool | None = None,
         desired_online: bool | None = None,
         use_case: str | None = None,
+        placement: input_types.ModelPlacementInput | None = None,
     ) -> ModelServiceData:
         """
         Update config of model attached to client's use case.
@@ -196,6 +213,7 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             isDefault=is_default,
             attached=attached,
             desiredOnline=desired_online,
+            placement=(ModelPlacementInput.model_validate(placement) if placement else None),
         )
         return self._gql_client.update_model(input).update_model_service
 
@@ -218,9 +236,7 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             force: If model is attached to several use cases, `force` must equal `True` in order
                 for the model to be terminated.
         """
-        return self._gql_client.terminate_model(
-            id_or_key=model, force=force
-        ).terminate_model
+        return self._gql_client.terminate_model(id_or_key=model, force=force).terminate_model
 
 
 class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
@@ -233,7 +249,11 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         UseCaseResource.__init__(self, client)
 
     async def add_hf_model(
-        self, hf_model_id: str, output_model_key: str, hf_token: str
+        self,
+        hf_model_id: str,
+        output_model_key: str,
+        hf_token: str,
+        compute_pool: str | None = None,
     ):
         """
         Add model from the HuggingFace Model hub to Adaptive model registry.
@@ -245,7 +265,10 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
             hf_token: Your HuggingFace Token, needed to validate access to gated/restricted model.
         """
         input = AddHFModelInput(
-            modelId=hf_model_id, outputModelKey=output_model_key, hfToken=hf_token
+            modelId=hf_model_id,
+            outputModelKey=output_model_key,
+            hfToken=hf_token,
+            computePool=compute_pool,
         )
         result = await self._gql_client.add_hf_model(input)
         return result.import_hf_model
@@ -275,23 +298,17 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
                 provider_data = provider_data_fn(api_key, external_model_id)
             case "azure":
                 if not endpoint:
-                    raise ValueError(
-                        "`endpoint` is required to connect Azure external model."
-                    )
+                    raise ValueError("`endpoint` is required to connect Azure external model.")
                 provider_data = provider_data_fn(api_key, external_model_id, endpoint)
             case _:
                 raise ValueError(f"Provider {provider} is not supported")
 
         provider_enum = ExternalModelProviderName(provider.upper())
-        input = AddExternalModelInput(
-            name=name, provider=provider_enum, providerData=provider_data
-        )
+        input = AddExternalModelInput(name=name, provider=provider_enum, providerData=provider_data)
         result = await self._gql_client.add_external_model(input)
         return result.add_external_model
 
-    async def list(
-        self, filter: input_types.ModelFilter | None = None
-    ) -> Sequence[ListModelsModels]:
+    async def list(self, filter: input_types.ModelFilter | None = None) -> Sequence[ListModelsModels]:
         """
         List all models in Adaptive model registry.
         """
@@ -313,6 +330,7 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         wait: bool = True,
         make_default: bool = False,
         use_case: str | None = None,
+        placement: input_types.ModelPlacementInput | None = None,
     ) -> ModelServiceData:
         """
         Attach a model to the client's use case.
@@ -324,7 +342,11 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
             make_default: Make the model the use case's default on attachment.
         """
         input = AttachModel(
-            model=model, useCase=self.use_case_key(use_case), attached=True, wait=wait
+            model=model,
+            useCase=self.use_case_key(use_case),
+            attached=True,
+            wait=wait,
+            placement=(ModelPlacementInput.model_validate(placement) if placement else None),
         )
         result = await self._gql_client.attach_model_to_use_case(input)
         result = result.attach_model
@@ -345,6 +367,20 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         return await self.update(model=model, attached=False, use_case=use_case)
 
+    async def update_compute_config(
+        self,
+        model: str,
+        compute_config: input_types.ModelComputeConfigInput,
+    ) -> ModelData:
+        """
+        Update compute config of model.
+        """
+        return (
+            await self._gql_client.update_model_compute_config(
+                id_or_key=model, input=ModelComputeConfigInput.model_validate(compute_config)
+            )
+        ).update_model_compute_config
+
     async def update(
         self,
         model: str,
@@ -352,6 +388,7 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         attached: bool | None = None,
         desired_online: bool | None = None,
         use_case: str | None = None,
+        placement: input_types.ModelPlacementInput | None = None,
     ) -> ModelServiceData:
         """
         Update config of model attached to client's use case.
@@ -372,6 +409,7 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
             isDefault=is_default,
             attached=attached,
             desiredOnline=desired_online,
+            placement=(ModelPlacementInput.model_validate(placement) if placement else None),
         )
         result = await self._gql_client.update_model(input)
         return result.update_model_service
@@ -384,9 +422,7 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
             model: Model key.
             wait: If `True`, call block until model is in `Online` state.
         """
-        return (
-            await self._gql_client.deploy_model(id_or_key=model, wait=wait)
-        ).deploy_model
+        return (await self._gql_client.deploy_model(id_or_key=model, wait=wait)).deploy_model
 
     async def terminate(self, model: str, force: bool = False) -> str:
         """
@@ -397,6 +433,4 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
             force: If model is attached to several use cases, `force` must equal `True` in order
                 for the model to be terminated.
         """
-        return (
-            await self._gql_client.terminate_model(id_or_key=model, force=force)
-        ).terminate_model
+        return (await self._gql_client.terminate_model(id_or_key=model, force=force)).terminate_model

@@ -12,10 +12,13 @@ from .custom_fields import (
     MetricFields,
     ModelFields,
     PartitionFields,
+    RemoteEnvFields,
     RoleFields,
     SystemPromptTemplateFields,
     TeamFields,
     TrainingJobFields,
+    UsageAggregateItemFields,
+    UsageAggregatePerUseCaseItemFields,
     UseCaseFields,
     UserFields,
 )
@@ -27,6 +30,8 @@ from .input_types import (
     ListCompletionsFilterInput,
     ModelFilter,
     OrderPair,
+    UsageFilterInput,
+    UsagePerUseCaseFilterInput,
     UseCaseFilter,
 )
 
@@ -75,8 +80,16 @@ class Query:
         return DatasetFields(field_name="dataset", arguments=cleared_arguments)
 
     @classmethod
-    def evaluation_jobs(cls) -> EvaluationJobFields:
-        return EvaluationJobFields(field_name="evaluationJobs")
+    def evaluation_jobs(cls, *, usecase: Optional[str] = None) -> EvaluationJobFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "usecase": {"type": "IdOrKey", "value": usecase}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return EvaluationJobFields(
+            field_name="evaluationJobs", arguments=cleared_arguments
+        )
 
     @classmethod
     def evaluation_job(cls, id: Any) -> EvaluationJobFields:
@@ -156,6 +169,32 @@ class Query:
         )
 
     @classmethod
+    def model_usage(cls, filter: UsageFilterInput) -> UsageAggregateItemFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "UsageFilterInput!", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return UsageAggregateItemFields(
+            field_name="modelUsage", arguments=cleared_arguments
+        )
+
+    @classmethod
+    def model_usage_by_use_case(
+        cls, filter: UsagePerUseCaseFilterInput
+    ) -> UsageAggregatePerUseCaseItemFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "filter": {"type": "UsagePerUseCaseFilterInput!", "value": filter}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return UsageAggregatePerUseCaseItemFields(
+            field_name="modelUsageByUseCase", arguments=cleared_arguments
+        )
+
+    @classmethod
     def system_prompt_templates(cls) -> SystemPromptTemplateFields:
         return SystemPromptTemplateFields(field_name="systemPromptTemplates")
 
@@ -202,8 +241,18 @@ class Query:
         return ComputePoolFields(field_name="computePools")
 
     @classmethod
-    def training_jobs(cls) -> TrainingJobFields:
-        return TrainingJobFields(field_name="trainingJobs")
+    def remote_envs(cls) -> RemoteEnvFields:
+        return RemoteEnvFields(field_name="remoteEnvs")
+
+    @classmethod
+    def training_jobs(cls, *, usecase: Optional[str] = None) -> TrainingJobFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "usecase": {"type": "IdOrKey", "value": usecase}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return TrainingJobFields(field_name="trainingJobs", arguments=cleared_arguments)
 
     @classmethod
     def training_job(cls, id: Any) -> TrainingJobFields:

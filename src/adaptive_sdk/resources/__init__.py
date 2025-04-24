@@ -1,6 +1,7 @@
 from .abtests import ABTests, AsyncABTests
 from .chat import Chat, AsyncChat
 from .completions import Completions, AsyncCompletions
+from .compute_pools import ComputePools, AsyncComputePools  # type: ignore[attr-defined]
 from .datasets import Datasets, AsyncDatasets
 from .embeddings import Embeddings, AsyncEmbeddings
 from .evaluation import (
@@ -13,6 +14,7 @@ from .feedback import Feedback, AsyncFeedback
 from .interactions import Interactions, AsyncInteractions
 from .models import Models, AsyncModels
 from .permissions import Permissions, AsyncPermissions
+from .reward_servers import RewardServers, AsyncRewardServers
 from .roles import Roles, AsyncRoles
 from .teams import Teams, AsyncTeams
 from .training import (
@@ -28,6 +30,7 @@ __all__ = [
     "ABTests",
     "Chat",
     "Completions",
+    "ComputePools",
     "Datasets",
     "Embeddings",
     "EvalJobs",
@@ -36,6 +39,7 @@ __all__ = [
     "Interactions",
     "Models",
     "Permissions",
+    "RewardServers",
     "Roles",
     "Teams",
     "Training",
@@ -45,6 +49,7 @@ __all__ = [
     "AsyncABTests",
     "AsyncChat",
     "AsyncCompletions",
+    "AsyncComputePools",
     "AsyncDatasets",
     "AsyncEmbeddings",
     "AsyncEvalJobs",
@@ -53,6 +58,7 @@ __all__ = [
     "AsyncInteractions",
     "AsyncModels",
     "AsyncPermissions",
+    "AsyncRewardServers",
     "AsyncRoles",
     "AsyncTeams",
     "AsyncTraining",

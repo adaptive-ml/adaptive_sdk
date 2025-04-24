@@ -29,14 +29,18 @@ from .custom_typing_fields import (
     ComputePoolGraphQLField,
     DatasetGraphQLField,
     DatasetMetricUsageGraphQLField,
+    DatasetValidationOutputGraphQLField,
     DirectFeedbackGraphQLField,
     DpotrainingParamsOutputGraphQLField,
     EmojiGraphQLField,
     EvalJobStageOutputGraphQLField,
+    EvaluationAnswerRelevancyRecipeGraphQLField,
+    EvaluationContextRelevancyRecipeGraphQLField,
     EvaluationCustomRecipeGraphQLField,
     EvaluationFaithfulnessRecipeGraphQLField,
     EvaluationJobGraphQLField,
     EvaluationRecipeUnion,
+    GrpotrainingParamsOutputGraphQLField,
     GuidelineGraphQLField,
     GuidelinesTrainingParamsOutputGraphQLField,
     InteractionOutputGraphQLField,
@@ -53,6 +57,7 @@ from .custom_typing_fields import (
     MetricTrainingParamsMetadataOutputUnion,
     MetricTrainingParamsOutputGraphQLField,
     MetricWithContextGraphQLField,
+    ModelComputeConfigOutputGraphQLField,
     ModelGraphQLField,
     ModelPlacementOutputGraphQLField,
     ModelServiceGraphQLField,
@@ -60,6 +65,10 @@ from .custom_typing_fields import (
     PartitionGraphQLField,
     PpotrainingParamsOutputGraphQLField,
     ProviderListGraphQLField,
+    RemoteEnvGraphQLField,
+    RemoteEnvTestOfflineGraphQLField,
+    RemoteEnvTestOnlineGraphQLField,
+    RewardServerTrainingParamsOutputGraphQLField,
     RoleGraphQLField,
     SampleConfigOutputGraphQLField,
     SampleDatasourceCompletionsOutputGraphQLField,
@@ -84,7 +93,11 @@ from .custom_typing_fields import (
     TrainingObjectiveOutputUnion,
     TrendResultGraphQLField,
     UnitConfigGraphQLField,
+    UsageAggregateItemGraphQLField,
+    UsageAggregatePerUseCaseItemGraphQLField,
+    UsageGraphQLField,
     UseCaseGraphQLField,
+    UseCaseItemGraphQLField,
     UseCaseMetadataGraphQLField,
     UserGraphQLField,
     WidgetGraphQLField,
@@ -919,11 +932,14 @@ class CompletionMetadataFields(GraphQLField):
     timings: "CompletionMetadataGraphQLField" = CompletionMetadataGraphQLField(
         "timings"
     )
-    usage: "CompletionMetadataGraphQLField" = CompletionMetadataGraphQLField("usage")
     system: "CompletionMetadataGraphQLField" = CompletionMetadataGraphQLField("system")
 
+    @classmethod
+    def usage(cls) -> "UsageFields":
+        return UsageFields("usage")
+
     def fields(
-        self, *subfields: CompletionMetadataGraphQLField
+        self, *subfields: Union[CompletionMetadataGraphQLField, "UsageFields"]
     ) -> "CompletionMetadataFields":
         """Subfields should come from the CompletionMetadataFields class"""
         self._subfields.extend(subfields)
@@ -974,6 +990,8 @@ class DatasetFields(GraphQLField):
     def metrics_usage(cls) -> "DatasetMetricUsageFields":
         return DatasetMetricUsageFields("metrics_usage")
 
+    source: "DatasetGraphQLField" = DatasetGraphQLField("source")
+
     def fields(
         self, *subfields: Union[DatasetGraphQLField, "DatasetMetricUsageFields"]
     ) -> "DatasetFields":
@@ -1008,6 +1026,28 @@ class DatasetMetricUsageFields(GraphQLField):
         return self
 
     def alias(self, alias: str) -> "DatasetMetricUsageFields":
+        self._alias = alias
+        return self
+
+
+class DatasetValidationOutputFields(GraphQLField):
+    """@private"""
+
+    valid: "DatasetValidationOutputGraphQLField" = DatasetValidationOutputGraphQLField(
+        "valid"
+    )
+    message: "DatasetValidationOutputGraphQLField" = (
+        DatasetValidationOutputGraphQLField("message")
+    )
+
+    def fields(
+        self, *subfields: DatasetValidationOutputGraphQLField
+    ) -> "DatasetValidationOutputFields":
+        """Subfields should come from the DatasetValidationOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "DatasetValidationOutputFields":
         self._alias = alias
         return self
 
@@ -1094,6 +1134,46 @@ class EvalJobStageOutputFields(GraphQLField):
         return self
 
     def alias(self, alias: str) -> "EvalJobStageOutputFields":
+        self._alias = alias
+        return self
+
+
+class EvaluationAnswerRelevancyRecipeFields(GraphQLField):
+    """@private"""
+
+    @classmethod
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
+
+    def fields(
+        self,
+        *subfields: Union[EvaluationAnswerRelevancyRecipeGraphQLField, "MetricFields"],
+    ) -> "EvaluationAnswerRelevancyRecipeFields":
+        """Subfields should come from the EvaluationAnswerRelevancyRecipeFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "EvaluationAnswerRelevancyRecipeFields":
+        self._alias = alias
+        return self
+
+
+class EvaluationContextRelevancyRecipeFields(GraphQLField):
+    """@private"""
+
+    @classmethod
+    def metric(cls) -> "MetricFields":
+        return MetricFields("metric")
+
+    def fields(
+        self,
+        *subfields: Union[EvaluationContextRelevancyRecipeGraphQLField, "MetricFields"],
+    ) -> "EvaluationContextRelevancyRecipeFields":
+        """Subfields should come from the EvaluationContextRelevancyRecipeFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "EvaluationContextRelevancyRecipeFields":
         self._alias = alias
         return self
 
@@ -1188,9 +1268,14 @@ class EvaluationJobFields(GraphQLField):
         return DatasetFields("dataset")
 
     @classmethod
+    def sample_config(cls) -> "SampleConfigOutputFields":
+        return SampleConfigOutputFields("sample_config")
+
+    @classmethod
     def metric(cls) -> "MetricFields":
         return MetricFields("metric")
 
+    eval_type: "EvaluationJobGraphQLField" = EvaluationJobGraphQLField("evalType")
     recipe: "EvaluationRecipeUnion" = EvaluationRecipeUnion("recipe")
 
     def fields(
@@ -1204,6 +1289,7 @@ class EvaluationJobFields(GraphQLField):
             "MetricFields",
             "ModelFields",
             "ModelServiceFields",
+            "SampleConfigOutputFields",
             "UseCaseFields",
             "UserFields",
         ],
@@ -1213,6 +1299,28 @@ class EvaluationJobFields(GraphQLField):
         return self
 
     def alias(self, alias: str) -> "EvaluationJobFields":
+        self._alias = alias
+        return self
+
+
+class GrpotrainingParamsOutputFields(GraphQLField):
+    """@private"""
+
+    kl_div_coeff: "GrpotrainingParamsOutputGraphQLField" = (
+        GrpotrainingParamsOutputGraphQLField("klDivCoeff")
+    )
+    steps: "GrpotrainingParamsOutputGraphQLField" = (
+        GrpotrainingParamsOutputGraphQLField("steps")
+    )
+
+    def fields(
+        self, *subfields: GrpotrainingParamsOutputGraphQLField
+    ) -> "GrpotrainingParamsOutputFields":
+        """Subfields should come from the GrpotrainingParamsOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "GrpotrainingParamsOutputFields":
         self._alias = alias
         return self
 
@@ -1307,6 +1415,7 @@ class JobStageOutputFields(GraphQLField):
     info: "JobStageInfoOutputUnion" = JobStageInfoOutputUnion("info")
     started_at: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("startedAt")
     ended_at: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("endedAt")
+    duration_ms: "JobStageOutputGraphQLField" = JobStageOutputGraphQLField("durationMs")
 
     def fields(
         self, *subfields: Union[JobStageOutputGraphQLField, "JobStageInfoOutputUnion"]
@@ -1712,12 +1821,17 @@ class ModelFields(GraphQLField):
     kind: "ModelGraphQLField" = ModelGraphQLField("kind")
     size: "ModelGraphQLField" = ModelGraphQLField("size")
 
+    @classmethod
+    def compute_config(cls) -> "ModelComputeConfigOutputFields":
+        return ModelComputeConfigOutputFields("compute_config")
+
     def fields(
         self,
         *subfields: Union[
             ModelGraphQLField,
             "ActivityFields",
             "MetricWithContextFields",
+            "ModelComputeConfigOutputFields",
             "ModelFields",
             "ModelServiceFields",
             "TrainingJobFields",
@@ -1729,6 +1843,31 @@ class ModelFields(GraphQLField):
         return self
 
     def alias(self, alias: str) -> "ModelFields":
+        self._alias = alias
+        return self
+
+
+class ModelComputeConfigOutputFields(GraphQLField):
+    """@private"""
+
+    tp: "ModelComputeConfigOutputGraphQLField" = ModelComputeConfigOutputGraphQLField(
+        "tp"
+    )
+    kv_cache_len: "ModelComputeConfigOutputGraphQLField" = (
+        ModelComputeConfigOutputGraphQLField("kvCacheLen")
+    )
+    max_seq_len: "ModelComputeConfigOutputGraphQLField" = (
+        ModelComputeConfigOutputGraphQLField("maxSeqLen")
+    )
+
+    def fields(
+        self, *subfields: ModelComputeConfigOutputGraphQLField
+    ) -> "ModelComputeConfigOutputFields":
+        """Subfields should come from the ModelComputeConfigOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "ModelComputeConfigOutputFields":
         self._alias = alias
         return self
 
@@ -1758,6 +1897,7 @@ class ModelPlacementOutputFields(GraphQLField):
 class ModelServiceFields(GraphQLField):
     """@private"""
 
+    status: "ModelServiceGraphQLField" = ModelServiceGraphQLField("status")
     id: "ModelServiceGraphQLField" = ModelServiceGraphQLField("id")
     use_case_id: "ModelServiceGraphQLField" = ModelServiceGraphQLField("useCaseId")
     key: "ModelServiceGraphQLField" = ModelServiceGraphQLField("key")
@@ -1884,6 +2024,9 @@ class PpotrainingParamsOutputFields(GraphQLField):
     kl_div_coeff: "PpotrainingParamsOutputGraphQLField" = (
         PpotrainingParamsOutputGraphQLField("klDivCoeff")
     )
+    steps: "PpotrainingParamsOutputGraphQLField" = PpotrainingParamsOutputGraphQLField(
+        "steps"
+    )
 
     def fields(
         self, *subfields: PpotrainingParamsOutputGraphQLField
@@ -1912,6 +2055,90 @@ class ProviderListFields(GraphQLField):
         return self
 
     def alias(self, alias: str) -> "ProviderListFields":
+        self._alias = alias
+        return self
+
+
+class RemoteEnvFields(GraphQLField):
+    """@private"""
+
+    id: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("id")
+    key: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("key")
+    name: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("name")
+    url: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("url")
+    description: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("description")
+    created_at: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("createdAt")
+    version: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("version")
+    status: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("status")
+    metadata_schema: "RemoteEnvGraphQLField" = RemoteEnvGraphQLField("metadataSchema")
+
+    def fields(self, *subfields: RemoteEnvGraphQLField) -> "RemoteEnvFields":
+        """Subfields should come from the RemoteEnvFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "RemoteEnvFields":
+        self._alias = alias
+        return self
+
+
+class RemoteEnvTestOfflineFields(GraphQLField):
+    """@private"""
+
+    error: "RemoteEnvTestOfflineGraphQLField" = RemoteEnvTestOfflineGraphQLField(
+        "error"
+    )
+
+    def fields(
+        self, *subfields: RemoteEnvTestOfflineGraphQLField
+    ) -> "RemoteEnvTestOfflineFields":
+        """Subfields should come from the RemoteEnvTestOfflineFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "RemoteEnvTestOfflineFields":
+        self._alias = alias
+        return self
+
+
+class RemoteEnvTestOnlineFields(GraphQLField):
+    """@private"""
+
+    name: "RemoteEnvTestOnlineGraphQLField" = RemoteEnvTestOnlineGraphQLField("name")
+    version: "RemoteEnvTestOnlineGraphQLField" = RemoteEnvTestOnlineGraphQLField(
+        "version"
+    )
+    description: "RemoteEnvTestOnlineGraphQLField" = RemoteEnvTestOnlineGraphQLField(
+        "description"
+    )
+
+    def fields(
+        self, *subfields: RemoteEnvTestOnlineGraphQLField
+    ) -> "RemoteEnvTestOnlineFields":
+        """Subfields should come from the RemoteEnvTestOnlineFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "RemoteEnvTestOnlineFields":
+        self._alias = alias
+        return self
+
+
+class RewardServerTrainingParamsOutputFields(GraphQLField):
+    """@private"""
+
+    remote_env_id: "RewardServerTrainingParamsOutputGraphQLField" = (
+        RewardServerTrainingParamsOutputGraphQLField("remoteEnvId")
+    )
+
+    def fields(
+        self, *subfields: RewardServerTrainingParamsOutputGraphQLField
+    ) -> "RewardServerTrainingParamsOutputFields":
+        """Subfields should come from the RewardServerTrainingParamsOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "RewardServerTrainingParamsOutputFields":
         self._alias = alias
         return self
 
@@ -2436,6 +2663,95 @@ class UnitConfigFields(GraphQLField):
         return self
 
 
+class UsageFields(GraphQLField):
+    """@private"""
+
+    completion_tokens: "UsageGraphQLField" = UsageGraphQLField("completionTokens")
+    prompt_tokens: "UsageGraphQLField" = UsageGraphQLField("promptTokens")
+    total_tokens: "UsageGraphQLField" = UsageGraphQLField("totalTokens")
+
+    def fields(self, *subfields: UsageGraphQLField) -> "UsageFields":
+        """Subfields should come from the UsageFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "UsageFields":
+        self._alias = alias
+        return self
+
+
+class UsageAggregateItemFields(GraphQLField):
+    """@private"""
+
+    bucket_ts: "UsageAggregateItemGraphQLField" = UsageAggregateItemGraphQLField(
+        "bucketTs"
+    )
+    prompt_tokens: "UsageAggregateItemGraphQLField" = UsageAggregateItemGraphQLField(
+        "promptTokens"
+    )
+    completion_tokens: "UsageAggregateItemGraphQLField" = (
+        UsageAggregateItemGraphQLField("completionTokens")
+    )
+    total_tokens: "UsageAggregateItemGraphQLField" = UsageAggregateItemGraphQLField(
+        "totalTokens"
+    )
+    interactions: "UsageAggregateItemGraphQLField" = UsageAggregateItemGraphQLField(
+        "interactions"
+    )
+
+    def fields(
+        self, *subfields: UsageAggregateItemGraphQLField
+    ) -> "UsageAggregateItemFields":
+        """Subfields should come from the UsageAggregateItemFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "UsageAggregateItemFields":
+        self._alias = alias
+        return self
+
+
+class UsageAggregatePerUseCaseItemFields(GraphQLField):
+    """@private"""
+
+    @classmethod
+    def use_case(cls) -> "UseCaseItemFields":
+        return UseCaseItemFields("use_case")
+
+    @classmethod
+    def model_service(cls) -> "ModelServiceFields":
+        return ModelServiceFields("model_service")
+
+    prompt_tokens: "UsageAggregatePerUseCaseItemGraphQLField" = (
+        UsageAggregatePerUseCaseItemGraphQLField("promptTokens")
+    )
+    completion_tokens: "UsageAggregatePerUseCaseItemGraphQLField" = (
+        UsageAggregatePerUseCaseItemGraphQLField("completionTokens")
+    )
+    total_tokens: "UsageAggregatePerUseCaseItemGraphQLField" = (
+        UsageAggregatePerUseCaseItemGraphQLField("totalTokens")
+    )
+    interactions: "UsageAggregatePerUseCaseItemGraphQLField" = (
+        UsageAggregatePerUseCaseItemGraphQLField("interactions")
+    )
+
+    def fields(
+        self,
+        *subfields: Union[
+            UsageAggregatePerUseCaseItemGraphQLField,
+            "ModelServiceFields",
+            "UseCaseItemFields",
+        ],
+    ) -> "UsageAggregatePerUseCaseItemFields":
+        """Subfields should come from the UsageAggregatePerUseCaseItemFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "UsageAggregatePerUseCaseItemFields":
+        self._alias = alias
+        return self
+
+
 class UseCaseFields(GraphQLField):
     """@private"""
 
@@ -2558,6 +2874,23 @@ class UseCaseFields(GraphQLField):
         return self
 
     def alias(self, alias: str) -> "UseCaseFields":
+        self._alias = alias
+        return self
+
+
+class UseCaseItemFields(GraphQLField):
+    """@private"""
+
+    id: "UseCaseItemGraphQLField" = UseCaseItemGraphQLField("id")
+    name: "UseCaseItemGraphQLField" = UseCaseItemGraphQLField("name")
+    description: "UseCaseItemGraphQLField" = UseCaseItemGraphQLField("description")
+
+    def fields(self, *subfields: UseCaseItemGraphQLField) -> "UseCaseItemFields":
+        """Subfields should come from the UseCaseItemFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> "UseCaseItemFields":
         self._alias = alias
         return self
 

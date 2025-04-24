@@ -14,6 +14,7 @@ from graphql import (
 from .add_external_model import AddExternalModel
 from .add_hf_model import AddHFModel
 from .add_model import AddModel
+from .add_remote_env import AddRemoteEnv
 from .async_base_client_open_telemetry import AsyncBaseClientOpenTelemetry
 from .attach_model_to_use_case import AttachModelToUseCase
 from .base_model import UNSET, UnsetType, Upload
@@ -54,9 +55,11 @@ from .input_types import (
     MetricCreate,
     MetricLink,
     MetricUnlink,
+    ModelComputeConfigInput,
     ModelFilter,
     ModelPlacementInput,
     OrderPair,
+    RemoteEnvCreate,
     RoleCreate,
     TeamCreate,
     TeamMemberSet,
@@ -75,6 +78,7 @@ from .list_metrics import ListMetrics
 from .list_models import ListModels
 from .list_partitions import ListPartitions
 from .list_permissions import ListPermissions
+from .list_remote_envs import ListRemoteEnvs
 from .list_roles import ListRoles
 from .list_teams import ListTeams
 from .list_training_jobs import ListTrainingJobs
@@ -82,9 +86,12 @@ from .list_use_cases import ListUseCases
 from .list_users import ListUsers
 from .load_dataset import LoadDataset
 from .me import Me
+from .remove_remote_env import RemoveRemoteEnv
 from .terminate_model import TerminateModel
+from .test_remote_env import TestRemoteEnv
 from .unlink_metric import UnlinkMetric
 from .update_model import UpdateModel
+from .update_model_compute_config import UpdateModelComputeConfig
 from .update_user import UpdateUser
 
 
@@ -189,6 +196,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -241,6 +253,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
             """
         )
@@ -278,6 +295,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
             """
         )
@@ -311,6 +333,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -412,6 +439,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -625,6 +657,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -932,6 +969,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -1105,6 +1147,120 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
         data = self.get_data(response)
         return CreateTeam.model_validate(data)
 
+    async def update_model_compute_config(
+        self, id_or_key: Any, input: ModelComputeConfigInput, **kwargs: Any
+    ) -> UpdateModelComputeConfig:
+        query = gql(
+            """
+            mutation UpdateModelComputeConfig($idOrKey: IdOrKey!, $input: ModelComputeConfigInput!) {
+              updateModelComputeConfig(idOrKey: $idOrKey, input: $input) {
+                ...ModelData
+              }
+            }
+
+            fragment ModelData on Model {
+              id
+              key
+              name
+              online
+              isExternal
+              providerName
+              isAdapter
+              isTraining
+              createdAt
+              kind
+              size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"idOrKey": id_or_key, "input": input}
+        response = await self.execute(
+            query=query,
+            operation_name="UpdateModelComputeConfig",
+            variables=variables,
+            **kwargs,
+        )
+        data = self.get_data(response)
+        return UpdateModelComputeConfig.model_validate(data)
+
+    async def add_remote_env(
+        self, input: RemoteEnvCreate, **kwargs: Any
+    ) -> AddRemoteEnv:
+        query = gql(
+            """
+            mutation AddRemoteEnv($input: RemoteEnvCreate!) {
+              addRemoteEnv(input: $input) {
+                ...RemoteEnvData
+              }
+            }
+
+            fragment RemoteEnvData on RemoteEnv {
+              id
+              key
+              name
+              url
+              description
+              createdAt
+              version
+              status
+              metadataSchema
+            }
+            """
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = await self.execute(
+            query=query, operation_name="AddRemoteEnv", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return AddRemoteEnv.model_validate(data)
+
+    async def remove_remote_env(self, id_or_key: Any, **kwargs: Any) -> RemoveRemoteEnv:
+        query = gql(
+            """
+            mutation RemoveRemoteEnv($idOrKey: IdOrKey!) {
+              removeRemoteEnv(idOrKey: $idOrKey)
+            }
+            """
+        )
+        variables: Dict[str, object] = {"idOrKey": id_or_key}
+        response = await self.execute(
+            query=query, operation_name="RemoveRemoteEnv", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return RemoveRemoteEnv.model_validate(data)
+
+    async def test_remote_env(
+        self, input: RemoteEnvCreate, **kwargs: Any
+    ) -> TestRemoteEnv:
+        query = gql(
+            """
+            mutation TestRemoteEnv($input: RemoteEnvCreate!) {
+              testRemoteEnv(input: $input) {
+                __typename
+                ... on RemoteEnvTestOffline {
+                  error
+                }
+                ... on RemoteEnvTestOnline {
+                  name
+                  version
+                  description
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"input": input}
+        response = await self.execute(
+            query=query, operation_name="TestRemoteEnv", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return TestRemoteEnv.model_validate(data)
+
     async def list_datasets(self, input: Any, **kwargs: Any) -> ListDatasets:
         query = gql(
             """
@@ -1226,6 +1382,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -1297,6 +1458,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -1444,6 +1610,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
             """
         )
@@ -1797,7 +1968,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               metadata {
                 parameters
                 timings
-                usage
+                usage {
+                  completionTokens
+                  promptTokens
+                  totalTokens
+                }
                 system
               }
               createdAt
@@ -1934,7 +2109,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               metadata {
                 parameters
                 timings
-                usage
+                usage {
+                  completionTokens
+                  promptTokens
+                  totalTokens
+                }
                 system
               }
               createdAt
@@ -2041,7 +2220,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               metadata {
                 parameters
                 timings
-                usage
+                usage {
+                  completionTokens
+                  promptTokens
+                  totalTokens
+                }
                 system
               }
               createdAt
@@ -2149,6 +2332,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -2364,6 +2552,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -2653,6 +2846,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -2845,6 +3043,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment ModelServiceData on ModelService {
@@ -3047,6 +3250,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment PartitionData on Partition {
@@ -3079,8 +3287,10 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
             """
             query ListComputePools {
               computePools {
+                id
                 key
                 name
+                createdAt
                 capabilities
                 partitions {
                   ...PartitionData
@@ -3100,6 +3310,11 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
               createdAt
               kind
               size
+              computeConfig {
+                tp
+                kvCacheLen
+                maxSeqLen
+              }
             }
 
             fragment PartitionData on Partition {
@@ -3129,6 +3344,35 @@ class AsyncGQLClient(AsyncBaseClientOpenTelemetry):
         )
         data = self.get_data(response)
         return ListComputePools.model_validate(data)
+
+    async def list_remote_envs(self, **kwargs: Any) -> ListRemoteEnvs:
+        query = gql(
+            """
+            query ListRemoteEnvs {
+              remoteEnvs {
+                ...RemoteEnvData
+              }
+            }
+
+            fragment RemoteEnvData on RemoteEnv {
+              id
+              key
+              name
+              url
+              description
+              createdAt
+              version
+              status
+              metadataSchema
+            }
+            """
+        )
+        variables: Dict[str, object] = {}
+        response = await self.execute(
+            query=query, operation_name="ListRemoteEnvs", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return ListRemoteEnvs.model_validate(data)
 
     async def execute_custom_operation(
         self, *fields: GraphQLField, operation_type: OperationType, operation_name: str

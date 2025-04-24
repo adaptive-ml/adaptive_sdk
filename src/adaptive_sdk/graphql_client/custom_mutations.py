@@ -5,12 +5,14 @@ from .custom_fields import (
     ApiKeyFields,
     CompletionFields,
     DatasetFields,
+    DatasetValidationOutputFields,
     DirectFeedbackFields,
     EvaluationJobFields,
     MetricFields,
     MetricWithContextFields,
     ModelFields,
     ModelServiceFields,
+    RemoteEnvFields,
     RoleFields,
     SystemPromptTemplateFields,
     TeamFields,
@@ -19,7 +21,7 @@ from .custom_fields import (
     UseCaseFields,
     UserFields,
 )
-from .custom_typing_fields import GraphQLField
+from .custom_typing_fields import GraphQLField, RemoteEnvTestUnion
 from .input_types import (
     AbcampaignCreate,
     AddExternalModelInput,
@@ -28,14 +30,17 @@ from .input_types import (
     ApiKeyCreate,
     AttachModel,
     DatasetCreate,
+    DatasetGenerate,
     EvaluationCreate,
     FeedbackAddInput,
     FeedbackUpdateInput,
     MetricCreate,
     MetricLink,
     MetricUnlink,
+    ModelComputeConfigInput,
     ModelPlacementInput,
     ModelServiceDisconnect,
+    RemoteEnvCreate,
     RoleCreate,
     SystemPromptTemplateCreate,
     SystemPromptTemplateUpdate,
@@ -86,6 +91,17 @@ class Mutation:
             key: value for key, value in arguments.items() if value["value"] is not None
         }
         return DatasetFields(field_name="createDataset", arguments=cleared_arguments)
+
+    @classmethod
+    def generate_dataset(cls, input: DatasetGenerate, file: Upload) -> DatasetFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "input": {"type": "DatasetGenerate!", "value": input},
+            "file": {"type": "Upload!", "value": file},
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return DatasetFields(field_name="generateDataset", arguments=cleared_arguments)
 
     @classmethod
     def create_evaluation_job(cls, input: EvaluationCreate) -> EvaluationJobFields:
@@ -271,6 +287,68 @@ class Mutation:
             key: value for key, value in arguments.items() if value["value"] is not None
         }
         return GraphQLField(field_name="importHfModel", arguments=cleared_arguments)
+
+    @classmethod
+    def update_model_compute_config(
+        cls, id_or_key: str, input: ModelComputeConfigInput
+    ) -> ModelFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "idOrKey": {"type": "IdOrKey!", "value": id_or_key},
+            "input": {"type": "ModelComputeConfigInput!", "value": input},
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return ModelFields(
+            field_name="updateModelComputeConfig", arguments=cleared_arguments
+        )
+
+    @classmethod
+    def add_remote_env(cls, input: RemoteEnvCreate) -> RemoteEnvFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "input": {"type": "RemoteEnvCreate!", "value": input}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return RemoteEnvFields(field_name="addRemoteEnv", arguments=cleared_arguments)
+
+    @classmethod
+    def remove_remote_env(cls, id_or_key: str) -> GraphQLField:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "idOrKey": {"type": "IdOrKey!", "value": id_or_key}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return GraphQLField(field_name="removeRemoteEnv", arguments=cleared_arguments)
+
+    @classmethod
+    def test_remote_env(cls, input: RemoteEnvCreate) -> RemoteEnvTestUnion:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "input": {"type": "RemoteEnvCreate!", "value": input}
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return RemoteEnvTestUnion(
+            field_name="testRemoteEnv", arguments=cleared_arguments
+        )
+
+    @classmethod
+    def validate_dataset_schema(
+        cls, remote_env: str, dataset: str
+    ) -> DatasetValidationOutputFields:
+        arguments: Dict[str, Dict[str, Any]] = {
+            "remoteEnv": {"type": "IdOrKey!", "value": remote_env},
+            "dataset": {"type": "IdOrKey!", "value": dataset},
+        }
+        cleared_arguments = {
+            key: value for key, value in arguments.items() if value["value"] is not None
+        }
+        return DatasetValidationOutputFields(
+            field_name="validateDatasetSchema", arguments=cleared_arguments
+        )
 
     @classmethod
     def create_training_job(cls, input: TrainingJobInput) -> TrainingJobFields:

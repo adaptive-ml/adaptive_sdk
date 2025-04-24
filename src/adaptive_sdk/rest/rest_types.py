@@ -29,6 +29,7 @@ class ChatMessage(BaseModel):
     role: str
     name: Optional[str] = None
     completion_id: Optional[UUID] = None
+    metadata: Optional[Any] = None
 
 
 class ComparisonOutput(BaseModel):

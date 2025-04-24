@@ -4,6 +4,8 @@ from .base_model import BaseModel
 from .enums import (
     AbcampaignStatus,
     CompletionSource,
+    DatasetSource,
+    DateBucketUnit,
     ExternalModelProviderName,
     FeedbackType,
     FeedbackTypeInput,
@@ -84,9 +86,15 @@ class AddModelInput(BaseModel):
 class AijudgeEvaluation(BaseModel):
     """@private"""
 
-    datasource: "EvaluationDatasource"
+    sample_config: "SampleConfigInput" = Field(alias="sampleConfig")
     judge: str
     recipe: "EvaluationRecipeInput"
+
+
+class AnswerRelevancyRecipe(BaseModel):
+    """@private"""
+
+    misc: Optional[str] = None
 
 
 class AnthropicProviderDataInput(BaseModel):
@@ -156,6 +164,12 @@ class CompletionLabelValue(BaseModel):
     value: str
 
 
+class ContextRelevancyRecipe(BaseModel):
+    """@private"""
+
+    misc: Optional[str] = None
+
+
 class CursorPageInput(BaseModel):
     """@private"""
 
@@ -178,6 +192,23 @@ class DatasetCreate(BaseModel):
     use_case: str = Field(alias="useCase")
     name: str
     key: Optional[str] = None
+    source: Optional[DatasetSource] = None
+
+
+class DatasetGenerate(BaseModel):
+    """@private"""
+
+    use_case: str = Field(alias="useCase")
+    name: str
+    key: Optional[str] = None
+    compute_pool: Optional[str] = Field(alias="computePool", default=None)
+    config: "DatasetGenerationConfig"
+
+
+class DatasetGenerationConfig(BaseModel):
+    """@private"""
+
+    rag: Optional["RagdataGenerationConfig"] = None
 
 
 class DpotrainingParamsInput(BaseModel):
@@ -202,24 +233,11 @@ class EvaluationCreate(BaseModel):
     compute_pool: Optional[str] = Field(alias="computePool", default=None)
 
 
-class EvaluationDatasource(BaseModel):
-    """@private"""
-
-    dataset: Optional[str] = None
-    completions: Optional["EvaluationDatasourceCompletions"] = None
-
-
-class EvaluationDatasourceCompletions(BaseModel):
-    """@private"""
-
-    filter: "ListCompletionsFilterInput"
-    replay_interactions: bool = Field(alias="replayInteractions")
-
-
 class EvaluationKind(BaseModel):
     """@private"""
 
     aijudge: Optional["AijudgeEvaluation"] = None
+    remote_env: Optional["RemoteEnvEvaluation"] = Field(alias="remoteEnv", default=None)
 
 
 class EvaluationRecipeInput(BaseModel):
@@ -227,6 +245,12 @@ class EvaluationRecipeInput(BaseModel):
 
     faithfulness: Optional["FaithfulnessRecipe"] = None
     custom: Optional["CustomRecipe"] = None
+    context_relevancy: Optional["ContextRelevancyRecipe"] = Field(
+        alias="contextRelevancy", default=None
+    )
+    answer_relevancy: Optional["AnswerRelevancyRecipe"] = Field(
+        alias="answerRelevancy", default=None
+    )
 
 
 class FaithfulnessRecipe(BaseModel):
@@ -264,6 +288,13 @@ class GoogleProviderDataInput(BaseModel):
     external_model_id: str = Field(alias="externalModelId")
 
 
+class GrpotrainingParamsInput(BaseModel):
+    """@private"""
+
+    kl_div_coeff: float = Field(alias="klDivCoeff")
+    steps: int = 80
+
+
 class GuidelineInput(BaseModel):
     """@private"""
 
@@ -298,7 +329,6 @@ class ListCompletionsFilterInput(BaseModel):
     labels: Optional[List["LabelFilter"]] = None
     prompt_hash: Optional[str] = Field(alias="promptHash", default=None)
     completion_id: Optional[Any] = Field(alias="completionId", default=None)
-    tags: Optional[List[str]] = None
     source: Optional[List[CompletionSource]] = None
 
 
@@ -357,6 +387,14 @@ class MetricUnlink(BaseModel):
 
     use_case: str = Field(alias="useCase")
     metric: str
+
+
+class ModelComputeConfigInput(BaseModel):
+    """@private"""
+
+    tp: Optional[int] = None
+    kv_cache_len: Optional[int] = Field(alias="kvCacheLen", default=None)
+    max_seq_len: Optional[int] = Field(alias="maxSeqLen", default=None)
 
 
 class ModelFilter(BaseModel):
@@ -426,6 +464,37 @@ class PpotrainingParamsInput(BaseModel):
     """@private"""
 
     kl_div_coeff: float = Field(alias="klDivCoeff")
+    steps: int = 100
+
+
+class RagdataGenerationConfig(BaseModel):
+    """@private"""
+
+    chunks_per_question: int = Field(alias="chunksPerQuestion")
+    model: str
+
+
+class RemoteEnvCreate(BaseModel):
+    """@private"""
+
+    url: str
+    key: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+
+class RemoteEnvEvaluation(BaseModel):
+    """@private"""
+
+    remote_env: str = Field(alias="remoteEnv")
+    datasource: "SampleDatasourceInput"
+    metric: "MetricGetOrCreate"
+
+
+class RewardServerTrainingParamsInput(BaseModel):
+    """@private"""
+
+    remote_env: str = Field(alias="remoteEnv")
 
 
 class RoleCreate(BaseModel):
@@ -451,6 +520,9 @@ class SampleDatasourceCompletions(BaseModel):
     selection_type: SelectionTypeInput = Field(alias="selectionType")
     filter: Optional["ListCompletionsFilterInput"] = None
     max_samples: Optional[int] = Field(alias="maxSamples", default=None)
+    replay_interactions: Optional[bool] = Field(
+        alias="replayInteractions", default=None
+    )
 
 
 class SampleDatasourceDataset(BaseModel):
@@ -567,6 +639,7 @@ class TrainingMetadataInputParameters(BaseModel):
 
     dpo: Optional["DpotrainingParamsInput"] = None
     ppo: Optional["PpotrainingParamsInput"] = None
+    grpo: Optional["GrpotrainingParamsInput"] = None
 
 
 class TrainingObjectiveInput(BaseModel):
@@ -574,6 +647,9 @@ class TrainingObjectiveInput(BaseModel):
 
     metric: Optional["MetricTrainingParamsInput"] = None
     guidelines: Optional["GuidelinesTrainingParamsInput"] = None
+    reward_server: Optional["RewardServerTrainingParamsInput"] = Field(
+        alias="rewardServer", default=None
+    )
     sft: Optional["SftparamsInput"] = None
 
 
@@ -597,6 +673,7 @@ class UpdateCompletion(BaseModel):
     set_labels: Optional[List["CompletionLabelValue"]] = Field(
         alias="setLabels", default=None
     )
+    metadata: Optional[Any] = None
 
 
 class UpdateModelService(BaseModel):
@@ -612,6 +689,21 @@ class UpdateModelService(BaseModel):
         alias="systemPromptTemplate", default=None
     )
     placement: Optional["ModelPlacementInput"] = None
+
+
+class UsageFilterInput(BaseModel):
+    """@private"""
+
+    model_id: Any = Field(alias="modelId")
+    timerange: "TimeRange"
+    unit: DateBucketUnit
+
+
+class UsagePerUseCaseFilterInput(BaseModel):
+    """@private"""
+
+    model_id: Any = Field(alias="modelId")
+    timerange: "TimeRange"
 
 
 class UseCaseCreate(BaseModel):
@@ -683,9 +775,9 @@ AddExternalModelInput.model_rebuild()
 AijudgeEvaluation.model_rebuild()
 AttachModel.model_rebuild()
 CustomRecipe.model_rebuild()
+DatasetGenerate.model_rebuild()
+DatasetGenerationConfig.model_rebuild()
 EvaluationCreate.model_rebuild()
-EvaluationDatasource.model_rebuild()
-EvaluationDatasourceCompletions.model_rebuild()
 EvaluationKind.model_rebuild()
 EvaluationRecipeInput.model_rebuild()
 FeedbackFilterInput.model_rebuild()
@@ -696,6 +788,7 @@ MetricTrainingParamsInput.model_rebuild()
 MetricTrainingParamsMetadata.model_rebuild()
 MetricTrendInput.model_rebuild()
 ModelProviderDataInput.model_rebuild()
+RemoteEnvEvaluation.model_rebuild()
 SampleConfigInput.model_rebuild()
 SampleDatasourceCompletions.model_rebuild()
 SampleDatasourceInput.model_rebuild()
@@ -707,6 +800,8 @@ TrainingMetadataInputParameters.model_rebuild()
 TrainingObjectiveInput.model_rebuild()
 UpdateCompletion.model_rebuild()
 UpdateModelService.model_rebuild()
+UsageFilterInput.model_rebuild()
+UsagePerUseCaseFilterInput.model_rebuild()
 UseCaseCreate.model_rebuild()
 UseCaseMetadataInput.model_rebuild()
 UseCaseShares.model_rebuild()

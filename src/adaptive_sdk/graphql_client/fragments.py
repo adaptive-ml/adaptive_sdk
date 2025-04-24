@@ -16,6 +16,7 @@ from .enums import (
     ModelOnline,
     PartitionStatus,
     ProviderName,
+    RemoteEnvStatus,
     SelectionTypeOutput,
     TrainingJobStatus,
     TrainingMetadataOutputAlignmentMethod,
@@ -262,8 +263,16 @@ class CompletionDataMetadata(BaseModel):
 
     parameters: Optional[Any]
     timings: Optional[Any]
-    usage: Optional[Any]
+    usage: Optional["CompletionDataMetadataUsage"]
     system: Optional[Any]
+
+
+class CompletionDataMetadataUsage(BaseModel):
+    """@public"""
+
+    completion_tokens: int = Field(alias="completionTokens")
+    prompt_tokens: int = Field(alias="promptTokens")
+    total_tokens: int = Field(alias="totalTokens")
 
 
 class DatasetData(BaseModel):
@@ -306,6 +315,27 @@ class ModelData(BaseModel):
     created_at: int = Field(alias="createdAt")
     kind: ModelKindFilter
     size: Optional[str]
+    compute_config: "ModelDataComputeConfig" = Field(alias="computeConfig")
+
+
+class ModelDataComputeConfig(BaseModel):
+    """@public"""
+
+    tp: int
+    kv_cache_len: int = Field(alias="kvCacheLen")
+    max_seq_len: int = Field(alias="maxSeqLen")
+
+
+class MetricWithContextData(BaseModel):
+    """@public"""
+
+    id: Any
+    key: str
+    name: str
+    kind: MetricKind
+    description: str
+    scoring_type: MetricScoringType = Field(alias="scoringType")
+    created_at: Any = Field(alias="createdAt")
 
 
 class ModelServiceData(BaseModel):
@@ -331,18 +361,6 @@ class ModelServiceDataModelBackbone(ModelData):
     """@public"""
 
     pass
-
-
-class MetricWithContextData(BaseModel):
-    """@public"""
-
-    id: Any
-    key: str
-    name: str
-    kind: MetricKind
-    description: str
-    scoring_type: MetricScoringType = Field(alias="scoringType")
-    created_at: Any = Field(alias="createdAt")
 
 
 class UseCaseData(BaseModel):
@@ -591,6 +609,20 @@ class PartitionDataOnlineModels(ModelData):
     pass
 
 
+class RemoteEnvData(BaseModel):
+    """@public"""
+
+    id: Any
+    key: str
+    name: str
+    url: str
+    description: str
+    created_at: int = Field(alias="createdAt")
+    version: str
+    status: RemoteEnvStatus
+    metadata_schema: Optional[Any] = Field(alias="metadataSchema")
+
+
 class TrainingConfigOutputData(BaseModel):
     """@public"""
 
@@ -604,6 +636,7 @@ class TrainingConfigOutputData(BaseModel):
         "TrainingConfigOutputDataTrainingObjectiveMetricTrainingParamsOutput",
         "TrainingConfigOutputDataTrainingObjectiveGuidelinesTrainingParamsOutput",
         "TrainingConfigOutputDataTrainingObjectiveSfttrainingParamsOutput",
+        "TrainingConfigOutputDataTrainingObjectiveRewardServerTrainingParamsOutput",
     ] = Field(alias="trainingObjective", discriminator="typename__")
 
 
@@ -628,6 +661,7 @@ class TrainingConfigOutputDataTrainingMetadata(BaseModel):
             Union[
                 "TrainingConfigOutputDataTrainingMetadataParametersDpotrainingParamsOutput",
                 "TrainingConfigOutputDataTrainingMetadataParametersPpotrainingParamsOutput",
+                "TrainingConfigOutputDataTrainingMetadataParametersGrpotrainingParamsOutput",
             ],
             Field(discriminator="typename__"),
         ]
@@ -650,6 +684,14 @@ class TrainingConfigOutputDataTrainingMetadataParametersPpotrainingParamsOutput(
 
     typename__: Literal["PpotrainingParamsOutput"] = Field(alias="__typename")
     kl_div_coeff: float = Field(alias="klDivCoeff")
+
+
+class TrainingConfigOutputDataTrainingMetadataParametersGrpotrainingParamsOutput(
+    BaseModel
+):
+    """@public"""
+
+    typename__: Literal["GrpotrainingParamsOutput"] = Field(alias="__typename")
 
 
 class TrainingConfigOutputDataTrainingObjectiveMetricTrainingParamsOutput(BaseModel):
@@ -701,6 +743,14 @@ class TrainingConfigOutputDataTrainingObjectiveSfttrainingParamsOutput(BaseModel
     """@public"""
 
     typename__: Literal["SfttrainingParamsOutput"] = Field(alias="__typename")
+
+
+class TrainingConfigOutputDataTrainingObjectiveRewardServerTrainingParamsOutput(
+    BaseModel
+):
+    """@public"""
+
+    typename__: Literal["RewardServerTrainingParamsOutput"] = Field(alias="__typename")
 
 
 class TrainingJobData(BaseModel):
@@ -865,8 +915,8 @@ CompletionComparisonFeedbackData.model_rebuild()
 CompletionData.model_rebuild()
 DatasetData.model_rebuild()
 ModelData.model_rebuild()
-ModelServiceData.model_rebuild()
 MetricWithContextData.model_rebuild()
+ModelServiceData.model_rebuild()
 UseCaseData.model_rebuild()
 JobStageOutputData.model_rebuild()
 EvaluationJobData.model_rebuild()
@@ -874,6 +924,7 @@ ListCompletionsFilterOutputData.model_rebuild()
 MetricDataAdmin.model_rebuild()
 ModelDataAdmin.model_rebuild()
 PartitionData.model_rebuild()
+RemoteEnvData.model_rebuild()
 TrainingConfigOutputData.model_rebuild()
 TrainingJobData.model_rebuild()
 UserData.model_rebuild()

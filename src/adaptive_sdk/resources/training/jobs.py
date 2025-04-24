@@ -36,6 +36,7 @@ class TrainingJobs(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         name: str | None = None,
         wait: bool = False,
         use_case: str | None = None,
+        compute_pool: str | None = None,
     ) -> CreateTrainingJobCreateTrainingJob:
         """
         Create a new training job.
@@ -66,6 +67,7 @@ class TrainingJobs(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             name=name,
             config=config_input,
             wait=wait,
+            computePool=compute_pool,
         )
         return self._gql_client.create_training_job(input).create_training_job
 
@@ -104,6 +106,7 @@ class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
         name: str | None = None,
         wait: bool = False,
         use_case: str | None = None,
+        compute_pool: str | None = None,
     ) -> CreateTrainingJobCreateTrainingJob:
         """
         Create a new training job.
@@ -133,6 +136,7 @@ class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
             name=name,
             config=config_input,
             wait=wait,
+            computePool=compute_pool,
         )
         result = await self._gql_client.create_training_job(input)
         return result.create_training_job

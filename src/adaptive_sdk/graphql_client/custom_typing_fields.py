@@ -225,6 +225,14 @@ class DatasetMetricUsageGraphQLField(GraphQLField):
         return self
 
 
+class DatasetValidationOutputGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "DatasetValidationOutputGraphQLField":
+        self._alias = alias
+        return self
+
+
 class DirectFeedbackGraphQLField(GraphQLField):
     """@private"""
 
@@ -253,6 +261,22 @@ class EvalJobStageOutputGraphQLField(GraphQLField):
     """@private"""
 
     def alias(self, alias: str) -> "EvalJobStageOutputGraphQLField":
+        self._alias = alias
+        return self
+
+
+class EvaluationAnswerRelevancyRecipeGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "EvaluationAnswerRelevancyRecipeGraphQLField":
+        self._alias = alias
+        return self
+
+
+class EvaluationContextRelevancyRecipeGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "EvaluationContextRelevancyRecipeGraphQLField":
         self._alias = alias
         return self
 
@@ -289,6 +313,14 @@ class EvaluationRecipeUnion(GraphQLField):
         return self
 
     def alias(self, alias: str) -> "EvaluationRecipeUnion":
+        self._alias = alias
+        return self
+
+
+class GrpotrainingParamsOutputGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "GrpotrainingParamsOutputGraphQLField":
         self._alias = alias
         return self
 
@@ -439,6 +471,14 @@ class ModelGraphQLField(GraphQLField):
         return self
 
 
+class ModelComputeConfigOutputGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "ModelComputeConfigOutputGraphQLField":
+        self._alias = alias
+        return self
+
+
 class ModelPlacementOutputGraphQLField(GraphQLField):
     """@private"""
 
@@ -499,6 +539,50 @@ class QueryRootGraphQLField(GraphQLField):
     """@private"""
 
     def alias(self, alias: str) -> "QueryRootGraphQLField":
+        self._alias = alias
+        return self
+
+
+class RemoteEnvGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "RemoteEnvGraphQLField":
+        self._alias = alias
+        return self
+
+
+class RemoteEnvTestUnion(GraphQLField):
+    """@private"""
+
+    def on(self, type_name: str, *subfields: GraphQLField) -> "RemoteEnvTestUnion":
+        self._inline_fragments[type_name] = subfields
+        return self
+
+    def alias(self, alias: str) -> "RemoteEnvTestUnion":
+        self._alias = alias
+        return self
+
+
+class RemoteEnvTestOfflineGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "RemoteEnvTestOfflineGraphQLField":
+        self._alias = alias
+        return self
+
+
+class RemoteEnvTestOnlineGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "RemoteEnvTestOnlineGraphQLField":
+        self._alias = alias
+        return self
+
+
+class RewardServerTrainingParamsOutputGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "RewardServerTrainingParamsOutputGraphQLField":
         self._alias = alias
         return self
 
@@ -713,10 +797,42 @@ class UnitConfigGraphQLField(GraphQLField):
         return self
 
 
+class UsageGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "UsageGraphQLField":
+        self._alias = alias
+        return self
+
+
+class UsageAggregateItemGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "UsageAggregateItemGraphQLField":
+        self._alias = alias
+        return self
+
+
+class UsageAggregatePerUseCaseItemGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "UsageAggregatePerUseCaseItemGraphQLField":
+        self._alias = alias
+        return self
+
+
 class UseCaseGraphQLField(GraphQLField):
     """@private"""
 
     def alias(self, alias: str) -> "UseCaseGraphQLField":
+        self._alias = alias
+        return self
+
+
+class UseCaseItemGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> "UseCaseItemGraphQLField":
         self._alias = alias
         return self
 

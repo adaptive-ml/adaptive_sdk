@@ -1,6 +1,7 @@
 import asyncio
 import time
 import os
+import pprint
 from typing import Sequence
 
 from adaptive_sdk import AsyncAdaptive
@@ -72,7 +73,9 @@ class AsyncTests:
     @log_function_name
     async def test_roles(self):
         _ = await self.client.permissions.list()
-        _ = await self.client.roles.create(key=self.role, name=self.role, permissions=["use_case:read"])
+        _ = await self.client.roles.create(
+            key=self.role, name=self.role, permissions=["use_case:read"]
+        )
         roles_list = await self.client.roles.list()
         assert any([role.key == self.role for role in roles_list])
 
@@ -86,7 +89,10 @@ class AsyncTests:
     @log_function_name
     async def test_use_cases(self):
         use_case_create = await self.client.use_cases.create(
-            key=self.use_case, name=self.use_case, description="A use case for sync tests", team=self.team
+            key=self.use_case,
+            name=self.use_case,
+            description="A use case for sync tests",
+            team=self.team,
         )
 
         assert await self.client.use_cases.get(use_case_create.key)
@@ -118,7 +124,10 @@ class AsyncTests:
         assert await self.client.models.get(models_list[0].id)
 
         open_ai_model = await self.client.models.add_external(
-            provider="open_ai", external_model_id="GPT4O_MINI", name=self.open_ai_model_name, api_key=self.open_ai_key
+            provider="open_ai",
+            external_model_id="GPT4O_MINI",
+            name=self.open_ai_model_name,
+            api_key=self.open_ai_key,
         )
 
         azure_model = await self.client.models.add_external(
@@ -139,14 +148,16 @@ class AsyncTests:
         for model in [open_ai_model, azure_model, google_model]:
             _ = await self.client.models.attach(model=model.id)
 
-        _ = await self.client.models.attach(model=self.model, wait=True, make_default=True)
-        _ = await self.client.models.terminate(model=self.model, force=True)
-        _ = await self.client.models.detach(model=self.model)
-        _ = await self.client.models.deploy(model=self.model, wait=True)
-        _ = await self.client.models.attach(model=self.model, wait=True, make_default=True)
+        _ = await self.client.models.attach(
+            model=self.model, wait=True, make_default=True
+        )
+        # _ = await self.client.models.terminate(model=self.model, force=True)
+        # _ = await self.client.models.detach(model=self.model)
+        # _ = await self.client.models.deploy(model=self.model, wait=True)
+        # _ = await self.client.models.attach(model=self.model, wait=True, make_default=True)
 
-        _ = await self.client.models.update(model=self.model, is_default=False, desired_online=False)
-        _ = await self.client.models.update(model=self.model, is_default=True, desired_online=True)
+        # _ = await self.client.models.update(model=self.model, is_default=False, desired_online=False)
+        # _ = await self.client.models.update(model=self.model, is_default=True, desired_online=True)
 
         while True:
             if (await self.client.models.get(self.model)).online.value == "ONLINE":  # type: ignore
@@ -157,7 +168,9 @@ class AsyncTests:
         return (open_ai_model, azure_model, google_model)
 
     @log_function_name
-    async def test_inference(self, ext_models: Sequence[ModelData]) -> rest_types.ChatResponse:
+    async def test_inference(
+        self, ext_models: Sequence[ModelData]
+    ) -> rest_types.ChatResponse:
         for ext in ext_models:
             _ = await self.client.chat.create(
                 model=ext.key,
@@ -195,7 +208,9 @@ class AsyncTests:
 
     @log_function_name
     async def test_interactions(self, completions: rest_types.ChatResponse):
-        metric_logged_completion = await self.client.interactions.get(completions.choices[0].completion_id)
+        metric_logged_completion = await self.client.interactions.get(
+            completions.choices[0].completion_id
+        )
         assert metric_logged_completion
         assert len(metric_logged_completion.direct_feedbacks) == 1
         assert len(metric_logged_completion.comparison_feedbacks) == 1
@@ -204,7 +219,9 @@ class AsyncTests:
             completion="completion", messages=[{"role": "user", "content": "prompt"}]
         )
         _ = await self.client.interactions.create(
-            model=self.model, completion="completion", messages=[{"role": "user", "content": "prompt"}]
+            model=self.model,
+            completion="completion",
+            messages=[{"role": "user", "content": "prompt"}],
         )
 
         ungrouped_interactions = await self.client.interactions.list(
@@ -218,7 +235,9 @@ class AsyncTests:
 
     async def test_ab_tests(self, ext_models: Sequence[ModelData]):
         ab_test = await self.client.ab_tests.create(
-            ab_test_key=self.ab_test, feedback_key=self.feedback_key, models=[self.model, ext_models[0].key]
+            ab_test_key=self.ab_test,
+            feedback_key=self.feedback_key,
+            models=[self.model, ext_models[0].key],
         )
         assert await self.client.ab_tests.get(ab_test.key)
         assert await self.client.ab_tests.get(ab_test.id)
@@ -229,7 +248,9 @@ class AsyncTests:
     @log_function_name
     async def test_datasets(self):
         integration_data_dir = "tests/integration_data"
-        for filename in os.listdir(integration_data_dir):
+        dataset_files = os.listdir(integration_data_dir)
+
+        for filename in dataset_files:
             # TODO: fix duplicate key bug for same key datasets in different use cases
             new_ds = await self.client.datasets.upload(
                 file_path=f"{integration_data_dir}/{filename}",
@@ -238,7 +259,34 @@ class AsyncTests:
             assert await self.client.datasets.get(new_ds.key)
             assert await self.client.datasets.get(new_ds.id)
 
-        assert len(await self.client.datasets.list()) == 4
+        assert len(await self.client.datasets.list()) == len(dataset_files)
+
+    @log_function_name
+    async def test_evals(self, ext_models: Sequence[ModelData]):
+        context_relevancy_job = await self.client.evaluation.jobs.create(
+            models=[self.model],
+            judge_model=ext_models[0].key,
+            method="context_relevancy",
+            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+        )
+        answer_relevancy_job = await self.client.evaluation.jobs.create(
+            models=[self.model],
+            judge_model=ext_models[0].key,
+            method="answer_relevancy",
+            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+        )
+
+        while True:
+            cr_job_status = (await self.client.evaluation.jobs.get(context_relevancy_job.id)).status  # type: ignore
+            ar_job_status = (await self.client.evaluation.jobs.get(answer_relevancy_job.id)).status  # type: ignore
+            if cr_job_status == "COMPLETED" and ar_job_status == "COMPLETED":
+                break
+            elif cr_job_status == "FAILED" or ar_job_status == "FAILED":
+                cr_job_str = pprint.pformat(context_relevancy_job.model_dump())
+                ar_job_str = pprint.pformat(answer_relevancy_job.model_dump())
+                raise RuntimeError(
+                    f"One of the evaluation jobs failed:\n\n{cr_job_str}\n\n{ar_job_str}"
+                )
 
     async def run_all_tests(self):
         self.check_inputs()
@@ -253,13 +301,11 @@ class AsyncTests:
         await self.test_interactions(completions)
         await self.test_ab_tests(ext_models)
         await self.test_datasets()
+        await self.test_evals(ext_models)
         # TODO:
-        #   * test_evals_from_dataset datasets, generating completions in the process
         #   * test_evals_from_interactions, using generations from the previous step
         #   * test training, both with judge feedback provided above, and RLAIF
-        # self.test_evals_from_dataset(ext_models)
         # self.test_evals_from_interactions(ext_models)
-        # self.test_training(ext_models)
 
 
 def test_async():
@@ -269,17 +315,20 @@ def test_async():
     google_key = os.getenv("TESTING_GOOGLE_API_KEY")
     azure_key = os.getenv("TESTING_AZURE_API_KEY")
     azure_endpoint = os.getenv("TESTING_AZURE_ENDPOINT")
+    cf_access_client_id = os.getenv("CF_ACCESS_CLIENT_ID")
+    cf_access_client_secret = os.getenv("CF_ACCESS_CLIENT_SECRET")
 
     # individual asserts so we can pinpoint exactly what's missing in test logs
     assert base_url
     assert api_key
 
-    use_case = "use-case"
-    other_team_use_case = "other-team-use-case"
+    suffix = os.getenv("GITHUB_RUN_ID", "")
+    use_case = f"e2e-usecase{suffix}"
+    other_team_use_case = f"e2e-other-team-usecase{suffix}"
     team = "default"
     other_team = "test-team"
     feedback_key = "feedback-key"
-    model = "minimal"
+    model = "qwen_25_500M"
     user_email = "user"
     role = "test-role"
     azure_deployment_name = "gpt-4o-mini"
@@ -288,7 +337,18 @@ def test_async():
     azure_model_name = "adaptive-azure-gpt"
     ab_test = "ab-test"
 
-    async_client = AsyncAdaptive(base_url=base_url, api_key=api_key)
+    async_client = AsyncAdaptive(
+        base_url=base_url,
+        api_key=api_key,
+        default_headers=(
+            {
+                "CF-Access-Client-Id": cf_access_client_id,
+                "CF-Access-Client-Secret": cf_access_client_secret,
+            }
+            if cf_access_client_id and cf_access_client_secret
+            else None
+        ),
+    )
 
     async_prefix = "async-"
     asyncio.run(

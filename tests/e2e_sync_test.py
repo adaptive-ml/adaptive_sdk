@@ -1,6 +1,7 @@
 import functools
 import time
 import os
+import pprint
 from typing import Sequence
 
 from adaptive_sdk import Adaptive
@@ -70,7 +71,9 @@ class RunnerFixture:
     @log_function_name
     def test_roles(self):
         _ = self.client.permissions.list()
-        _ = self.client.roles.create(key=self.role, name=self.role, permissions=["use_case:read"])
+        _ = self.client.roles.create(
+            key=self.role, name=self.role, permissions=["use_case:read"]
+        )
         roles_list = self.client.roles.list()
         assert any([role.key == self.role for role in roles_list])
 
@@ -84,7 +87,10 @@ class RunnerFixture:
     @log_function_name
     def test_use_cases(self):
         use_case_create = self.client.use_cases.create(
-            key=self.use_case, name=self.use_case, description="A use case for sync tests", team=self.team
+            key=self.use_case,
+            name=self.use_case,
+            description="A use case for sync tests",
+            team=self.team,
         )
 
         assert self.client.use_cases.get(use_case_create.key)
@@ -116,7 +122,10 @@ class RunnerFixture:
         assert self.client.models.get(models_list[0].id)
 
         open_ai_model = self.client.models.add_external(
-            provider="open_ai", external_model_id="GPT4O_MINI", name=self.open_ai_model_name, api_key=self.open_ai_key
+            provider="open_ai",
+            external_model_id="GPT4O_MINI",
+            name=self.open_ai_model_name,
+            api_key=self.open_ai_key,
         )
 
         azure_model = self.client.models.add_external(
@@ -138,13 +147,13 @@ class RunnerFixture:
             _ = self.client.models.attach(model=model.id)
 
         _ = self.client.models.attach(model=self.model, wait=True, make_default=True)
-        _ = self.client.models.terminate(model=self.model, force=True)
-        _ = self.client.models.detach(model=self.model)
-        _ = self.client.models.deploy(model=self.model, wait=True)
-        _ = self.client.models.attach(model=self.model, wait=True, make_default=True)
+        # _ = self.client.models.terminate(model=self.model, force=True)
+        # _ = self.client.models.detach(model=self.model)
+        # _ = self.client.models.deploy(model=self.model, wait=True)
+        # _ = self.client.models.attach(model=self.model, wait=True, make_default=True)
 
-        _ = self.client.models.update(model=self.model, is_default=False, desired_online=False)
-        _ = self.client.models.update(model=self.model, is_default=True, desired_online=True)
+        # _ = self.client.models.update(model=self.model, is_default=False, desired_online=False)
+        # _ = self.client.models.update(model=self.model, is_default=True, desired_online=True)
 
         while True:
             if self.client.models.get(self.model).online.value == "ONLINE":  # type: ignore
@@ -155,7 +164,9 @@ class RunnerFixture:
         return (open_ai_model, azure_model, google_model)
 
     @log_function_name
-    def test_inference(self, ext_models: Sequence[ModelData]) -> rest_types.ChatResponse:
+    def test_inference(
+        self, ext_models: Sequence[ModelData]
+    ) -> rest_types.ChatResponse:
         for ext in ext_models:
             _ = self.client.chat.create(
                 model=ext.key,
@@ -193,14 +204,20 @@ class RunnerFixture:
 
     @log_function_name
     def test_interactions(self, completions: rest_types.ChatResponse):
-        metric_logged_completion = self.client.interactions.get(completions.choices[0].completion_id)
+        metric_logged_completion = self.client.interactions.get(
+            completions.choices[0].completion_id
+        )
         assert metric_logged_completion
         assert len(metric_logged_completion.direct_feedbacks) == 1
         assert len(metric_logged_completion.comparison_feedbacks) == 1
 
-        _ = self.client.interactions.create(completion="completion", messages=[{"role": "user", "content": "prompt"}])
         _ = self.client.interactions.create(
-            model=self.model, completion="completion", messages=[{"role": "user", "content": "prompt"}]
+            completion="completion", messages=[{"role": "user", "content": "prompt"}]
+        )
+        _ = self.client.interactions.create(
+            model=self.model,
+            completion="completion",
+            messages=[{"role": "user", "content": "prompt"}],
         )
 
         ungrouped_interactions = self.client.interactions.list(
@@ -215,7 +232,9 @@ class RunnerFixture:
     @log_function_name
     def test_ab_tests(self, ext_models: Sequence[ModelData]):
         ab_test = self.client.ab_tests.create(
-            ab_test_key=self.ab_test, feedback_key=self.feedback_key, models=[self.model, ext_models[0].key]
+            ab_test_key=self.ab_test,
+            feedback_key=self.feedback_key,
+            models=[self.model, ext_models[0].key],
         )
         assert self.client.ab_tests.get(ab_test.key)
         assert self.client.ab_tests.get(ab_test.id)
@@ -226,14 +245,43 @@ class RunnerFixture:
     @log_function_name
     def test_datasets(self):
         integration_data_dir = "tests/integration_data"
-        for filename in os.listdir(integration_data_dir):
+        dataset_files = os.listdir(integration_data_dir)
+        for filename in dataset_files:
             new_ds = self.client.datasets.upload(
-                file_path=f"{integration_data_dir}/{filename}", dataset_key=filename.replace(".jsonl", "")
+                file_path=f"{integration_data_dir}/{filename}",
+                dataset_key=filename.replace(".jsonl", ""),
             )
             assert self.client.datasets.get(new_ds.key)
             assert self.client.datasets.get(new_ds.id)
 
-        assert len(self.client.datasets.list()) == 4
+        assert len(self.client.datasets.list()) == len(dataset_files)
+
+    @log_function_name
+    def test_evals(self, ext_models: Sequence[ModelData]):
+        context_relevancy_job = self.client.evaluation.jobs.create(
+            models=[self.model],
+            judge_model=ext_models[0].key,
+            method="context_relevancy",
+            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+        )
+        answer_relevancy_job = self.client.evaluation.jobs.create(
+            models=[self.model],
+            judge_model=ext_models[0].key,
+            method="answer_relevancy",
+            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+        )
+
+        while True:
+            cr_job_status = self.client.evaluation.jobs.get(context_relevancy_job.id).status  # type: ignore
+            ar_job_status = self.client.evaluation.jobs.get(answer_relevancy_job.id).status  # type: ignore
+            if cr_job_status == "COMPLETED" and ar_job_status == "COMPLETED":
+                break
+            elif cr_job_status == "FAILED" or ar_job_status == "FAILED":
+                cr_job_str = pprint.pformat(context_relevancy_job.model_dump())
+                ar_job_str = pprint.pformat(answer_relevancy_job.model_dump())
+                raise RuntimeError(
+                    f"One of the evaluation jobs failed:\n\n{cr_job_str}\n\n{ar_job_str}"
+                )
 
     def run_all_tests(self):
         self.check_inputs()
@@ -248,13 +296,11 @@ class RunnerFixture:
         self.test_interactions(completions)
         self.test_ab_tests(ext_models)
         self.test_datasets()
+        self.test_evals(ext_models)
         # TODO:
-        #   * test_evals_from_dataset datasets, generating completions in the process
         #   * test_evals_from_interactions, using generations from the previous step
         #   * test training, both with judge feedback provided above, and RLAIF
-        # self.test_evals_from_dataset(ext_models)
         # self.test_evals_from_interactions(ext_models)
-        # self.test_training(ext_models)
 
 
 def test_sync():
@@ -264,13 +310,16 @@ def test_sync():
     google_key = os.getenv("TESTING_GOOGLE_API_KEY")
     azure_key = os.getenv("TESTING_AZURE_API_KEY")
     azure_endpoint = os.getenv("TESTING_AZURE_ENDPOINT")
+    cf_access_client_id = os.getenv("CF_ACCESS_CLIENT_ID")
+    cf_access_client_secret = os.getenv("CF_ACCESS_CLIENT_SECRET")
 
-    use_case = "use-case"
-    other_team_use_case = "other-team-use-case"
+    suffix = os.getenv("GITHUB_RUN_ID", "")
+    use_case = f"e2e-usecase{suffix}"
+    other_team_use_case = "e2e-other-team-use-case{suffix}"
     team = "default"
     other_team = "test-team"
     feedback_key = "feedback-key"
-    model = "minimal"
+    model = "qwen_25_500M"
     user_email = "user"
     role = "test-role"
     azure_deployment_name = "gpt-4o-mini"
@@ -282,7 +331,18 @@ def test_sync():
     assert api_key
     assert base_url
 
-    sync_client = Adaptive(base_url=base_url, api_key=api_key)
+    sync_client = Adaptive(
+        base_url=base_url,
+        api_key=api_key,
+        default_headers=(
+            {
+                "CF-Access-Client-Id": cf_access_client_id,
+                "CF-Access-Client-Secret": cf_access_client_secret,
+            }
+            if cf_access_client_id and cf_access_client_secret
+            else None
+        ),
+    )
 
     RunnerFixture(
         client=sync_client,

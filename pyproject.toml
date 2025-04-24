@@ -17,6 +17,9 @@ dependencies = [
   "pyhumps >= 3.8.0",
   "fastapi >= 0.115.8",
   "uvicorn >= 0.34.0",
+  "jsonschema==4.23.0",
+  "types-jsonschema==4.23.0.20241208",
+  "loguru >= 0.7.0"
 ]
 
 [project.optional-dependencies]
@@ -28,6 +31,7 @@ dev = [
   "toml>=0.10.2",
   "black==25.1.0",
   "pytest==8.3.5",
+  "pytest-asyncio==0.26.0",
   "mypy>=1.15.0",
 ]
 
@@ -51,8 +55,11 @@ type = "int | str"
 type = "int"
 
 [tool.mypy]
+# Ignore missing type hints in imported libraries
+ignore_missing_imports = true
+
 files = "src/adaptive_sdk"
-exclude = "src/adaptive_sdk/graphql_client/"
+exclude = "src/adaptive_sdk/graphql_client/|src/adaptive_sdk/rest/"
 allow_redefinition = true
 
 

@@ -1,6 +1,13 @@
 from .reward_client import RewardClient
 from .reward_server import RewardServer
-from .types import Request, Response, BatchedRequest, BatchedResponse, ServerInfo, Turn
+from .reward_types import (
+    Request,
+    Response,
+    BatchedRequest,
+    BatchedResponse,
+    ServerInfo,
+    Turn,
+)
 
 __all__ = [
     "RewardClient",

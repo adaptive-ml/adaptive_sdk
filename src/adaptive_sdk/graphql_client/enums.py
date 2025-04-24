@@ -57,6 +57,25 @@ class DatasetKind(str, Enum):
     PREFERENCE = "PREFERENCE"
 
 
+class DatasetSource(str, Enum):
+    """@public"""
+
+    UPLOADED = "UPLOADED"
+    GENERATED = "GENERATED"
+    GENERATING = "GENERATING"
+
+
+class DateBucketUnit(str, Enum):
+    """@public"""
+
+    DAY = "DAY"
+    WEEK = "WEEK"
+    MONTH = "MONTH"
+    QUARTER = "QUARTER"
+    YEAR = "YEAR"
+    NO_GROUP_BY_DATE = "NO_GROUP_BY_DATE"
+
+
 class EvaluationJobStatus(str, Enum):
     """@public"""
 
@@ -65,6 +84,13 @@ class EvaluationJobStatus(str, Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELED = "CANCELED"
+
+
+class EvaluationType(str, Enum):
+    """@public"""
+
+    AI_JUDGE = "AI_JUDGE"
+    REMOTE_ENV = "REMOTE_ENV"
 
 
 class ExternalModelProviderName(str, Enum):
@@ -146,6 +172,16 @@ class ModelOnline(str, Enum):
     ERROR = "ERROR"
 
 
+class ModelserviceStatus(str, Enum):
+    """@public"""
+
+    PENDING = "PENDING"
+    ONLINE = "ONLINE"
+    OFFLINE = "OFFLINE"
+    DETACHED = "DETACHED"
+    TURNED_OFF = "TURNED_OFF"
+
+
 class OpenAIModel(str, Enum):
     """@public"""
 
@@ -175,6 +211,13 @@ class ProviderName(str, Enum):
     GOOGLE = "GOOGLE"
     ANTHROPIC = "ANTHROPIC"
     NVIDIA = "NVIDIA"
+
+
+class RemoteEnvStatus(str, Enum):
+    """@public"""
+
+    ONLINE = "ONLINE"
+    OFFLINE = "OFFLINE"
 
 
 class SelectionTypeInput(str, Enum):
@@ -227,6 +270,7 @@ class TrainingMetadataInputAlignmentMethod(str, Enum):
     DPO = "DPO"
     PPO = "PPO"
     SFT = "SFT"
+    GRPO = "GRPO"
 
 
 class TrainingMetadataInputTrainingType(str, Enum):
@@ -242,6 +286,7 @@ class TrainingMetadataOutputAlignmentMethod(str, Enum):
     DPO = "DPO"
     PPO = "PPO"
     SFT = "SFT"
+    GRPO = "GRPO"
 
 
 class TrainingMetadataOutputTrainingType(str, Enum):

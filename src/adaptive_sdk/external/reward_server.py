@@ -1,16 +1,32 @@
 from abc import ABC, abstractmethod
+import asyncio
+from adaptive_sdk.external.requests_journal import RequestsJournal
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
-from fastapi import status
-from typing import Callable, Any
+from typing import Callable, Any, Generic, Type, TypeVar
 from dataclasses import dataclass
 import threading
+from pydantic import Field
 import uvicorn
-import time
-import asyncio
 
-from .types import Request, Response, ServerInfo, BatchedRequest, BatchedResponse
-from .constants import SCORE_PATH, BATCH_SCORE_PATH, VALIDATE_METADATA, INFO_PATH
+from adaptive_sdk.external.reward_types import (
+    ValidatedRequest,
+    Response,
+    ServerInfo,
+    ValidatedBatchedRequest,
+    BatchedResponse,
+    BaseModel,
+)
+from adaptive_sdk.external.constants import (
+    SCORE_PATH,
+    BATCH_SCORE_PATH,
+    INFO_PATH,
+    METADATA_SCHEMA_PATH,
+)
+
+
+class EmptyMetadata(BaseModel):
+    pass
 
 
 @dataclass
@@ -20,49 +36,66 @@ class Route:
     methods: list[str]
 
 
-class RewardServer(ABC):
+META = TypeVar("META", bound=BaseModel)
+
+
+class RewardServer(ABC, Generic[META]):
     def __init__(
-        self, port: int, blocking: bool = True, request_timeout_s: int = 3_600
+        self,
+        port: int,
+        metadata_cls: Type[META],
+        blocking: bool = True,
+        verbose: bool = False,
+        request_timeout_s: int = 3_600,
+        requests_journal: RequestsJournal | None = None,
     ):
+        self.requests_journal = requests_journal
         self.request_timeout_s = request_timeout_s
+        self.metadata_cls = metadata_cls
+        # need to update the functions with the correct metadata type, otherwise the bound BaseModel is used
+        # (see https://github.com/fastapi/fastapi/issues/5874)
+        self._score.__annotations__["request"] = ValidatedRequest[metadata_cls]  # type: ignore[valid-type]
+        self.batch_score.__annotations__["requests"] = ValidatedBatchedRequest[metadata_cls]  # type: ignore[valid-type]
+
+        self.verbose = verbose
+        self.__post_init__()
         self._setup_server(port, blocking)
+        self.cleanup()
 
-    async def score_timeout(self, request: Request) -> Response:
-        try:
-            start_time = time.time()
-            return await asyncio.wait_for(
-                self.score(request), timeout=self.request_timeout_s
-            )
+    def __post_init__(self):
+        pass
 
-        except asyncio.TimeoutError:
-            process_time = time.time() - start_time
-            return JSONResponse(  # type: ignore[return-value]
-                {
-                    "detail": "Request processing time excedeed limit",
-                    "processing_time": process_time,
-                    "timeout": self.request_timeout_s,
-                },
-                status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-            )
+    def cleanup(self):
+        pass
+
+    async def _score(self, request: ValidatedRequest[META]) -> Response:
+        if self.verbose:
+            request_str = request.model_dump_json(indent=2)
+            print(f"Received request: {request_str}")
+            res = await self.score(request)
+            print(f"Finished request : {request_str} with response: {res.model_dump_json(indent=2)}")
+            return res
+        else:
+            return await self.score(request)
 
     @abstractmethod
-    async def score(self, request: Request) -> Response: ...
+    async def score(self, request: ValidatedRequest[META]) -> Response: ...
 
-    async def batch_score(self, requests: BatchedRequest) -> BatchedResponse:
+    async def batch_score(self, requests: ValidatedBatchedRequest[META]) -> BatchedResponse:
         tasks = []
         for request in requests.requests:
-            tasks.append(self.score_timeout(request))
-
+            tasks.append(self._score(request))
         responses = await asyncio.gather(*tasks)
         return BatchedResponse(responses=responses)
 
-    @abstractmethod
-    async def validate_metadata(self, metadata: dict[Any, Any]): ...
+    def get_medata_schema(self) -> JSONResponse:
+        json_schema = self.metadata_cls.model_json_schema()
+        return JSONResponse(json_schema)
 
     @abstractmethod
     async def info(self) -> ServerInfo: ...
 
-    def _setup_server(self, port: int, blocking: bool):
+    def _setup_server(self, port: int, blocking: bool, log_request: bool = False):
         class ThreadServer(uvicorn.Server):
             """ "Easy to kill uvicorn server"""
 
@@ -76,12 +109,10 @@ class RewardServer(ABC):
 
         def get_routes() -> list[Route]:
             routes: list[Route] = []
-            routes.append(Route(SCORE_PATH, self.score_timeout, methods=["POST"]))
+            routes.append(Route(SCORE_PATH, self._score, methods=["POST"]))
             routes.append(Route(BATCH_SCORE_PATH, self.batch_score, methods=["POST"]))
             routes.append(Route(INFO_PATH, self.info, methods=["GET"]))
-            routes.append(
-                Route(VALIDATE_METADATA, self.validate_metadata, methods=["POST"])
-            )
+            routes.append(Route(METADATA_SCHEMA_PATH, self.get_medata_schema, methods=["GET"]))
             return routes
 
         router = APIRouter()
@@ -93,12 +124,16 @@ class RewardServer(ABC):
         app = FastAPI()
         app.include_router(router)
 
+        if self.requests_journal is not None:
+            self.requests_journal.add_journalling(app=app)
+
         config = uvicorn.Config(
             app,
             host="0.0.0.0",
             port=port,
             log_level="info",
-            workers=8,
+            # We do not use workers here. Depending on how the app is launched
+            # they are not used. Which makes it misleading.
         )
         self.server = ThreadServer(config=config)
 
@@ -108,21 +143,45 @@ class RewardServer(ABC):
             self.server.run_in_thread()
 
 
-class MyRewardServer(RewardServer):
+class MyMetadata(BaseModel):
+    scary_letter: str = Field(min_length=1, max_length=1)
+
+
+class MyRewardServer(RewardServer[MyMetadata]):
     def __init__(self, port=8000, blocking=True):
-        super().__init__(port, blocking)
+        super().__init__(port, MyMetadata, blocking, requests_journal=RequestsJournal())
 
-    async def score(self, request: Request) -> Response:
-        raise NotImplementedError()
+    async def score(self, request: ValidatedRequest[MyMetadata]) -> Response:
 
-    async def validate_metadata(self, metadata: dict[Any, Any]):
-        raise NotImplementedError()
+        last_completion = request.turns[-1].content
+        num_scary_letters = last_completion.count(request.metadata.scary_letter)
+        return Response(
+            reward=0.0 if request.metadata.scary_letter in last_completion else 1.0,
+            metadata={
+                "feedback": (
+                    "There were no scary letters!"
+                    if num_scary_letters == 0
+                    else f"There were {num_scary_letters} scary letters!"
+                )
+            },
+        )
 
     async def info(self) -> ServerInfo:
-        return ServerInfo(
-            version="1.0", name="My sevice", description="This is a nice description"
-        )
+        return ServerInfo(version="1.0", name="My sevice", description="This is a nice description")
+
+
+class MyNoMetadataRewardServer(RewardServer[EmptyMetadata]):
+    def __init__(self, port=8000, blocking=True):
+        super().__init__(port, EmptyMetadata, blocking, requests_journal=RequestsJournal())
+
+    async def score(self, request: ValidatedRequest[EmptyMetadata]) -> Response:
+
+        last_completion = request.turns[-1].content
+        return Response(reward=len(last_completion), metadata={})
+
+    async def info(self) -> ServerInfo:
+        return ServerInfo(version="1.0", name="My sevice", description="This is a nice description")
 
 
 if __name__ == "__main__":
-    server = MyRewardServer()
+    server = MyNoMetadataRewardServer(port=50056)
