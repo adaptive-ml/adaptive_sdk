@@ -21,7 +21,7 @@ from adaptive_sdk import Adaptive
 # Similar async client is available AsyncAdaptive
 
 # Adaptive client
-client = AdaptiveAdmin(base_url="YOUR_ADAPTIVE_URL", api_key="ADAPTIVE_API_KEY")
+client = Adaptive(base_url="YOUR_ADAPTIVE_URL", api_key="ADAPTIVE_API_KEY")
 client.set_default_use_case("my_use_case_key")  # Set default use case for client
 ```
 
