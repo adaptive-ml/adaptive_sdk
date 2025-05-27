@@ -1,27 +1,16 @@
 from io import IOBase
 from pydantic import BaseModel as PydanticBaseModel, ConfigDict
 
-
 class UnsetType:
     """@private"""
 
     def __bool__(self) -> bool:
         return False
-
-
 UNSET = UnsetType()
-
 
 class BaseModel(PydanticBaseModel):
     """@private"""
-
-    model_config = ConfigDict(
-        populate_by_name=True,
-        validate_assignment=True,
-        arbitrary_types_allowed=True,
-        protected_namespaces=(),
-    )
-
+    model_config = ConfigDict(populate_by_name=True, validate_assignment=True, arbitrary_types_allowed=True, protected_namespaces=())
 
 class Upload:
     """@private"""

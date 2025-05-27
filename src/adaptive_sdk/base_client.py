@@ -28,9 +28,7 @@ def _get_api_key(api_key: Optional[str] = None) -> str:
     if env_api_key:
         return env_api_key
 
-    raise ValueError(
-        "API key not found. Please provide an API KEY or set ADAPTIVE_API_KEY environment variable."
-    )
+    raise ValueError("API key not found. Please provide an API KEY or set ADAPTIVE_API_KEY environment variable.")
 
 
 def is_valid_url(url):
@@ -73,9 +71,7 @@ class BaseSyncClient:
         timeout = httpx.Timeout(timeout=timeout_secs)
 
         self._gql_client.http_client.timeout = timeout
-        self._rest_client = httpx.Client(
-            headers=headers, base_url=base_url + Routes.REST.value, timeout=timeout
-        )
+        self._rest_client = httpx.Client(headers=headers, base_url=base_url + Routes.REST.value, timeout=timeout)
 
     def close(self) -> None:
         self._rest_client.close()
@@ -111,21 +107,17 @@ class BaseAsyncClient:
             "Authorization": f"Bearer {self.api_key}",
             "User-Agent": f"adaptive_sdk/{get_version()}",
         }
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "User-Agent": f"adaptive_sdk/{get_version()}",
-        }
+
         self._gql_client = AsyncGQLClient(base_url + Routes.GQL.value, headers=headers)
         self._gql_client.get_data = graphql_multi_error_handler(self._gql_client.get_data)  # type: ignore[method-assign]
 
         timeout = httpx.Timeout(timeout=timeout_secs)
         self._gql_client.http_client.timeout = timeout
-        self._rest_client = httpx.AsyncClient(
-            headers=headers, base_url=base_url + Routes.REST.value, timeout=timeout
-        )
+        self._rest_client = httpx.AsyncClient(headers=headers, base_url=base_url + Routes.REST.value, timeout=timeout)
 
     async def close(self) -> None:
         await self._rest_client.aclose()
+        await self._gql_client.http_client.aclose()
 
 
 class UseCaseClient(ABC):

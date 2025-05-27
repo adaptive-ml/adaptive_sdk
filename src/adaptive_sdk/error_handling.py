@@ -11,9 +11,7 @@ class EntityNotFoundDescriptor(BaseModel):
 
     def __post_init__(self):
         if self.error_message.count("{}") != len(self.code_suggestions):
-            raise ValueError(
-                "# of code suggestions must match # of placeholders in error message template"
-            )
+            raise ValueError("# of code suggestions must match # of placeholders in error message template")
 
 
 class AdaptiveEntityNotFoundError(Exception):
@@ -37,17 +35,13 @@ class AdaptiveEntityNotFoundError(Exception):
                 error_message="Model key does not exist, or is not attached to the target use case. You can attach it with `{}`",
                 code_suggestions=["client.models.attach"],
             ),
-            EntityNotFoundDescriptor(
-                entity="user", error_message="User does not exist.", code_suggestions=[]
-            ),
+            EntityNotFoundDescriptor(entity="user", error_message="User does not exist.", code_suggestions=[]),
         ]
 
         new_error_message = None
         for descriptor in self.entity_descriptors:
             if descriptor.entity in original_error.lower():
-                new_error_message = descriptor.error_message.format(
-                    *descriptor.code_suggestions
-                )
+                new_error_message = descriptor.error_message.format(*descriptor.code_suggestions)
                 break
 
         super().__init__(new_error_message or original_error)
@@ -77,11 +71,16 @@ def graphql_multi_error_handler(fn: Callable) -> Callable:
 
 def rest_error_handler(response: httpx.Response):
     if response.is_client_error:
-        error_message = response.json()["error"]
-        exception_type = adaptive_error_message_triage(error_message)
-        if exception_type is not None:
-            raise exception_type(error_message)
-        else:
+        try:
+            response_json = response.json()
+            error_message = response_json.get("error", f"Unknown error: {response.text}")
+            exception_type = adaptive_error_message_triage(error_message)
+            if exception_type is not None:
+                raise exception_type(error_message)
+            else:
+                raise Exception(f"Client error {response.status_code}: {error_message}")
+        except Exception:
+            # Handle any exception when processing the response
             raise Exception(f"Client error {response.status_code}: {response.text}")
     else:
         response.raise_for_status()

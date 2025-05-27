@@ -1,16 +1,5 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
-from graphql import (
-    DocumentNode,
-    NamedTypeNode,
-    NameNode,
-    OperationDefinitionNode,
-    OperationType,
-    SelectionNode,
-    SelectionSetNode,
-    VariableDefinitionNode,
-    VariableNode,
-    print_ast,
-)
+from graphql import DocumentNode, NamedTypeNode, NameNode, OperationDefinitionNode, OperationType, SelectionNode, SelectionSetNode, VariableDefinitionNode, VariableNode, print_ast
 from .add_external_model import AddExternalModel
 from .add_hf_model import AddHFModel
 from .add_model import AddModel
@@ -23,6 +12,8 @@ from .cancel_ab_campaign import CancelABCampaign
 from .cancel_evaluation_job import CancelEvaluationJob
 from .cancel_training_job import CancelTrainingJob
 from .create_ab_campaign import CreateAbCampaign
+from .create_custom_recipe_training_job import CreateCustomRecipeTrainingJob
+from .create_custom_script import CreateCustomScript
 from .create_evaluation_job import CreateEvaluationJob
 from .create_metric import CreateMetric
 from .create_role import CreateRole
@@ -41,35 +32,12 @@ from .describe_model_admin import DescribeModelAdmin
 from .describe_training_job import DescribeTrainingJob
 from .describe_use_case import DescribeUseCase
 from .enums import CompletionGroupBy
-from .input_types import (
-    AbcampaignCreate,
-    AbCampaignFilter,
-    AddExternalModelInput,
-    AddHFModelInput,
-    AddModelInput,
-    AttachModel,
-    CursorPageInput,
-    DatasetCreate,
-    EvaluationCreate,
-    ListCompletionsFilterInput,
-    MetricCreate,
-    MetricLink,
-    MetricUnlink,
-    ModelComputeConfigInput,
-    ModelFilter,
-    ModelPlacementInput,
-    OrderPair,
-    RemoteEnvCreate,
-    RoleCreate,
-    TeamCreate,
-    TeamMemberSet,
-    TrainingJobInput,
-    UpdateModelService,
-    UseCaseCreate,
-)
+from .generate_dataset import GenerateDataset
+from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, CustomRecipeTrainingJobInput, CustomScriptCreate, CustomScriptFilter, DatasetCreate, DatasetGenerate, EvaluationCreate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelFilter, ModelPlacementInput, OrderPair, RemoteEnvCreate, RoleCreate, TeamCreate, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate
 from .link_metric import LinkMetric
 from .list_ab_campaigns import ListAbCampaigns
 from .list_compute_pools import ListComputePools
+from .list_custom_scripts import ListCustomScripts
 from .list_datasets import ListDatasets
 from .list_evaluation_jobs import ListEvaluationJobs
 from .list_grouped_interactions import ListGroupedInteractions
@@ -94,3346 +62,432 @@ from .update_model import UpdateModel
 from .update_model_compute_config import UpdateModelComputeConfig
 from .update_user import UpdateUser
 
-
 def gql(q: str) -> str:
     return q
-
 
 class GQLClient(BaseClientOpenTelemetry):
     """@private"""
 
     def create_metric(self, input: MetricCreate, **kwargs: Any) -> CreateMetric:
-        query = gql(
-            """
-            mutation CreateMetric($input: MetricCreate!) {
-              createMetric(input: $input) {
-                ...MetricData
-              }
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="CreateMetric", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation CreateMetric($input: MetricCreate!) {\n              createMetric(input: $input) {\n                ...MetricData\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateMetric', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateMetric.model_validate(data)
 
     def link_metric(self, input: MetricLink, **kwargs: Any) -> LinkMetric:
-        query = gql(
-            """
-            mutation LinkMetric($input: MetricLink!) {
-              linkMetric(input: $input) {
-                ...MetricWithContextData
-              }
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="LinkMetric", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation LinkMetric($input: MetricLink!) {\n              linkMetric(input: $input) {\n                ...MetricWithContextData\n              }\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='LinkMetric', variables=variables, **kwargs)
         data = self.get_data(response)
         return LinkMetric.model_validate(data)
 
     def unlink_metric(self, input: MetricUnlink, **kwargs: Any) -> UnlinkMetric:
-        query = gql(
-            """
-            mutation UnlinkMetric($input: MetricUnlink!) {
-              unlinkMetric(input: $input)
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="UnlinkMetric", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation UnlinkMetric($input: MetricUnlink!) {\n              unlinkMetric(input: $input)\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='UnlinkMetric', variables=variables, **kwargs)
         data = self.get_data(response)
         return UnlinkMetric.model_validate(data)
 
-    def attach_model_to_use_case(
-        self, input: AttachModel, **kwargs: Any
-    ) -> AttachModelToUseCase:
-        query = gql(
-            """
-            mutation AttachModelToUseCase($input: AttachModel!) {
-              attachModel(input: $input) {
-                ...ModelServiceData
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="AttachModelToUseCase",
-            variables=variables,
-            **kwargs,
-        )
+    def attach_model_to_use_case(self, input: AttachModel, **kwargs: Any) -> AttachModelToUseCase:
+        query = gql('\n            mutation AttachModelToUseCase($input: AttachModel!) {\n              attachModel(input: $input) {\n                ...ModelServiceData\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='AttachModelToUseCase', variables=variables, **kwargs)
         data = self.get_data(response)
         return AttachModelToUseCase.model_validate(data)
 
-    def add_external_model(
-        self, input: AddExternalModelInput, **kwargs: Any
-    ) -> AddExternalModel:
-        query = gql(
-            """
-            mutation AddExternalModel($input: AddExternalModelInput!) {
-              addExternalModel(input: $input) {
-                ...ModelData
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="AddExternalModel",
-            variables=variables,
-            **kwargs,
-        )
+    def add_external_model(self, input: AddExternalModelInput, **kwargs: Any) -> AddExternalModel:
+        query = gql('\n            mutation AddExternalModel($input: AddExternalModelInput!) {\n              addExternalModel(input: $input) {\n                ...ModelData\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='AddExternalModel', variables=variables, **kwargs)
         data = self.get_data(response)
         return AddExternalModel.model_validate(data)
 
     def add_model(self, input: AddModelInput, **kwargs: Any) -> AddModel:
-        query = gql(
-            """
-            mutation AddModel($input: AddModelInput!) {
-              addModel(input: $input) {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="AddModel", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation AddModel($input: AddModelInput!) {\n              addModel(input: $input) {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='AddModel', variables=variables, **kwargs)
         data = self.get_data(response)
         return AddModel.model_validate(data)
 
     def update_model(self, input: UpdateModelService, **kwargs: Any) -> UpdateModel:
-        query = gql(
-            """
-            mutation UpdateModel($input: UpdateModelService!) {
-              updateModelService(input: $input) {
-                ...ModelServiceData
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="UpdateModel", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation UpdateModel($input: UpdateModelService!) {\n              updateModelService(input: $input) {\n                ...ModelServiceData\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='UpdateModel', variables=variables, **kwargs)
         data = self.get_data(response)
         return UpdateModel.model_validate(data)
 
-    def deploy_model(
-        self,
-        id_or_key: str,
-        wait: bool,
-        placement: Union[Optional[ModelPlacementInput], UnsetType] = UNSET,
-        **kwargs: Any,
-    ) -> DeployModel:
-        query = gql(
-            """
-            mutation DeployModel($idOrKey: IdOrKey!, $wait: Boolean!, $placement: ModelPlacementInput) {
-              deployModel(idOrKey: $idOrKey, wait: $wait, placement: $placement)
-            }
-            """
-        )
-        variables: Dict[str, object] = {
-            "idOrKey": id_or_key,
-            "wait": wait,
-            "placement": placement,
-        }
-        response = self.execute(
-            query=query, operation_name="DeployModel", variables=variables, **kwargs
-        )
+    def deploy_model(self, id_or_key: str, wait: bool, placement: Union[Optional[ModelPlacementInput], UnsetType]=UNSET, **kwargs: Any) -> DeployModel:
+        query = gql('\n            mutation DeployModel($idOrKey: IdOrKey!, $wait: Boolean!, $placement: ModelPlacementInput) {\n              deployModel(idOrKey: $idOrKey, wait: $wait, placement: $placement)\n            }\n            ')
+        variables: Dict[str, object] = {'idOrKey': id_or_key, 'wait': wait, 'placement': placement}
+        response = self.execute(query=query, operation_name='DeployModel', variables=variables, **kwargs)
         data = self.get_data(response)
         return DeployModel.model_validate(data)
 
-    def terminate_model(
-        self, id_or_key: str, force: bool, **kwargs: Any
-    ) -> TerminateModel:
-        query = gql(
-            """
-            mutation TerminateModel($idOrKey: IdOrKey!, $force: Boolean!) {
-              terminateModel(idOrKey: $idOrKey, force: $force)
-            }
-            """
-        )
-        variables: Dict[str, object] = {"idOrKey": id_or_key, "force": force}
-        response = self.execute(
-            query=query, operation_name="TerminateModel", variables=variables, **kwargs
-        )
+    def terminate_model(self, id_or_key: str, force: bool, **kwargs: Any) -> TerminateModel:
+        query = gql('\n            mutation TerminateModel($idOrKey: IdOrKey!, $force: Boolean!) {\n              terminateModel(idOrKey: $idOrKey, force: $force)\n            }\n            ')
+        variables: Dict[str, object] = {'idOrKey': id_or_key, 'force': force}
+        response = self.execute(query=query, operation_name='TerminateModel', variables=variables, **kwargs)
         data = self.get_data(response)
         return TerminateModel.model_validate(data)
 
     def create_use_case(self, input: UseCaseCreate, **kwargs: Any) -> CreateUseCase:
-        query = gql(
-            """
-            mutation CreateUseCase($input: UseCaseCreate!) {
-              createUseCase(input: $input) {
-                ...UseCaseData
-              }
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="CreateUseCase", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation CreateUseCase($input: UseCaseCreate!) {\n              createUseCase(input: $input) {\n                ...UseCaseData\n              }\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateUseCase', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateUseCase.model_validate(data)
 
-    def create_ab_campaign(
-        self, input: AbcampaignCreate, **kwargs: Any
-    ) -> CreateAbCampaign:
-        query = gql(
-            """
-            mutation CreateAbCampaign($input: AbcampaignCreate!) {
-              createAbCampaign(input: $input) {
-                ...AbCampaignCreateData
-              }
-            }
-
-            fragment AbCampaignCreateData on Abcampaign {
-              id
-              key
-              status
-              beginDate
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="CreateAbCampaign",
-            variables=variables,
-            **kwargs,
-        )
+    def create_ab_campaign(self, input: AbcampaignCreate, **kwargs: Any) -> CreateAbCampaign:
+        query = gql('\n            mutation CreateAbCampaign($input: AbcampaignCreate!) {\n              createAbCampaign(input: $input) {\n                ...AbCampaignCreateData\n              }\n            }\n\n            fragment AbCampaignCreateData on Abcampaign {\n              id\n              key\n              status\n              beginDate\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateAbCampaign', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateAbCampaign.model_validate(data)
 
     def cancel_ab_campaign(self, input: str, **kwargs: Any) -> CancelABCampaign:
-        query = gql(
-            """
-            mutation CancelABCampaign($input: IdOrKey!) {
-              cancelAbCampaign(input: $input)
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="CancelABCampaign",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            mutation CancelABCampaign($input: IdOrKey!) {\n              cancelAbCampaign(input: $input)\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CancelABCampaign', variables=variables, **kwargs)
         data = self.get_data(response)
         return CancelABCampaign.model_validate(data)
 
-    def load_dataset(
-        self, input: DatasetCreate, file: Upload, **kwargs: Any
-    ) -> LoadDataset:
-        query = gql(
-            """
-            mutation LoadDataset($input: DatasetCreate!, $file: Upload!) {
-              createDataset(input: $input, file: $file) {
-                ...DatasetData
-              }
-            }
-
-            fragment DatasetData on Dataset {
-              id
-              key
-              name
-              createdAt
-              kind
-              records
-              metricsUsage {
-                feedbackCount
-                comparisonCount
-                metric {
-                  ...MetricData
-                }
-              }
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input, "file": file}
-        response = self.execute(
-            query=query, operation_name="LoadDataset", variables=variables, **kwargs
-        )
+    def load_dataset(self, input: DatasetCreate, file: Upload, **kwargs: Any) -> LoadDataset:
+        query = gql('\n            mutation LoadDataset($input: DatasetCreate!, $file: Upload!) {\n              createDataset(input: $input, file: $file) {\n                ...DatasetData\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input, 'file': file}
+        response = self.execute(query=query, operation_name='LoadDataset', variables=variables, **kwargs)
         data = self.get_data(response)
         return LoadDataset.model_validate(data)
 
-    def create_training_job(
-        self, input: TrainingJobInput, **kwargs: Any
-    ) -> CreateTrainingJob:
-        query = gql(
-            """
-            mutation CreateTrainingJob($input: TrainingJobInput!) {
-              createTrainingJob(input: $input) {
-                ...TrainingJobData
-              }
-            }
-
-            fragment JobStageOutputData on JobStageOutput {
-              name
-              status
-              parent
-              stageId
-              info {
-                __typename
-                ... on TrainingJobStageOutput {
-                  monitoringLink
-                  totalNumSamples
-                  processedNumSamples
-                  checkpoints
-                }
-                ... on EvalJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-                ... on BatchInferenceJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-              }
-              startedAt
-              endedAt
-            }
-
-            fragment ListCompletionsFilterOutputData on ListCompletionsFilterOutput {
-              useCase
-              models
-              timerange {
-                from
-                to
-              }
-              feedbacks {
-                metric
-              }
-              labels {
-                key
-                value
-              }
-              tags
-              source
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment TrainingConfigOutputData on TrainingConfigOutput {
-              baseTrainingParams {
-                learningRate
-                numEpochs
-                batchSize
-                numValidations
-              }
-              trainingMetadata {
-                trainingType
-                alignmentMethod
-                parameters {
-                  __typename
-                  ... on DpotrainingParamsOutput {
-                    klDivCoeff
-                  }
-                  ... on PpotrainingParamsOutput {
-                    klDivCoeff
-                  }
-                }
-              }
-              trainingObjective {
-                __typename
-                ... on MetricTrainingParamsOutput {
-                  metricKey
-                  metricMetadata {
-                    ... on ScalarMetricConfigOutput {
-                      threshold
-                    }
-                  }
-                }
-                ... on GuidelinesTrainingParamsOutput {
-                  judgeModel
-                  judgeModelPrompt {
-                    name
-                    description
-                  }
-                }
-              }
-            }
-
-            fragment TrainingJobData on TrainingJob {
-              id
-              name
-              status
-              createdAt
-              startedAt
-              endedAt
-              durationMs
-              stages {
-                ...JobStageOutputData
-              }
-              parentModel {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              childModel {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              useCase {
-                ...UseCaseData
-              }
-              config {
-                outputName
-                sampleConfig {
-                  feedbackType
-                  datasource {
-                    __typename
-                    ... on SampleDatasourceCompletionsOutput {
-                      selectionType
-                      maxSamples
-                      filter {
-                        ...ListCompletionsFilterOutputData
-                      }
-                    }
-                    ... on SampleDatasourceDatasetOutput {
-                      datasetKey
-                    }
-                  }
-                }
-                trainingConfig {
-                  ...TrainingConfigOutputData
-                }
-              }
-              createdBy {
-                id
-                email
-                name
-              }
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="CreateTrainingJob",
-            variables=variables,
-            **kwargs,
-        )
+    def create_training_job(self, input: TrainingJobInput, **kwargs: Any) -> CreateTrainingJob:
+        query = gql('\n            mutation CreateTrainingJob($input: TrainingJobInput!) {\n              createTrainingJob(input: $input) {\n                ...TrainingJobData\n              }\n            }\n\n            fragment JobStageOutputData on JobStageOutput {\n              name\n              status\n              parent\n              stageId\n              info {\n                __typename\n                ... on TrainingJobStageOutput {\n                  monitoringLink\n                  totalNumSamples\n                  processedNumSamples\n                  checkpoints\n                }\n                ... on EvalJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n                ... on BatchInferenceJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n              }\n              startedAt\n              endedAt\n            }\n\n            fragment ListCompletionsFilterOutputData on ListCompletionsFilterOutput {\n              useCase\n              models\n              timerange {\n                from\n                to\n              }\n              feedbacks {\n                metric\n              }\n              labels {\n                key\n                value\n              }\n              tags\n              source\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment TrainingConfigOutputData on TrainingConfigOutput {\n              baseTrainingParams {\n                learningRate\n                numEpochs\n                batchSize\n                numValidations\n              }\n              trainingMetadata {\n                trainingType\n                alignmentMethod\n                parameters {\n                  __typename\n                  ... on DpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                  ... on PpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                }\n              }\n              trainingObjective {\n                __typename\n                ... on MetricTrainingParamsOutput {\n                  metricKey\n                  metricMetadata {\n                    ... on ScalarMetricConfigOutput {\n                      threshold\n                    }\n                  }\n                }\n                ... on GuidelinesTrainingParamsOutput {\n                  judgeModel\n                  judgeModelPrompt {\n                    name\n                    description\n                  }\n                }\n              }\n            }\n\n            fragment TrainingJobData on TrainingJob {\n              id\n              name\n              status\n              createdAt\n              startedAt\n              endedAt\n              durationMs\n              stages {\n                ...JobStageOutputData\n              }\n              parentModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              childModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              useCase {\n                ...UseCaseData\n              }\n              config {\n                __typename\n                ... on AdaptBuiltinRecipeConfigOutput {\n                  outputName\n                  sampleConfig {\n                    feedbackType\n                    datasource {\n                      __typename\n                      ... on SampleDatasourceCompletionsOutput {\n                        selectionType\n                        maxSamples\n                        filter {\n                          ...ListCompletionsFilterOutputData\n                        }\n                      }\n                      ... on SampleDatasourceDatasetOutput {\n                        datasetKey\n                      }\n                    }\n                  }\n                  trainingConfig {\n                    ...TrainingConfigOutputData\n                  }\n                }\n                ... on AdaptCustomRecipeConfigOutput {\n                  outputName\n                }\n              }\n              createdBy {\n                id\n                email\n                name\n              }\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateTrainingJob', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateTrainingJob.model_validate(data)
 
+    def create_custom_recipe_training_job(self, input: CustomRecipeTrainingJobInput, **kwargs: Any) -> CreateCustomRecipeTrainingJob:
+        query = gql('\n            mutation CreateCustomRecipeTrainingJob($input: CustomRecipeTrainingJobInput!) {\n              createCustomRecipeTrainingJob(input: $input) {\n                ...TrainingJobData\n              }\n            }\n\n            fragment JobStageOutputData on JobStageOutput {\n              name\n              status\n              parent\n              stageId\n              info {\n                __typename\n                ... on TrainingJobStageOutput {\n                  monitoringLink\n                  totalNumSamples\n                  processedNumSamples\n                  checkpoints\n                }\n                ... on EvalJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n                ... on BatchInferenceJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n              }\n              startedAt\n              endedAt\n            }\n\n            fragment ListCompletionsFilterOutputData on ListCompletionsFilterOutput {\n              useCase\n              models\n              timerange {\n                from\n                to\n              }\n              feedbacks {\n                metric\n              }\n              labels {\n                key\n                value\n              }\n              tags\n              source\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment TrainingConfigOutputData on TrainingConfigOutput {\n              baseTrainingParams {\n                learningRate\n                numEpochs\n                batchSize\n                numValidations\n              }\n              trainingMetadata {\n                trainingType\n                alignmentMethod\n                parameters {\n                  __typename\n                  ... on DpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                  ... on PpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                }\n              }\n              trainingObjective {\n                __typename\n                ... on MetricTrainingParamsOutput {\n                  metricKey\n                  metricMetadata {\n                    ... on ScalarMetricConfigOutput {\n                      threshold\n                    }\n                  }\n                }\n                ... on GuidelinesTrainingParamsOutput {\n                  judgeModel\n                  judgeModelPrompt {\n                    name\n                    description\n                  }\n                }\n              }\n            }\n\n            fragment TrainingJobData on TrainingJob {\n              id\n              name\n              status\n              createdAt\n              startedAt\n              endedAt\n              durationMs\n              stages {\n                ...JobStageOutputData\n              }\n              parentModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              childModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              useCase {\n                ...UseCaseData\n              }\n              config {\n                __typename\n                ... on AdaptBuiltinRecipeConfigOutput {\n                  outputName\n                  sampleConfig {\n                    feedbackType\n                    datasource {\n                      __typename\n                      ... on SampleDatasourceCompletionsOutput {\n                        selectionType\n                        maxSamples\n                        filter {\n                          ...ListCompletionsFilterOutputData\n                        }\n                      }\n                      ... on SampleDatasourceDatasetOutput {\n                        datasetKey\n                      }\n                    }\n                  }\n                  trainingConfig {\n                    ...TrainingConfigOutputData\n                  }\n                }\n                ... on AdaptCustomRecipeConfigOutput {\n                  outputName\n                }\n              }\n              createdBy {\n                id\n                email\n                name\n              }\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateCustomRecipeTrainingJob', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return CreateCustomRecipeTrainingJob.model_validate(data)
+
     def cancel_training_job(self, id: Any, **kwargs: Any) -> CancelTrainingJob:
-        query = gql(
-            """
-            mutation CancelTrainingJob($id: UUID!) {
-              cancelTrainingJob(id: $id)
-            }
-            """
-        )
-        variables: Dict[str, object] = {"id": id}
-        response = self.execute(
-            query=query,
-            operation_name="CancelTrainingJob",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            mutation CancelTrainingJob($id: UUID!) {\n              cancelTrainingJob(id: $id)\n            }\n            ')
+        variables: Dict[str, object] = {'id': id}
+        response = self.execute(query=query, operation_name='CancelTrainingJob', variables=variables, **kwargs)
         data = self.get_data(response)
         return CancelTrainingJob.model_validate(data)
 
-    def create_evaluation_job(
-        self, input: EvaluationCreate, **kwargs: Any
-    ) -> CreateEvaluationJob:
-        query = gql(
-            """
-            mutation CreateEvaluationJob($input: EvaluationCreate!) {
-              createEvaluationJob(input: $input) {
-                ...EvaluationJobData
-              }
-            }
-
-            fragment AbCampaignReportData on AbReport {
-              pValue
-              variants {
-                variant {
-                  id
-                  key
-                  name
-                }
-                interval {
-                  start
-                  middle
-                  end
-                }
-                feedbacks
-                comparisons {
-                  feedbacks
-                  wins
-                  losses
-                  tiesGood
-                  tiesBad
-                  variant {
-                    id
-                    key
-                    name
-                  }
-                }
-              }
-            }
-
-            fragment DatasetData on Dataset {
-              id
-              key
-              name
-              createdAt
-              kind
-              records
-              metricsUsage {
-                feedbackCount
-                comparisonCount
-                metric {
-                  ...MetricData
-                }
-              }
-            }
-
-            fragment EvaluationJobData on EvaluationJob {
-              id
-              name
-              status
-              createdAt
-              startedAt
-              endedAt
-              durationMs
-              modelServices {
-                ...ModelServiceData
-              }
-              judge {
-                ...ModelData
-              }
-              stages {
-                ...JobStageOutputData
-              }
-              useCase {
-                ...UseCaseData
-              }
-              report {
-                ...AbCampaignReportData
-              }
-              dataset {
-                ...DatasetData
-              }
-              createdBy {
-                id
-                email
-                name
-              }
-            }
-
-            fragment JobStageOutputData on JobStageOutput {
-              name
-              status
-              parent
-              stageId
-              info {
-                __typename
-                ... on TrainingJobStageOutput {
-                  monitoringLink
-                  totalNumSamples
-                  processedNumSamples
-                  checkpoints
-                }
-                ... on EvalJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-                ... on BatchInferenceJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-              }
-              startedAt
-              endedAt
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="CreateEvaluationJob",
-            variables=variables,
-            **kwargs,
-        )
+    def create_evaluation_job(self, input: EvaluationCreate, **kwargs: Any) -> CreateEvaluationJob:
+        query = gql('\n            mutation CreateEvaluationJob($input: EvaluationCreate!) {\n              createEvaluationJob(input: $input) {\n                ...EvaluationJobData\n              }\n            }\n\n            fragment AbCampaignReportData on AbReport {\n              pValue\n              variants {\n                variant {\n                  id\n                  key\n                  name\n                }\n                interval {\n                  start\n                  middle\n                  end\n                }\n                feedbacks\n                comparisons {\n                  feedbacks\n                  wins\n                  losses\n                  tiesGood\n                  tiesBad\n                  variant {\n                    id\n                    key\n                    name\n                  }\n                }\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment EvaluationJobData on EvaluationJob {\n              id\n              name\n              status\n              createdAt\n              startedAt\n              endedAt\n              durationMs\n              modelServices {\n                ...ModelServiceData\n              }\n              judge {\n                ...ModelData\n              }\n              stages {\n                ...JobStageOutputData\n              }\n              useCase {\n                ...UseCaseData\n              }\n              report {\n                ...AbCampaignReportData\n              }\n              dataset {\n                ...DatasetData\n              }\n              createdBy {\n                id\n                email\n                name\n              }\n            }\n\n            fragment JobStageOutputData on JobStageOutput {\n              name\n              status\n              parent\n              stageId\n              info {\n                __typename\n                ... on TrainingJobStageOutput {\n                  monitoringLink\n                  totalNumSamples\n                  processedNumSamples\n                  checkpoints\n                }\n                ... on EvalJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n                ... on BatchInferenceJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n              }\n              startedAt\n              endedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateEvaluationJob', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateEvaluationJob.model_validate(data)
 
     def cancel_evaluation_job(self, id: Any, **kwargs: Any) -> CancelEvaluationJob:
-        query = gql(
-            """
-            mutation CancelEvaluationJob($id: UUID!) {
-              cancelEvaluationJob(id: $id)
-            }
-            """
-        )
-        variables: Dict[str, object] = {"id": id}
-        response = self.execute(
-            query=query,
-            operation_name="CancelEvaluationJob",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            mutation CancelEvaluationJob($id: UUID!) {\n              cancelEvaluationJob(id: $id)\n            }\n            ')
+        variables: Dict[str, object] = {'id': id}
+        response = self.execute(query=query, operation_name='CancelEvaluationJob', variables=variables, **kwargs)
         data = self.get_data(response)
         return CancelEvaluationJob.model_validate(data)
 
     def add_hf_model(self, input: AddHFModelInput, **kwargs: Any) -> AddHFModel:
-        query = gql(
-            """
-            mutation AddHFModel($input: AddHFModelInput!) {
-              importHfModel(input: $input)
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="AddHFModel", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation AddHFModel($input: AddHFModelInput!) {\n              importHfModel(input: $input)\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='AddHFModel', variables=variables, **kwargs)
         data = self.get_data(response)
         return AddHFModel.model_validate(data)
 
     def update_user(self, input: TeamMemberSet, **kwargs: Any) -> UpdateUser:
-        query = gql(
-            """
-            mutation UpdateUser($input: TeamMemberSet!) {
-              setTeamMember(input: $input) {
-                user {
-                  ...UserData
-                }
-                team {
-                  id
-                  key
-                  name
-                  createdAt
-                }
-                role {
-                  id
-                  key
-                  name
-                  createdAt
-                  permissions
-                }
-              }
-            }
-
-            fragment UserData on User {
-              id
-              email
-              name
-              createdAt
-              teams {
-                team {
-                  id
-                  key
-                  name
-                  createdAt
-                }
-                role {
-                  id
-                  key
-                  name
-                  createdAt
-                  permissions
-                }
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="UpdateUser", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation UpdateUser($input: TeamMemberSet!) {\n              setTeamMember(input: $input) {\n                user {\n                  ...UserData\n                }\n                team {\n                  id\n                  key\n                  name\n                  createdAt\n                }\n                role {\n                  id\n                  key\n                  name\n                  createdAt\n                  permissions\n                }\n              }\n            }\n\n            fragment UserData on User {\n              id\n              email\n              name\n              createdAt\n              teams {\n                team {\n                  id\n                  key\n                  name\n                  createdAt\n                }\n                role {\n                  id\n                  key\n                  name\n                  createdAt\n                  permissions\n                }\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='UpdateUser', variables=variables, **kwargs)
         data = self.get_data(response)
         return UpdateUser.model_validate(data)
 
     def create_role(self, input: RoleCreate, **kwargs: Any) -> CreateRole:
-        query = gql(
-            """
-            mutation CreateRole($input: RoleCreate!) {
-              createRole(input: $input) {
-                id
-                key
-                name
-                createdAt
-                permissions
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="CreateRole", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation CreateRole($input: RoleCreate!) {\n              createRole(input: $input) {\n                id\n                key\n                name\n                createdAt\n                permissions\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateRole', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateRole.model_validate(data)
 
     def create_team(self, input: TeamCreate, **kwargs: Any) -> CreateTeam:
-        query = gql(
-            """
-            mutation CreateTeam($input: TeamCreate!) {
-              createTeam(input: $input) {
-                id
-                key
-                name
-                createdAt
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="CreateTeam", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation CreateTeam($input: TeamCreate!) {\n              createTeam(input: $input) {\n                id\n                key\n                name\n                createdAt\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='CreateTeam', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateTeam.model_validate(data)
 
-    def update_model_compute_config(
-        self, id_or_key: str, input: ModelComputeConfigInput, **kwargs: Any
-    ) -> UpdateModelComputeConfig:
-        query = gql(
-            """
-            mutation UpdateModelComputeConfig($idOrKey: IdOrKey!, $input: ModelComputeConfigInput!) {
-              updateModelComputeConfig(idOrKey: $idOrKey, input: $input) {
-                ...ModelData
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"idOrKey": id_or_key, "input": input}
-        response = self.execute(
-            query=query,
-            operation_name="UpdateModelComputeConfig",
-            variables=variables,
-            **kwargs,
-        )
+    def update_model_compute_config(self, id_or_key: str, input: ModelComputeConfigInput, **kwargs: Any) -> UpdateModelComputeConfig:
+        query = gql('\n            mutation UpdateModelComputeConfig($idOrKey: IdOrKey!, $input: ModelComputeConfigInput!) {\n              updateModelComputeConfig(idOrKey: $idOrKey, input: $input) {\n                ...ModelData\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'idOrKey': id_or_key, 'input': input}
+        response = self.execute(query=query, operation_name='UpdateModelComputeConfig', variables=variables, **kwargs)
         data = self.get_data(response)
         return UpdateModelComputeConfig.model_validate(data)
 
     def add_remote_env(self, input: RemoteEnvCreate, **kwargs: Any) -> AddRemoteEnv:
-        query = gql(
-            """
-            mutation AddRemoteEnv($input: RemoteEnvCreate!) {
-              addRemoteEnv(input: $input) {
-                ...RemoteEnvData
-              }
-            }
-
-            fragment RemoteEnvData on RemoteEnv {
-              id
-              key
-              name
-              url
-              description
-              createdAt
-              version
-              status
-              metadataSchema
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="AddRemoteEnv", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation AddRemoteEnv($input: RemoteEnvCreate!) {\n              addRemoteEnv(input: $input) {\n                ...RemoteEnvData\n              }\n            }\n\n            fragment RemoteEnvData on RemoteEnv {\n              id\n              key\n              name\n              url\n              description\n              createdAt\n              version\n              status\n              metadataSchema\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='AddRemoteEnv', variables=variables, **kwargs)
         data = self.get_data(response)
         return AddRemoteEnv.model_validate(data)
 
     def remove_remote_env(self, id_or_key: str, **kwargs: Any) -> RemoveRemoteEnv:
-        query = gql(
-            """
-            mutation RemoveRemoteEnv($idOrKey: IdOrKey!) {
-              removeRemoteEnv(idOrKey: $idOrKey)
-            }
-            """
-        )
-        variables: Dict[str, object] = {"idOrKey": id_or_key}
-        response = self.execute(
-            query=query, operation_name="RemoveRemoteEnv", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation RemoveRemoteEnv($idOrKey: IdOrKey!) {\n              removeRemoteEnv(idOrKey: $idOrKey)\n            }\n            ')
+        variables: Dict[str, object] = {'idOrKey': id_or_key}
+        response = self.execute(query=query, operation_name='RemoveRemoteEnv', variables=variables, **kwargs)
         data = self.get_data(response)
         return RemoveRemoteEnv.model_validate(data)
 
     def test_remote_env(self, input: RemoteEnvCreate, **kwargs: Any) -> TestRemoteEnv:
-        query = gql(
-            """
-            mutation TestRemoteEnv($input: RemoteEnvCreate!) {
-              testRemoteEnv(input: $input) {
-                __typename
-                ... on RemoteEnvTestOffline {
-                  error
-                }
-                ... on RemoteEnvTestOnline {
-                  name
-                  version
-                  description
-                }
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="TestRemoteEnv", variables=variables, **kwargs
-        )
+        query = gql('\n            mutation TestRemoteEnv($input: RemoteEnvCreate!) {\n              testRemoteEnv(input: $input) {\n                __typename\n                ... on RemoteEnvTestOffline {\n                  error\n                }\n                ... on RemoteEnvTestOnline {\n                  name\n                  version\n                  description\n                }\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='TestRemoteEnv', variables=variables, **kwargs)
         data = self.get_data(response)
         return TestRemoteEnv.model_validate(data)
 
+    def create_custom_script(self, input: CustomScriptCreate, file: Upload, **kwargs: Any) -> CreateCustomScript:
+        query = gql('\n            mutation CreateCustomScript($input: CustomScriptCreate!, $file: Upload!) {\n              createCustomScript(input: $input, file: $file) {\n                ...CustomScriptData\n              }\n            }\n\n            fragment CustomScriptData on CustomScript {\n              id\n              key\n              name\n              content\n              kind\n              createdAt\n            }\n            ')
+        variables: Dict[str, object] = {'input': input, 'file': file}
+        response = self.execute(query=query, operation_name='CreateCustomScript', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return CreateCustomScript.model_validate(data)
+
+    def generate_dataset(self, input: DatasetGenerate, file: Upload, **kwargs: Any) -> GenerateDataset:
+        query = gql('\n            mutation GenerateDataset($input: DatasetGenerate!, $file: Upload!) {\n              generateDataset(input: $input, file: $file) {\n                ...DatasetData\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input, 'file': file}
+        response = self.execute(query=query, operation_name='GenerateDataset', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return GenerateDataset.model_validate(data)
+
     def list_datasets(self, input: str, **kwargs: Any) -> ListDatasets:
-        query = gql(
-            """
-            query ListDatasets($input: IdOrKey!) {
-              datasets(useCase: $input) {
-                ...DatasetData
-              }
-            }
-
-            fragment DatasetData on Dataset {
-              id
-              key
-              name
-              createdAt
-              kind
-              records
-              metricsUsage {
-                feedbackCount
-                comparisonCount
-                metric {
-                  ...MetricData
-                }
-              }
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="ListDatasets", variables=variables, **kwargs
-        )
+        query = gql('\n            query ListDatasets($input: IdOrKey!) {\n              datasets(useCase: $input) {\n                ...DatasetData\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='ListDatasets', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListDatasets.model_validate(data)
 
     def describe_dataset(self, input: str, **kwargs: Any) -> DescribeDataset:
-        query = gql(
-            """
-            query DescribeDataset($input: IdOrKey!) {
-              dataset(idOrKey: $input) {
-                ...DatasetData
-              }
-            }
-
-            fragment DatasetData on Dataset {
-              id
-              key
-              name
-              createdAt
-              kind
-              records
-              metricsUsage {
-                feedbackCount
-                comparisonCount
-                metric {
-                  ...MetricData
-                }
-              }
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="DescribeDataset", variables=variables, **kwargs
-        )
+        query = gql('\n            query DescribeDataset($input: IdOrKey!) {\n              dataset(idOrKey: $input) {\n                ...DatasetData\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='DescribeDataset', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeDataset.model_validate(data)
 
     def describe_use_case(self, input: str, **kwargs: Any) -> DescribeUseCase:
-        query = gql(
-            """
-            query DescribeUseCase($input: IdOrKey!) {
-              useCase(idOrKey: $input) {
-                ...UseCaseData
-              }
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="DescribeUseCase", variables=variables, **kwargs
-        )
+        query = gql('\n            query DescribeUseCase($input: IdOrKey!) {\n              useCase(idOrKey: $input) {\n                ...UseCaseData\n              }\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='DescribeUseCase', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeUseCase.model_validate(data)
 
     def list_use_cases(self, **kwargs: Any) -> ListUseCases:
-        query = gql(
-            """
-            query ListUseCases {
-              useCases {
-                ...UseCaseData
-              }
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListUseCases {\n              useCases {\n                ...UseCaseData\n              }\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListUseCases", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListUseCases', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListUseCases.model_validate(data)
 
     def list_models(self, filter: ModelFilter, **kwargs: Any) -> ListModels:
-        query = gql(
-            """
-            query ListModels($filter: ModelFilter! = {inStorage: null, available: null, trainable: null, kind: [Generation, Embedding], viewAll: false, online: null}) {
-              models(filter: $filter) {
-                ...ModelDataAdmin
-                backbone {
-                  ...ModelDataAdmin
-                }
-              }
-            }
-
-            fragment ModelDataAdmin on Model {
-              id
-              key
-              name
-              online
-              useCases {
-                id
-                key
-                name
-              }
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-            }
-            """
-        )
-        variables: Dict[str, object] = {"filter": filter}
-        response = self.execute(
-            query=query, operation_name="ListModels", variables=variables, **kwargs
-        )
+        query = gql('\n            query ListModels($filter: ModelFilter! = {inStorage: null, available: null, trainable: null, kind: [Generation, Embedding], viewAll: false, online: null}) {\n              models(filter: $filter) {\n                ...ModelDataAdmin\n                backbone {\n                  ...ModelDataAdmin\n                }\n              }\n            }\n\n            fragment ModelDataAdmin on Model {\n              id\n              key\n              name\n              online\n              useCases {\n                id\n                key\n                name\n              }\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n            }\n            ')
+        variables: Dict[str, object] = {'filter': filter}
+        response = self.execute(query=query, operation_name='ListModels', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListModels.model_validate(data)
 
     def describe_model_admin(self, input: str, **kwargs: Any) -> DescribeModelAdmin:
-        query = gql(
-            """
-            query DescribeModelAdmin($input: IdOrKey!) {
-              model(idOrKey: $input) {
-                ...ModelDataAdmin
-                backbone {
-                  ...ModelDataAdmin
-                }
-              }
-            }
-
-            fragment ModelDataAdmin on Model {
-              id
-              key
-              name
-              online
-              useCases {
-                id
-                key
-                name
-              }
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="DescribeModelAdmin",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            query DescribeModelAdmin($input: IdOrKey!) {\n              model(idOrKey: $input) {\n                ...ModelDataAdmin\n                backbone {\n                  ...ModelDataAdmin\n                }\n              }\n            }\n\n            fragment ModelDataAdmin on Model {\n              id\n              key\n              name\n              online\n              useCases {\n                id\n                key\n                name\n              }\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='DescribeModelAdmin', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeModelAdmin.model_validate(data)
 
     def describe_model(self, input: str, **kwargs: Any) -> DescribeModel:
-        query = gql(
-            """
-            query DescribeModel($input: IdOrKey!) {
-              model(idOrKey: $input) {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="DescribeModel", variables=variables, **kwargs
-        )
+        query = gql('\n            query DescribeModel($input: IdOrKey!) {\n              model(idOrKey: $input) {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='DescribeModel', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeModel.model_validate(data)
 
     def list_metrics(self, **kwargs: Any) -> ListMetrics:
-        query = gql(
-            """
-            query ListMetrics {
-              metrics {
-                ...MetricDataAdmin
-              }
-            }
-
-            fragment MetricDataAdmin on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              useCases {
-                id
-                name
-                key
-                description
-              }
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
+        query = gql('\n            query ListMetrics {\n              metrics {\n                ...MetricDataAdmin\n              }\n            }\n\n            fragment MetricDataAdmin on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              useCases {\n                id\n                name\n                key\n                description\n              }\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListMetrics", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListMetrics', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListMetrics.model_validate(data)
 
     def describe_metric_admin(self, input: str, **kwargs: Any) -> DescribeMetricAdmin:
-        query = gql(
-            """
-            query DescribeMetricAdmin($input: IdOrKey!) {
-              metric(idOrKey: $input) {
-                ...MetricDataAdmin
-              }
-            }
-
-            fragment MetricDataAdmin on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              useCases {
-                id
-                name
-                key
-                description
-              }
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="DescribeMetricAdmin",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            query DescribeMetricAdmin($input: IdOrKey!) {\n              metric(idOrKey: $input) {\n                ...MetricDataAdmin\n              }\n            }\n\n            fragment MetricDataAdmin on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              useCases {\n                id\n                name\n                key\n                description\n              }\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='DescribeMetricAdmin', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeMetricAdmin.model_validate(data)
 
     def describe_metric(self, input: str, **kwargs: Any) -> DescribeMetric:
-        query = gql(
-            """
-            query DescribeMetric($input: IdOrKey!) {
-              metric(idOrKey: $input) {
-                ...MetricData
-              }
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="DescribeMetric", variables=variables, **kwargs
-        )
+        query = gql('\n            query DescribeMetric($input: IdOrKey!) {\n              metric(idOrKey: $input) {\n                ...MetricData\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='DescribeMetric', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeMetric.model_validate(data)
 
-    def list_ab_campaigns(
-        self, input: AbCampaignFilter, **kwargs: Any
-    ) -> ListAbCampaigns:
-        query = gql(
-            """
-            query ListAbCampaigns($input: AbCampaignFilter!) {
-              abCampaigns(filter: $input) {
-                ...AbCampaignDetailData
-              }
-            }
-
-            fragment AbCampaignCreateData on Abcampaign {
-              id
-              key
-              status
-              beginDate
-            }
-
-            fragment AbCampaignDetailData on Abcampaign {
-              ...AbCampaignCreateData
-              feedbackType
-              trafficSplit
-              endDate
-              metric {
-                ...MetricData
-              }
-              useCase {
-                id
-                key
-                name
-              }
-              models {
-                id
-                key
-                name
-              }
-              feedbacks
-              hasEnoughFeedbacks
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query, operation_name="ListAbCampaigns", variables=variables, **kwargs
-        )
+    def list_ab_campaigns(self, input: AbCampaignFilter, **kwargs: Any) -> ListAbCampaigns:
+        query = gql('\n            query ListAbCampaigns($input: AbCampaignFilter!) {\n              abCampaigns(filter: $input) {\n                ...AbCampaignDetailData\n              }\n            }\n\n            fragment AbCampaignCreateData on Abcampaign {\n              id\n              key\n              status\n              beginDate\n            }\n\n            fragment AbCampaignDetailData on Abcampaign {\n              ...AbCampaignCreateData\n              feedbackType\n              trafficSplit\n              endDate\n              metric {\n                ...MetricData\n              }\n              useCase {\n                id\n                key\n                name\n              }\n              models {\n                id\n                key\n                name\n              }\n              feedbacks\n              hasEnoughFeedbacks\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='ListAbCampaigns', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListAbCampaigns.model_validate(data)
 
     def describe_ab_campaign(self, input: str, **kwargs: Any) -> DescribeAbCampaign:
-        query = gql(
-            """
-            query DescribeAbCampaign($input: IdOrKey!) {
-              abCampaign(idOrKey: $input) {
-                ...AbCampaignDetailData
-                report {
-                  ...AbCampaignReportData
-                }
-              }
-            }
-
-            fragment AbCampaignCreateData on Abcampaign {
-              id
-              key
-              status
-              beginDate
-            }
-
-            fragment AbCampaignDetailData on Abcampaign {
-              ...AbCampaignCreateData
-              feedbackType
-              trafficSplit
-              endDate
-              metric {
-                ...MetricData
-              }
-              useCase {
-                id
-                key
-                name
-              }
-              models {
-                id
-                key
-                name
-              }
-              feedbacks
-              hasEnoughFeedbacks
-            }
-
-            fragment AbCampaignReportData on AbReport {
-              pValue
-              variants {
-                variant {
-                  id
-                  key
-                  name
-                }
-                interval {
-                  start
-                  middle
-                  end
-                }
-                feedbacks
-                comparisons {
-                  feedbacks
-                  wins
-                  losses
-                  tiesGood
-                  tiesBad
-                  variant {
-                    id
-                    key
-                    name
-                  }
-                }
-              }
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"input": input}
-        response = self.execute(
-            query=query,
-            operation_name="DescribeAbCampaign",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            query DescribeAbCampaign($input: IdOrKey!) {\n              abCampaign(idOrKey: $input) {\n                ...AbCampaignDetailData\n                report {\n                  ...AbCampaignReportData\n                }\n              }\n            }\n\n            fragment AbCampaignCreateData on Abcampaign {\n              id\n              key\n              status\n              beginDate\n            }\n\n            fragment AbCampaignDetailData on Abcampaign {\n              ...AbCampaignCreateData\n              feedbackType\n              trafficSplit\n              endDate\n              metric {\n                ...MetricData\n              }\n              useCase {\n                id\n                key\n                name\n              }\n              models {\n                id\n                key\n                name\n              }\n              feedbacks\n              hasEnoughFeedbacks\n            }\n\n            fragment AbCampaignReportData on AbReport {\n              pValue\n              variants {\n                variant {\n                  id\n                  key\n                  name\n                }\n                interval {\n                  start\n                  middle\n                  end\n                }\n                feedbacks\n                comparisons {\n                  feedbacks\n                  wins\n                  losses\n                  tiesGood\n                  tiesBad\n                  variant {\n                    id\n                    key\n                    name\n                  }\n                }\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='DescribeAbCampaign', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeAbCampaign.model_validate(data)
 
-    def list_interactions(
-        self,
-        filter: ListCompletionsFilterInput,
-        page: CursorPageInput,
-        order: Union[Optional[List[OrderPair]], UnsetType] = UNSET,
-        **kwargs: Any,
-    ) -> ListInteractions:
-        query = gql(
-            """
-            query ListInteractions($filter: ListCompletionsFilterInput!, $page: CursorPageInput!, $order: [OrderPair!] = [{field: "created_at", order: DESC}]) {
-              completions(filter: $filter, page: $page, order: $order) {
-                totalCount
-                pageInfo {
-                  hasNextPage
-                  endCursor
-                }
-                nodes {
-                  ...CompletionData
-                }
-              }
-            }
-
-            fragment CompletionComparisonFeedbackData on Completion {
-              id
-              completion
-              source
-              model {
-                id
-                key
-                name
-              }
-            }
-
-            fragment CompletionData on Completion {
-              id
-              prompt
-              chatMessages {
-                role
-                content
-              }
-              completion
-              source
-              model {
-                id
-                key
-                name
-              }
-              directFeedbacks {
-                id
-                value
-                metric {
-                  ...MetricData
-                }
-                reason
-                details
-                createdAt
-              }
-              comparisonFeedbacks {
-                id
-                createdAt
-                usecase {
-                  id
-                  key
-                  name
-                }
-                metric {
-                  id
-                  key
-                  name
-                }
-                preferedCompletion {
-                  ...CompletionComparisonFeedbackData
-                }
-                otherCompletion {
-                  ...CompletionComparisonFeedbackData
-                }
-              }
-              labels {
-                key
-                value
-              }
-              metadata {
-                parameters
-                timings
-                usage {
-                  completionTokens
-                  promptTokens
-                  totalTokens
-                }
-                system
-              }
-              createdAt
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"filter": filter, "page": page, "order": order}
-        response = self.execute(
-            query=query,
-            operation_name="ListInteractions",
-            variables=variables,
-            **kwargs,
-        )
+    def list_interactions(self, filter: ListCompletionsFilterInput, page: CursorPageInput, order: Union[Optional[List[OrderPair]], UnsetType]=UNSET, **kwargs: Any) -> ListInteractions:
+        query = gql('\n            query ListInteractions($filter: ListCompletionsFilterInput!, $page: CursorPageInput!, $order: [OrderPair!] = [{field: "created_at", order: DESC}]) {\n              completions(filter: $filter, page: $page, order: $order) {\n                totalCount\n                pageInfo {\n                  hasNextPage\n                  endCursor\n                }\n                nodes {\n                  ...CompletionData\n                }\n              }\n            }\n\n            fragment CompletionComparisonFeedbackData on Completion {\n              id\n              completion\n              source\n              model {\n                id\n                key\n                name\n              }\n            }\n\n            fragment CompletionData on Completion {\n              id\n              prompt\n              chatMessages {\n                role\n                content\n              }\n              completion\n              source\n              model {\n                id\n                key\n                name\n              }\n              directFeedbacks {\n                id\n                value\n                metric {\n                  ...MetricData\n                }\n                reason\n                details\n                createdAt\n              }\n              comparisonFeedbacks {\n                id\n                createdAt\n                usecase {\n                  id\n                  key\n                  name\n                }\n                metric {\n                  id\n                  key\n                  name\n                }\n                preferedCompletion {\n                  ...CompletionComparisonFeedbackData\n                }\n                otherCompletion {\n                  ...CompletionComparisonFeedbackData\n                }\n              }\n              labels {\n                key\n                value\n              }\n              metadata {\n                parameters\n                timings\n                usage {\n                  completionTokens\n                  promptTokens\n                  totalTokens\n                }\n                system\n              }\n              createdAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'filter': filter, 'page': page, 'order': order}
+        response = self.execute(query=query, operation_name='ListInteractions', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListInteractions.model_validate(data)
 
-    def list_grouped_interactions(
-        self,
-        filter: ListCompletionsFilterInput,
-        group_by: CompletionGroupBy,
-        page: CursorPageInput,
-        order: Union[Optional[List[OrderPair]], UnsetType] = UNSET,
-        **kwargs: Any,
-    ) -> ListGroupedInteractions:
-        query = gql(
-            """
-            query ListGroupedInteractions($filter: ListCompletionsFilterInput!, $groupBy: CompletionGroupBy!, $page: CursorPageInput!, $order: [OrderPair!] = [{field: "group", order: ASC}]) {
-              completionsGrouped(
-                groupBy: $groupBy
-                filter: $filter
-                page: $page
-                order: $order
-              ) {
-                totalCount
-                groupBy
-                pageInfo {
-                  hasNextPage
-                  endCursor
-                }
-                nodes {
-                  key
-                  count
-                  directFeedbacksStats {
-                    metric {
-                      ...MetricData
-                    }
-                    feedbacks
-                    average
-                    max
-                    min
-                    stddev
-                    sum
-                  }
-                  completions(page: $page, order: [{field: "created_at", order: DESC}]) {
-                    nodes {
-                      ...CompletionData
-                    }
-                  }
-                }
-              }
-            }
-
-            fragment CompletionComparisonFeedbackData on Completion {
-              id
-              completion
-              source
-              model {
-                id
-                key
-                name
-              }
-            }
-
-            fragment CompletionData on Completion {
-              id
-              prompt
-              chatMessages {
-                role
-                content
-              }
-              completion
-              source
-              model {
-                id
-                key
-                name
-              }
-              directFeedbacks {
-                id
-                value
-                metric {
-                  ...MetricData
-                }
-                reason
-                details
-                createdAt
-              }
-              comparisonFeedbacks {
-                id
-                createdAt
-                usecase {
-                  id
-                  key
-                  name
-                }
-                metric {
-                  id
-                  key
-                  name
-                }
-                preferedCompletion {
-                  ...CompletionComparisonFeedbackData
-                }
-                otherCompletion {
-                  ...CompletionComparisonFeedbackData
-                }
-              }
-              labels {
-                key
-                value
-              }
-              metadata {
-                parameters
-                timings
-                usage {
-                  completionTokens
-                  promptTokens
-                  totalTokens
-                }
-                system
-              }
-              createdAt
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {
-            "filter": filter,
-            "groupBy": group_by,
-            "page": page,
-            "order": order,
-        }
-        response = self.execute(
-            query=query,
-            operation_name="ListGroupedInteractions",
-            variables=variables,
-            **kwargs,
-        )
+    def list_grouped_interactions(self, filter: ListCompletionsFilterInput, group_by: CompletionGroupBy, page: CursorPageInput, order: Union[Optional[List[OrderPair]], UnsetType]=UNSET, **kwargs: Any) -> ListGroupedInteractions:
+        query = gql('\n            query ListGroupedInteractions($filter: ListCompletionsFilterInput!, $groupBy: CompletionGroupBy!, $page: CursorPageInput!, $order: [OrderPair!] = [{field: "group", order: ASC}]) {\n              completionsGrouped(\n                groupBy: $groupBy\n                filter: $filter\n                page: $page\n                order: $order\n              ) {\n                totalCount\n                groupBy\n                pageInfo {\n                  hasNextPage\n                  endCursor\n                }\n                nodes {\n                  key\n                  count\n                  directFeedbacksStats {\n                    metric {\n                      ...MetricData\n                    }\n                    feedbacks\n                    average\n                    max\n                    min\n                    stddev\n                    sum\n                  }\n                  completions(page: $page, order: [{field: "created_at", order: DESC}]) {\n                    nodes {\n                      ...CompletionData\n                    }\n                  }\n                }\n              }\n            }\n\n            fragment CompletionComparisonFeedbackData on Completion {\n              id\n              completion\n              source\n              model {\n                id\n                key\n                name\n              }\n            }\n\n            fragment CompletionData on Completion {\n              id\n              prompt\n              chatMessages {\n                role\n                content\n              }\n              completion\n              source\n              model {\n                id\n                key\n                name\n              }\n              directFeedbacks {\n                id\n                value\n                metric {\n                  ...MetricData\n                }\n                reason\n                details\n                createdAt\n              }\n              comparisonFeedbacks {\n                id\n                createdAt\n                usecase {\n                  id\n                  key\n                  name\n                }\n                metric {\n                  id\n                  key\n                  name\n                }\n                preferedCompletion {\n                  ...CompletionComparisonFeedbackData\n                }\n                otherCompletion {\n                  ...CompletionComparisonFeedbackData\n                }\n              }\n              labels {\n                key\n                value\n              }\n              metadata {\n                parameters\n                timings\n                usage {\n                  completionTokens\n                  promptTokens\n                  totalTokens\n                }\n                system\n              }\n              createdAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'filter': filter, 'groupBy': group_by, 'page': page, 'order': order}
+        response = self.execute(query=query, operation_name='ListGroupedInteractions', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListGroupedInteractions.model_validate(data)
 
-    def describe_interaction(
-        self, use_case: str, id: Any, **kwargs: Any
-    ) -> DescribeInteraction:
-        query = gql(
-            """
-            query DescribeInteraction($useCase: IdOrKey!, $id: UUID!) {
-              completion(useCase: $useCase, id: $id) {
-                ...CompletionData
-              }
-            }
-
-            fragment CompletionComparisonFeedbackData on Completion {
-              id
-              completion
-              source
-              model {
-                id
-                key
-                name
-              }
-            }
-
-            fragment CompletionData on Completion {
-              id
-              prompt
-              chatMessages {
-                role
-                content
-              }
-              completion
-              source
-              model {
-                id
-                key
-                name
-              }
-              directFeedbacks {
-                id
-                value
-                metric {
-                  ...MetricData
-                }
-                reason
-                details
-                createdAt
-              }
-              comparisonFeedbacks {
-                id
-                createdAt
-                usecase {
-                  id
-                  key
-                  name
-                }
-                metric {
-                  id
-                  key
-                  name
-                }
-                preferedCompletion {
-                  ...CompletionComparisonFeedbackData
-                }
-                otherCompletion {
-                  ...CompletionComparisonFeedbackData
-                }
-              }
-              labels {
-                key
-                value
-              }
-              metadata {
-                parameters
-                timings
-                usage {
-                  completionTokens
-                  promptTokens
-                  totalTokens
-                }
-                system
-              }
-              createdAt
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-            """
-        )
-        variables: Dict[str, object] = {"useCase": use_case, "id": id}
-        response = self.execute(
-            query=query,
-            operation_name="DescribeInteraction",
-            variables=variables,
-            **kwargs,
-        )
+    def describe_interaction(self, use_case: str, id: Any, **kwargs: Any) -> DescribeInteraction:
+        query = gql('\n            query DescribeInteraction($useCase: IdOrKey!, $id: UUID!) {\n              completion(useCase: $useCase, id: $id) {\n                ...CompletionData\n              }\n            }\n\n            fragment CompletionComparisonFeedbackData on Completion {\n              id\n              completion\n              source\n              model {\n                id\n                key\n                name\n              }\n            }\n\n            fragment CompletionData on Completion {\n              id\n              prompt\n              chatMessages {\n                role\n                content\n              }\n              completion\n              source\n              model {\n                id\n                key\n                name\n              }\n              directFeedbacks {\n                id\n                value\n                metric {\n                  ...MetricData\n                }\n                reason\n                details\n                createdAt\n              }\n              comparisonFeedbacks {\n                id\n                createdAt\n                usecase {\n                  id\n                  key\n                  name\n                }\n                metric {\n                  id\n                  key\n                  name\n                }\n                preferedCompletion {\n                  ...CompletionComparisonFeedbackData\n                }\n                otherCompletion {\n                  ...CompletionComparisonFeedbackData\n                }\n              }\n              labels {\n                key\n                value\n              }\n              metadata {\n                parameters\n                timings\n                usage {\n                  completionTokens\n                  promptTokens\n                  totalTokens\n                }\n                system\n              }\n              createdAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'id': id}
+        response = self.execute(query=query, operation_name='DescribeInteraction', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeInteraction.model_validate(data)
 
     def describe_training_job(self, id: Any, **kwargs: Any) -> DescribeTrainingJob:
-        query = gql(
-            """
-            query DescribeTrainingJob($id: UUID!) {
-              trainingJob(id: $id) {
-                ...TrainingJobData
-              }
-            }
-
-            fragment JobStageOutputData on JobStageOutput {
-              name
-              status
-              parent
-              stageId
-              info {
-                __typename
-                ... on TrainingJobStageOutput {
-                  monitoringLink
-                  totalNumSamples
-                  processedNumSamples
-                  checkpoints
-                }
-                ... on EvalJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-                ... on BatchInferenceJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-              }
-              startedAt
-              endedAt
-            }
-
-            fragment ListCompletionsFilterOutputData on ListCompletionsFilterOutput {
-              useCase
-              models
-              timerange {
-                from
-                to
-              }
-              feedbacks {
-                metric
-              }
-              labels {
-                key
-                value
-              }
-              tags
-              source
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment TrainingConfigOutputData on TrainingConfigOutput {
-              baseTrainingParams {
-                learningRate
-                numEpochs
-                batchSize
-                numValidations
-              }
-              trainingMetadata {
-                trainingType
-                alignmentMethod
-                parameters {
-                  __typename
-                  ... on DpotrainingParamsOutput {
-                    klDivCoeff
-                  }
-                  ... on PpotrainingParamsOutput {
-                    klDivCoeff
-                  }
-                }
-              }
-              trainingObjective {
-                __typename
-                ... on MetricTrainingParamsOutput {
-                  metricKey
-                  metricMetadata {
-                    ... on ScalarMetricConfigOutput {
-                      threshold
-                    }
-                  }
-                }
-                ... on GuidelinesTrainingParamsOutput {
-                  judgeModel
-                  judgeModelPrompt {
-                    name
-                    description
-                  }
-                }
-              }
-            }
-
-            fragment TrainingJobData on TrainingJob {
-              id
-              name
-              status
-              createdAt
-              startedAt
-              endedAt
-              durationMs
-              stages {
-                ...JobStageOutputData
-              }
-              parentModel {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              childModel {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              useCase {
-                ...UseCaseData
-              }
-              config {
-                outputName
-                sampleConfig {
-                  feedbackType
-                  datasource {
-                    __typename
-                    ... on SampleDatasourceCompletionsOutput {
-                      selectionType
-                      maxSamples
-                      filter {
-                        ...ListCompletionsFilterOutputData
-                      }
-                    }
-                    ... on SampleDatasourceDatasetOutput {
-                      datasetKey
-                    }
-                  }
-                }
-                trainingConfig {
-                  ...TrainingConfigOutputData
-                }
-              }
-              createdBy {
-                id
-                email
-                name
-              }
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"id": id}
-        response = self.execute(
-            query=query,
-            operation_name="DescribeTrainingJob",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            query DescribeTrainingJob($id: UUID!) {\n              trainingJob(id: $id) {\n                ...TrainingJobData\n              }\n            }\n\n            fragment JobStageOutputData on JobStageOutput {\n              name\n              status\n              parent\n              stageId\n              info {\n                __typename\n                ... on TrainingJobStageOutput {\n                  monitoringLink\n                  totalNumSamples\n                  processedNumSamples\n                  checkpoints\n                }\n                ... on EvalJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n                ... on BatchInferenceJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n              }\n              startedAt\n              endedAt\n            }\n\n            fragment ListCompletionsFilterOutputData on ListCompletionsFilterOutput {\n              useCase\n              models\n              timerange {\n                from\n                to\n              }\n              feedbacks {\n                metric\n              }\n              labels {\n                key\n                value\n              }\n              tags\n              source\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment TrainingConfigOutputData on TrainingConfigOutput {\n              baseTrainingParams {\n                learningRate\n                numEpochs\n                batchSize\n                numValidations\n              }\n              trainingMetadata {\n                trainingType\n                alignmentMethod\n                parameters {\n                  __typename\n                  ... on DpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                  ... on PpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                }\n              }\n              trainingObjective {\n                __typename\n                ... on MetricTrainingParamsOutput {\n                  metricKey\n                  metricMetadata {\n                    ... on ScalarMetricConfigOutput {\n                      threshold\n                    }\n                  }\n                }\n                ... on GuidelinesTrainingParamsOutput {\n                  judgeModel\n                  judgeModelPrompt {\n                    name\n                    description\n                  }\n                }\n              }\n            }\n\n            fragment TrainingJobData on TrainingJob {\n              id\n              name\n              status\n              createdAt\n              startedAt\n              endedAt\n              durationMs\n              stages {\n                ...JobStageOutputData\n              }\n              parentModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              childModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              useCase {\n                ...UseCaseData\n              }\n              config {\n                __typename\n                ... on AdaptBuiltinRecipeConfigOutput {\n                  outputName\n                  sampleConfig {\n                    feedbackType\n                    datasource {\n                      __typename\n                      ... on SampleDatasourceCompletionsOutput {\n                        selectionType\n                        maxSamples\n                        filter {\n                          ...ListCompletionsFilterOutputData\n                        }\n                      }\n                      ... on SampleDatasourceDatasetOutput {\n                        datasetKey\n                      }\n                    }\n                  }\n                  trainingConfig {\n                    ...TrainingConfigOutputData\n                  }\n                }\n                ... on AdaptCustomRecipeConfigOutput {\n                  outputName\n                }\n              }\n              createdBy {\n                id\n                email\n                name\n              }\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'id': id}
+        response = self.execute(query=query, operation_name='DescribeTrainingJob', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeTrainingJob.model_validate(data)
 
     def list_training_jobs(self, **kwargs: Any) -> ListTrainingJobs:
-        query = gql(
-            """
-            query ListTrainingJobs {
-              trainingJobs {
-                ...TrainingJobData
-              }
-            }
-
-            fragment JobStageOutputData on JobStageOutput {
-              name
-              status
-              parent
-              stageId
-              info {
-                __typename
-                ... on TrainingJobStageOutput {
-                  monitoringLink
-                  totalNumSamples
-                  processedNumSamples
-                  checkpoints
-                }
-                ... on EvalJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-                ... on BatchInferenceJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-              }
-              startedAt
-              endedAt
-            }
-
-            fragment ListCompletionsFilterOutputData on ListCompletionsFilterOutput {
-              useCase
-              models
-              timerange {
-                from
-                to
-              }
-              feedbacks {
-                metric
-              }
-              labels {
-                key
-                value
-              }
-              tags
-              source
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment TrainingConfigOutputData on TrainingConfigOutput {
-              baseTrainingParams {
-                learningRate
-                numEpochs
-                batchSize
-                numValidations
-              }
-              trainingMetadata {
-                trainingType
-                alignmentMethod
-                parameters {
-                  __typename
-                  ... on DpotrainingParamsOutput {
-                    klDivCoeff
-                  }
-                  ... on PpotrainingParamsOutput {
-                    klDivCoeff
-                  }
-                }
-              }
-              trainingObjective {
-                __typename
-                ... on MetricTrainingParamsOutput {
-                  metricKey
-                  metricMetadata {
-                    ... on ScalarMetricConfigOutput {
-                      threshold
-                    }
-                  }
-                }
-                ... on GuidelinesTrainingParamsOutput {
-                  judgeModel
-                  judgeModelPrompt {
-                    name
-                    description
-                  }
-                }
-              }
-            }
-
-            fragment TrainingJobData on TrainingJob {
-              id
-              name
-              status
-              createdAt
-              startedAt
-              endedAt
-              durationMs
-              stages {
-                ...JobStageOutputData
-              }
-              parentModel {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              childModel {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              useCase {
-                ...UseCaseData
-              }
-              config {
-                outputName
-                sampleConfig {
-                  feedbackType
-                  datasource {
-                    __typename
-                    ... on SampleDatasourceCompletionsOutput {
-                      selectionType
-                      maxSamples
-                      filter {
-                        ...ListCompletionsFilterOutputData
-                      }
-                    }
-                    ... on SampleDatasourceDatasetOutput {
-                      datasetKey
-                    }
-                  }
-                }
-                trainingConfig {
-                  ...TrainingConfigOutputData
-                }
-              }
-              createdBy {
-                id
-                email
-                name
-              }
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListTrainingJobs {\n              trainingJobs {\n                ...TrainingJobData\n              }\n            }\n\n            fragment JobStageOutputData on JobStageOutput {\n              name\n              status\n              parent\n              stageId\n              info {\n                __typename\n                ... on TrainingJobStageOutput {\n                  monitoringLink\n                  totalNumSamples\n                  processedNumSamples\n                  checkpoints\n                }\n                ... on EvalJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n                ... on BatchInferenceJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n              }\n              startedAt\n              endedAt\n            }\n\n            fragment ListCompletionsFilterOutputData on ListCompletionsFilterOutput {\n              useCase\n              models\n              timerange {\n                from\n                to\n              }\n              feedbacks {\n                metric\n              }\n              labels {\n                key\n                value\n              }\n              tags\n              source\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment TrainingConfigOutputData on TrainingConfigOutput {\n              baseTrainingParams {\n                learningRate\n                numEpochs\n                batchSize\n                numValidations\n              }\n              trainingMetadata {\n                trainingType\n                alignmentMethod\n                parameters {\n                  __typename\n                  ... on DpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                  ... on PpotrainingParamsOutput {\n                    klDivCoeff\n                  }\n                }\n              }\n              trainingObjective {\n                __typename\n                ... on MetricTrainingParamsOutput {\n                  metricKey\n                  metricMetadata {\n                    ... on ScalarMetricConfigOutput {\n                      threshold\n                    }\n                  }\n                }\n                ... on GuidelinesTrainingParamsOutput {\n                  judgeModel\n                  judgeModelPrompt {\n                    name\n                    description\n                  }\n                }\n              }\n            }\n\n            fragment TrainingJobData on TrainingJob {\n              id\n              name\n              status\n              createdAt\n              startedAt\n              endedAt\n              durationMs\n              stages {\n                ...JobStageOutputData\n              }\n              parentModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              childModel {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              useCase {\n                ...UseCaseData\n              }\n              config {\n                __typename\n                ... on AdaptBuiltinRecipeConfigOutput {\n                  outputName\n                  sampleConfig {\n                    feedbackType\n                    datasource {\n                      __typename\n                      ... on SampleDatasourceCompletionsOutput {\n                        selectionType\n                        maxSamples\n                        filter {\n                          ...ListCompletionsFilterOutputData\n                        }\n                      }\n                      ... on SampleDatasourceDatasetOutput {\n                        datasetKey\n                      }\n                    }\n                  }\n                  trainingConfig {\n                    ...TrainingConfigOutputData\n                  }\n                }\n                ... on AdaptCustomRecipeConfigOutput {\n                  outputName\n                }\n              }\n              createdBy {\n                id\n                email\n                name\n              }\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query,
-            operation_name="ListTrainingJobs",
-            variables=variables,
-            **kwargs,
-        )
+        response = self.execute(query=query, operation_name='ListTrainingJobs', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListTrainingJobs.model_validate(data)
 
     def describe_evaluation_job(self, id: Any, **kwargs: Any) -> DescribeEvaluationJob:
-        query = gql(
-            """
-            query DescribeEvaluationJob($id: UUID!) {
-              evaluationJob(id: $id) {
-                ...EvaluationJobData
-              }
-            }
-
-            fragment AbCampaignReportData on AbReport {
-              pValue
-              variants {
-                variant {
-                  id
-                  key
-                  name
-                }
-                interval {
-                  start
-                  middle
-                  end
-                }
-                feedbacks
-                comparisons {
-                  feedbacks
-                  wins
-                  losses
-                  tiesGood
-                  tiesBad
-                  variant {
-                    id
-                    key
-                    name
-                  }
-                }
-              }
-            }
-
-            fragment DatasetData on Dataset {
-              id
-              key
-              name
-              createdAt
-              kind
-              records
-              metricsUsage {
-                feedbackCount
-                comparisonCount
-                metric {
-                  ...MetricData
-                }
-              }
-            }
-
-            fragment EvaluationJobData on EvaluationJob {
-              id
-              name
-              status
-              createdAt
-              startedAt
-              endedAt
-              durationMs
-              modelServices {
-                ...ModelServiceData
-              }
-              judge {
-                ...ModelData
-              }
-              stages {
-                ...JobStageOutputData
-              }
-              useCase {
-                ...UseCaseData
-              }
-              report {
-                ...AbCampaignReportData
-              }
-              dataset {
-                ...DatasetData
-              }
-              createdBy {
-                id
-                email
-                name
-              }
-            }
-
-            fragment JobStageOutputData on JobStageOutput {
-              name
-              status
-              parent
-              stageId
-              info {
-                __typename
-                ... on TrainingJobStageOutput {
-                  monitoringLink
-                  totalNumSamples
-                  processedNumSamples
-                  checkpoints
-                }
-                ... on EvalJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-                ... on BatchInferenceJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-              }
-              startedAt
-              endedAt
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"id": id}
-        response = self.execute(
-            query=query,
-            operation_name="DescribeEvaluationJob",
-            variables=variables,
-            **kwargs,
-        )
+        query = gql('\n            query DescribeEvaluationJob($id: UUID!) {\n              evaluationJob(id: $id) {\n                ...EvaluationJobData\n              }\n            }\n\n            fragment AbCampaignReportData on AbReport {\n              pValue\n              variants {\n                variant {\n                  id\n                  key\n                  name\n                }\n                interval {\n                  start\n                  middle\n                  end\n                }\n                feedbacks\n                comparisons {\n                  feedbacks\n                  wins\n                  losses\n                  tiesGood\n                  tiesBad\n                  variant {\n                    id\n                    key\n                    name\n                  }\n                }\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment EvaluationJobData on EvaluationJob {\n              id\n              name\n              status\n              createdAt\n              startedAt\n              endedAt\n              durationMs\n              modelServices {\n                ...ModelServiceData\n              }\n              judge {\n                ...ModelData\n              }\n              stages {\n                ...JobStageOutputData\n              }\n              useCase {\n                ...UseCaseData\n              }\n              report {\n                ...AbCampaignReportData\n              }\n              dataset {\n                ...DatasetData\n              }\n              createdBy {\n                id\n                email\n                name\n              }\n            }\n\n            fragment JobStageOutputData on JobStageOutput {\n              name\n              status\n              parent\n              stageId\n              info {\n                __typename\n                ... on TrainingJobStageOutput {\n                  monitoringLink\n                  totalNumSamples\n                  processedNumSamples\n                  checkpoints\n                }\n                ... on EvalJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n                ... on BatchInferenceJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n              }\n              startedAt\n              endedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'id': id}
+        response = self.execute(query=query, operation_name='DescribeEvaluationJob', variables=variables, **kwargs)
         data = self.get_data(response)
         return DescribeEvaluationJob.model_validate(data)
 
     def list_evaluation_jobs(self, **kwargs: Any) -> ListEvaluationJobs:
-        query = gql(
-            """
-            query ListEvaluationJobs {
-              evaluationJobs {
-                ...EvaluationJobData
-              }
-            }
-
-            fragment AbCampaignReportData on AbReport {
-              pValue
-              variants {
-                variant {
-                  id
-                  key
-                  name
-                }
-                interval {
-                  start
-                  middle
-                  end
-                }
-                feedbacks
-                comparisons {
-                  feedbacks
-                  wins
-                  losses
-                  tiesGood
-                  tiesBad
-                  variant {
-                    id
-                    key
-                    name
-                  }
-                }
-              }
-            }
-
-            fragment DatasetData on Dataset {
-              id
-              key
-              name
-              createdAt
-              kind
-              records
-              metricsUsage {
-                feedbackCount
-                comparisonCount
-                metric {
-                  ...MetricData
-                }
-              }
-            }
-
-            fragment EvaluationJobData on EvaluationJob {
-              id
-              name
-              status
-              createdAt
-              startedAt
-              endedAt
-              durationMs
-              modelServices {
-                ...ModelServiceData
-              }
-              judge {
-                ...ModelData
-              }
-              stages {
-                ...JobStageOutputData
-              }
-              useCase {
-                ...UseCaseData
-              }
-              report {
-                ...AbCampaignReportData
-              }
-              dataset {
-                ...DatasetData
-              }
-              createdBy {
-                id
-                email
-                name
-              }
-            }
-
-            fragment JobStageOutputData on JobStageOutput {
-              name
-              status
-              parent
-              stageId
-              info {
-                __typename
-                ... on TrainingJobStageOutput {
-                  monitoringLink
-                  totalNumSamples
-                  processedNumSamples
-                  checkpoints
-                }
-                ... on EvalJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-                ... on BatchInferenceJobStageOutput {
-                  totalNumSamples
-                  processedNumSamples
-                  monitoringLink
-                }
-              }
-              startedAt
-              endedAt
-            }
-
-            fragment MetricData on Metric {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-              hasDirectFeedbacks
-              hasComparisonFeedbacks
-            }
-
-            fragment MetricWithContextData on MetricWithContext {
-              id
-              key
-              name
-              kind
-              description
-              scoringType
-              createdAt
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment ModelServiceData on ModelService {
-              id
-              key
-              name
-              model {
-                ...ModelData
-                backbone {
-                  ...ModelData
-                }
-              }
-              attached
-              isDefault
-              desiredOnline
-              createdAt
-            }
-
-            fragment UseCaseData on UseCase {
-              id
-              key
-              name
-              description
-              createdAt
-              metrics {
-                ...MetricWithContextData
-              }
-              modelServices {
-                ...ModelServiceData
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListEvaluationJobs {\n              evaluationJobs {\n                ...EvaluationJobData\n              }\n            }\n\n            fragment AbCampaignReportData on AbReport {\n              pValue\n              variants {\n                variant {\n                  id\n                  key\n                  name\n                }\n                interval {\n                  start\n                  middle\n                  end\n                }\n                feedbacks\n                comparisons {\n                  feedbacks\n                  wins\n                  losses\n                  tiesGood\n                  tiesBad\n                  variant {\n                    id\n                    key\n                    name\n                  }\n                }\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment EvaluationJobData on EvaluationJob {\n              id\n              name\n              status\n              createdAt\n              startedAt\n              endedAt\n              durationMs\n              modelServices {\n                ...ModelServiceData\n              }\n              judge {\n                ...ModelData\n              }\n              stages {\n                ...JobStageOutputData\n              }\n              useCase {\n                ...UseCaseData\n              }\n              report {\n                ...AbCampaignReportData\n              }\n              dataset {\n                ...DatasetData\n              }\n              createdBy {\n                id\n                email\n                name\n              }\n            }\n\n            fragment JobStageOutputData on JobStageOutput {\n              name\n              status\n              parent\n              stageId\n              info {\n                __typename\n                ... on TrainingJobStageOutput {\n                  monitoringLink\n                  totalNumSamples\n                  processedNumSamples\n                  checkpoints\n                }\n                ... on EvalJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n                ... on BatchInferenceJobStageOutput {\n                  totalNumSamples\n                  processedNumSamples\n                  monitoringLink\n                }\n              }\n              startedAt\n              endedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment MetricWithContextData on MetricWithContext {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment ModelServiceData on ModelService {\n              id\n              key\n              name\n              model {\n                ...ModelData\n                backbone {\n                  ...ModelData\n                }\n              }\n              attached\n              isDefault\n              desiredOnline\n              createdAt\n            }\n\n            fragment UseCaseData on UseCase {\n              id\n              key\n              name\n              description\n              createdAt\n              metrics {\n                ...MetricWithContextData\n              }\n              modelServices {\n                ...ModelServiceData\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query,
-            operation_name="ListEvaluationJobs",
-            variables=variables,
-            **kwargs,
-        )
+        response = self.execute(query=query, operation_name='ListEvaluationJobs', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListEvaluationJobs.model_validate(data)
 
     def list_users(self, **kwargs: Any) -> ListUsers:
-        query = gql(
-            """
-            query ListUsers {
-              users {
-                ...UserData
-              }
-            }
-
-            fragment UserData on User {
-              id
-              email
-              name
-              createdAt
-              teams {
-                team {
-                  id
-                  key
-                  name
-                  createdAt
-                }
-                role {
-                  id
-                  key
-                  name
-                  createdAt
-                  permissions
-                }
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListUsers {\n              users {\n                ...UserData\n              }\n            }\n\n            fragment UserData on User {\n              id\n              email\n              name\n              createdAt\n              teams {\n                team {\n                  id\n                  key\n                  name\n                  createdAt\n                }\n                role {\n                  id\n                  key\n                  name\n                  createdAt\n                  permissions\n                }\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListUsers", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListUsers', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListUsers.model_validate(data)
 
     def me(self, **kwargs: Any) -> Me:
-        query = gql(
-            """
-            query Me {
-              me {
-                ...UserData
-                apiKeys {
-                  key
-                  createdAt
-                }
-              }
-            }
-
-            fragment UserData on User {
-              id
-              email
-              name
-              createdAt
-              teams {
-                team {
-                  id
-                  key
-                  name
-                  createdAt
-                }
-                role {
-                  id
-                  key
-                  name
-                  createdAt
-                  permissions
-                }
-              }
-            }
-            """
-        )
+        query = gql('\n            query Me {\n              me {\n                ...UserData\n                apiKeys {\n                  key\n                  createdAt\n                }\n              }\n            }\n\n            fragment UserData on User {\n              id\n              email\n              name\n              createdAt\n              teams {\n                team {\n                  id\n                  key\n                  name\n                  createdAt\n                }\n                role {\n                  id\n                  key\n                  name\n                  createdAt\n                  permissions\n                }\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="Me", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='Me', variables=variables, **kwargs)
         data = self.get_data(response)
         return Me.model_validate(data)
 
     def list_teams(self, **kwargs: Any) -> ListTeams:
-        query = gql(
-            """
-            query ListTeams {
-              teams {
-                id
-                key
-                name
-                createdAt
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListTeams {\n              teams {\n                id\n                key\n                name\n                createdAt\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListTeams", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListTeams', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListTeams.model_validate(data)
 
     def list_roles(self, **kwargs: Any) -> ListRoles:
-        query = gql(
-            """
-            query ListRoles {
-              roles {
-                id
-                key
-                name
-                createdAt
-                permissions
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListRoles {\n              roles {\n                id\n                key\n                name\n                createdAt\n                permissions\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListRoles", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListRoles', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListRoles.model_validate(data)
 
     def list_permissions(self, **kwargs: Any) -> ListPermissions:
-        query = gql(
-            """
-            query ListPermissions {
-              permissions
-            }
-            """
-        )
+        query = gql('\n            query ListPermissions {\n              permissions\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListPermissions", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListPermissions', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListPermissions.model_validate(data)
 
     def list_partitions(self, **kwargs: Any) -> ListPartitions:
-        query = gql(
-            """
-            query ListPartitions {
-              partitions {
-                ...PartitionData
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment PartitionData on Partition {
-              id
-              key
-              computePool {
-                key
-                name
-              }
-              status
-              url
-              worldSize
-              gpuTypes
-              createdAt
-              onlineModels {
-                ...ModelData
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListPartitions {\n              partitions {\n                ...PartitionData\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment PartitionData on Partition {\n              id\n              key\n              computePool {\n                key\n                name\n              }\n              status\n              url\n              worldSize\n              gpuTypes\n              createdAt\n              onlineModels {\n                ...ModelData\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListPartitions", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListPartitions', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListPartitions.model_validate(data)
 
     def list_compute_pools(self, **kwargs: Any) -> ListComputePools:
-        query = gql(
-            """
-            query ListComputePools {
-              computePools {
-                id
-                key
-                name
-                createdAt
-                capabilities
-                partitions {
-                  ...PartitionData
-                }
-              }
-            }
-
-            fragment ModelData on Model {
-              id
-              key
-              name
-              online
-              isExternal
-              providerName
-              isAdapter
-              isTraining
-              createdAt
-              kind
-              size
-              computeConfig {
-                tp
-                kvCacheLen
-                maxSeqLen
-              }
-            }
-
-            fragment PartitionData on Partition {
-              id
-              key
-              computePool {
-                key
-                name
-              }
-              status
-              url
-              worldSize
-              gpuTypes
-              createdAt
-              onlineModels {
-                ...ModelData
-              }
-            }
-            """
-        )
+        query = gql('\n            query ListComputePools {\n              computePools {\n                id\n                key\n                name\n                createdAt\n                capabilities\n                partitions {\n                  ...PartitionData\n                }\n              }\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n\n            fragment PartitionData on Partition {\n              id\n              key\n              computePool {\n                key\n                name\n              }\n              status\n              url\n              worldSize\n              gpuTypes\n              createdAt\n              onlineModels {\n                ...ModelData\n              }\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query,
-            operation_name="ListComputePools",
-            variables=variables,
-            **kwargs,
-        )
+        response = self.execute(query=query, operation_name='ListComputePools', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListComputePools.model_validate(data)
 
     def list_remote_envs(self, **kwargs: Any) -> ListRemoteEnvs:
-        query = gql(
-            """
-            query ListRemoteEnvs {
-              remoteEnvs {
-                ...RemoteEnvData
-              }
-            }
-
-            fragment RemoteEnvData on RemoteEnv {
-              id
-              key
-              name
-              url
-              description
-              createdAt
-              version
-              status
-              metadataSchema
-            }
-            """
-        )
+        query = gql('\n            query ListRemoteEnvs {\n              remoteEnvs {\n                ...RemoteEnvData\n              }\n            }\n\n            fragment RemoteEnvData on RemoteEnv {\n              id\n              key\n              name\n              url\n              description\n              createdAt\n              version\n              status\n              metadataSchema\n            }\n            ')
         variables: Dict[str, object] = {}
-        response = self.execute(
-            query=query, operation_name="ListRemoteEnvs", variables=variables, **kwargs
-        )
+        response = self.execute(query=query, operation_name='ListRemoteEnvs', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListRemoteEnvs.model_validate(data)
 
-    async def execute_custom_operation(
-        self, *fields: GraphQLField, operation_type: OperationType, operation_name: str
-    ) -> Dict[str, Any]:
+    def list_custom_scripts(self, filter: CustomScriptFilter, **kwargs: Any) -> ListCustomScripts:
+        query = gql('\n            query ListCustomScripts($filter: CustomScriptFilter!) {\n              customScripts(filter: $filter) {\n                ...CustomScriptData\n              }\n            }\n\n            fragment CustomScriptData on CustomScript {\n              id\n              key\n              name\n              content\n              kind\n              createdAt\n            }\n            ')
+        variables: Dict[str, object] = {'filter': filter}
+        response = self.execute(query=query, operation_name='ListCustomScripts', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return ListCustomScripts.model_validate(data)
+
+    async def execute_custom_operation(self, *fields: GraphQLField, operation_type: OperationType, operation_name: str) -> Dict[str, Any]:
         selections = self._build_selection_set(fields)
         combined_variables = self._combine_variables(fields)
-        variable_definitions = self._build_variable_definitions(
-            combined_variables["types"]
-        )
-        operation_ast = self._build_operation_ast(
-            selections, operation_type, operation_name, variable_definitions
-        )
-        response = await self.execute(
-            print_ast(operation_ast),
-            variables=combined_variables["values"],
-            operation_name=operation_name,
-        )
+        variable_definitions = self._build_variable_definitions(combined_variables['types'])
+        operation_ast = self._build_operation_ast(selections, operation_type, operation_name, variable_definitions)
+        response = await self.execute(print_ast(operation_ast), variables=combined_variables['values'], operation_name=operation_name)
         return self.get_data(response)
 
-    def _combine_variables(
-        self, fields: Tuple[GraphQLField, ...]
-    ) -> Dict[str, Dict[str, Any]]:
+    def _combine_variables(self, fields: Tuple[GraphQLField, ...]) -> Dict[str, Dict[str, Any]]:
         variables_types_combined = {}
         processed_variables_combined = {}
         for field in fields:
             formatted_variables = field.get_formatted_variables()
-            variables_types_combined.update(
-                {k: v["type"] for k, v in formatted_variables.items()}
-            )
-            processed_variables_combined.update(
-                {k: v["value"] for k, v in formatted_variables.items()}
-            )
-        return {
-            "types": variables_types_combined,
-            "values": processed_variables_combined,
-        }
+            variables_types_combined.update({k: v['type'] for (k, v) in formatted_variables.items()})
+            processed_variables_combined.update({k: v['value'] for (k, v) in formatted_variables.items()})
+        return {'types': variables_types_combined, 'values': processed_variables_combined}
 
-    def _build_variable_definitions(
-        self, variables_types_combined: Dict[str, str]
-    ) -> List[VariableDefinitionNode]:
-        return [
-            VariableDefinitionNode(
-                variable=VariableNode(name=NameNode(value=var_name)),
-                type=NamedTypeNode(name=NameNode(value=var_value)),
-            )
-            for var_name, var_value in variables_types_combined.items()
-        ]
+    def _build_variable_definitions(self, variables_types_combined: Dict[str, str]) -> List[VariableDefinitionNode]:
+        return [VariableDefinitionNode(variable=VariableNode(name=NameNode(value=var_name)), type=NamedTypeNode(name=NameNode(value=var_value))) for (var_name, var_value) in variables_types_combined.items()]
 
-    def _build_operation_ast(
-        self,
-        selections: List[SelectionNode],
-        operation_type: OperationType,
-        operation_name: str,
-        variable_definitions: List[VariableDefinitionNode],
-    ) -> DocumentNode:
-        return DocumentNode(
-            definitions=[
-                OperationDefinitionNode(
-                    operation=operation_type,
-                    name=NameNode(value=operation_name),
-                    variable_definitions=variable_definitions,
-                    selection_set=SelectionSetNode(selections=selections),
-                )
-            ]
-        )
+    def _build_operation_ast(self, selections: List[SelectionNode], operation_type: OperationType, operation_name: str, variable_definitions: List[VariableDefinitionNode]) -> DocumentNode:
+        return DocumentNode(definitions=[OperationDefinitionNode(operation=operation_type, name=NameNode(value=operation_name), variable_definitions=variable_definitions, selection_set=SelectionSetNode(selections=selections))])
 
-    def _build_selection_set(
-        self, fields: Tuple[GraphQLField, ...]
-    ) -> List[SelectionNode]:
-        return [field.to_ast(idx) for idx, field in enumerate(fields)]
+    def _build_selection_set(self, fields: Tuple[GraphQLField, ...]) -> List[SelectionNode]:
+        return [field.to_ast(idx) for (idx, field) in enumerate(fields)]
 
     async def query(self, *fields: GraphQLField, operation_name: str) -> Dict[str, Any]:
-        return await self.execute_custom_operation(
-            *fields, operation_type=OperationType.QUERY, operation_name=operation_name
-        )
+        return await self.execute_custom_operation(*fields, operation_type=OperationType.QUERY, operation_name=operation_name)
 
-    async def mutation(
-        self, *fields: GraphQLField, operation_name: str
-    ) -> Dict[str, Any]:
-        return await self.execute_custom_operation(
-            *fields,
-            operation_type=OperationType.MUTATION,
-            operation_name=operation_name,
-        )
+    async def mutation(self, *fields: GraphQLField, operation_name: str) -> Dict[str, Any]:
+        return await self.execute_custom_operation(*fields, operation_type=OperationType.MUTATION, operation_name=operation_name)

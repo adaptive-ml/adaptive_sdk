@@ -26,8 +26,16 @@ class RewardServers(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     def list(self) -> Sequence[RemoteEnvData]:
         return self._gql_client.list_remote_envs().remote_envs
 
-    def add(self, url: str, key: str, name: str | None = None, description: str | None = None) -> RemoteEnvData:
-        input = RemoteEnvCreate(url=url, key=key, name=name or key, description=description)
+    def add(
+        self,
+        url: str,
+        key: str,
+        name: str | None = None,
+        description: str | None = None,
+    ) -> RemoteEnvData:
+        input = RemoteEnvCreate(
+            url=url, key=key, name=name or key, description=description
+        )
         return self._gql_client.add_remote_env(input).add_remote_env
 
     def remove(self, key: str) -> str:
@@ -35,8 +43,13 @@ class RewardServers(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
 
     def test(
         self, url: str
-    ) -> TestRemoteEnvTestRemoteEnvRemoteEnvTestOnline | TestRemoteEnvTestRemoteEnvRemoteEnvTestOffline:
-        return self._gql_client.test_remote_env(RemoteEnvCreate(url=url)).test_remote_env
+    ) -> (
+        TestRemoteEnvTestRemoteEnvRemoteEnvTestOnline
+        | TestRemoteEnvTestRemoteEnvRemoteEnvTestOffline
+    ):
+        return self._gql_client.test_remote_env(
+            RemoteEnvCreate(url=url)
+        ).test_remote_env
 
 
 class AsyncRewardServers(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
@@ -51,8 +64,16 @@ class AsyncRewardServers(AsyncAPIResource, UseCaseResource):  # type: ignore[mis
     async def list(self) -> Sequence[RemoteEnvData]:
         return (await self._gql_client.list_remote_envs()).remote_envs
 
-    async def add(self, url: str, key: str, name: str | None = None, description: str | None = None) -> RemoteEnvData:
-        input = RemoteEnvCreate(url=url, key=key, name=name or key, description=description)
+    async def add(
+        self,
+        url: str,
+        key: str,
+        name: str | None = None,
+        description: str | None = None,
+    ) -> RemoteEnvData:
+        input = RemoteEnvCreate(
+            url=url, key=key, name=name or key, description=description
+        )
         return (await self._gql_client.add_remote_env(input)).add_remote_env
 
     async def remove(self, key: str) -> str:
@@ -60,5 +81,10 @@ class AsyncRewardServers(AsyncAPIResource, UseCaseResource):  # type: ignore[mis
 
     async def test(
         self, url: str
-    ) -> TestRemoteEnvTestRemoteEnvRemoteEnvTestOnline | TestRemoteEnvTestRemoteEnvRemoteEnvTestOffline:
-        return (await self._gql_client.test_remote_env(RemoteEnvCreate(url=url))).test_remote_env
+    ) -> (
+        TestRemoteEnvTestRemoteEnvRemoteEnvTestOnline
+        | TestRemoteEnvTestRemoteEnvRemoteEnvTestOffline
+    ):
+        return (
+            await self._gql_client.test_remote_env(RemoteEnvCreate(url=url))
+        ).test_remote_env

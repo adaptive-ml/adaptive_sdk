@@ -163,6 +163,7 @@ class AsyncChat(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         AsyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
 
+    @overload
     async def create(  # type: ignore[empty-body]
         self,
         messages: List[input_types.ChatMessage],

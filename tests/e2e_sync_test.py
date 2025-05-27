@@ -1,8 +1,8 @@
-import functools
 import time
 import os
 import pprint
-from typing import Sequence
+from typing import Sequence, Literal
+from tenacity import retry, stop_after_attempt
 
 from adaptive_sdk import Adaptive
 from adaptive_sdk import rest as rest_types
@@ -54,13 +54,6 @@ class RunnerFixture:
         self.google_model_name = google_model_name
         self.azure_model_name = azure_model_name
         self.ab_test = ab_test
-
-    @log_function_name
-    def check_inputs(self):
-        assert self.open_ai_key
-        assert self.google_key
-        assert self.azure_key
-        assert self.azure_endpoint
 
     @log_function_name
     def test_teams(self):
@@ -115,20 +108,37 @@ class RunnerFixture:
         _ = self.client.feedback.unlink(feedback_key=self.feedback_key)
         _ = self.client.feedback.link(feedback_key=self.feedback_key)
 
+    @retry(stop=stop_after_attempt(3))
+    def add_external_model(
+        self,
+        name: str,
+        external_model_id: str,
+        api_key: str,
+        provider: Literal["open_ai", "google", "azure"],
+        endpoint: str | None = None,
+    ):
+        return self.client.models.add_external(
+            provider=provider,
+            external_model_id=external_model_id,
+            name=name,
+            api_key=api_key,
+            endpoint=endpoint,
+        )
+
     @log_function_name
     def test_models_admin(self):
         models_list = self.client.models.list()
         assert self.client.models.get(models_list[0].key)
         assert self.client.models.get(models_list[0].id)
 
-        open_ai_model = self.client.models.add_external(
+        open_ai_model = self.add_external_model(
             provider="open_ai",
             external_model_id="GPT4O_MINI",
             name=self.open_ai_model_name,
             api_key=self.open_ai_key,
         )
 
-        azure_model = self.client.models.add_external(
+        azure_model = self.add_external_model(
             provider="azure",
             external_model_id=self.azure_deployment_name,
             name=self.azure_model_name,
@@ -136,7 +146,7 @@ class RunnerFixture:
             endpoint=self.azure_endpoint,
         )
 
-        google_model = self.client.models.add_external(
+        google_model = self.add_external_model(
             provider="google",
             external_model_id="gemini-1.5-flash-8b",
             name=self.google_model_name,
@@ -262,29 +272,41 @@ class RunnerFixture:
             models=[self.model],
             judge_model=ext_models[0].key,
             method="context_relevancy",
-            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+            data_source="DATASET",
+            data_config={"dataset": "relevancy"},
         )
         answer_relevancy_job = self.client.evaluation.jobs.create(
             models=[self.model],
             judge_model=ext_models[0].key,
             method="answer_relevancy",
-            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+            data_source="DATASET",
+            data_config={"dataset": "relevancy"},
         )
 
         while True:
-            cr_job_status = self.client.evaluation.jobs.get(context_relevancy_job.id).status  # type: ignore
-            ar_job_status = self.client.evaluation.jobs.get(answer_relevancy_job.id).status  # type: ignore
+            cr_job = self.client.evaluation.jobs.get(context_relevancy_job.id)
+            ar_job = self.client.evaluation.jobs.get(answer_relevancy_job.id)
+            if cr_job is None or ar_job is None:
+                continue
+
+            cr_job_status = cr_job.status
+            ar_job_status = ar_job.status
             if cr_job_status == "COMPLETED" and ar_job_status == "COMPLETED":
                 break
             elif cr_job_status == "FAILED" or ar_job_status == "FAILED":
-                cr_job_str = pprint.pformat(context_relevancy_job.model_dump())
-                ar_job_str = pprint.pformat(answer_relevancy_job.model_dump())
+                failed_details = ""
+                if cr_job_status == "FAILED":
+                    failed_details += pprint.pformat(cr_job.model_dump(), width=120)
+                    failed_details += "\n\n"
+                if ar_job_status == "FAILED":
+                    failed_details += pprint.pformat(ar_job.model_dump(), width=120)
                 raise RuntimeError(
-                    f"One of the evaluation jobs failed:\n\n{cr_job_str}\n\n{ar_job_str}"
+                    f"One of the evaluation jobs failed:\n\n{failed_details}"
                 )
+            else:
+                time.sleep(1)
 
     def run_all_tests(self):
-        self.check_inputs()
         self.test_teams()
         self.test_roles()
         self.test_users()
@@ -331,6 +353,10 @@ def test_sync():
     assert api_key
     assert base_url
 
+    assert open_ai_key
+    assert google_key
+    assert azure_key
+    assert azure_endpoint
     sync_client = Adaptive(
         base_url=base_url,
         api_key=api_key,

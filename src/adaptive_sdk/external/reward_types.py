@@ -21,6 +21,7 @@ class Request(BaseModel):
 
     turns: list[Turn]
     metadata: dict[str, Any] | None = None
+    id: int | None = None
 
 
 class BatchedRequest(BaseModel):
@@ -34,6 +35,7 @@ class ValidatedRequest(BaseModel, Generic[MetadataType]):
 
     turns: list[Turn]
     metadata: MetadataType
+    id: int | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -53,8 +55,9 @@ class ValidatedBatchedRequest(BaseModel, Generic[MetadataType]):
 class Response(BaseModel):
     """@public"""
 
-    reward: float
+    reward: float | list[float]
     metadata: dict[str, Any]
+    id: int | None = None
 
 
 class BatchedResponse(BaseModel):

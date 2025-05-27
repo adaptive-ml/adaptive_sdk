@@ -17,7 +17,7 @@ class Adaptive(BaseSyncClient, UseCaseClient):
             use_case (str): A unique use case key; the client is bounded to this use case.
             base_url (str): The base URL for the Adaptive API.
             api_key (str, optional): API key for authentication.
-                Defaults to None, in which use environment variable `ADAPTIVE_API_KEY` needs to be set.
+                Defaults to None, in which case environment variable `ADAPTIVE_API_KEY` needs to be set.
 
         """
         super().__init__(base_url, api_key, default_headers)
@@ -27,6 +27,7 @@ class Adaptive(BaseSyncClient, UseCaseClient):
         self.chat: resources.Chat = resources.Chat(self)
         self.completions: resources.Completions = resources.Completions(self)
         self.compute_pools: resources.ComputePools = resources.ComputePools(self)
+        self.custom_recipes: resources.CustomRecipes = resources.CustomRecipes(self)
         self.datasets: resources.Datasets = resources.Datasets(self)
         self.embeddings: resources.Embeddings = resources.Embeddings(self)
         self.evaluation: resources.Evaluation = resources.Evaluation(self)
@@ -71,7 +72,7 @@ class AsyncAdaptive(BaseAsyncClient, UseCaseClient):
             use_case (str): A unique use case key; the client is bounded to this use case.
             base_url (str): The base URL for the Adaptive API.
             api_key (str, optional): API key for authentication.
-                Defaults to None, in which use environment variable `ADAPTIVE_API_KEY` needs to be set.
+                Defaults to None, in which case environment variable `ADAPTIVE_API_KEY` needs to be set.
 
         """
         super().__init__(base_url, api_key, default_headers)
@@ -81,6 +82,7 @@ class AsyncAdaptive(BaseAsyncClient, UseCaseClient):
         self.chat: resources.AsyncChat = resources.AsyncChat(self)
         self.completions: resources.AsyncCompletions = resources.AsyncCompletions(self)
         self.compute_pools: resources.AsyncComputePools = resources.AsyncComputePools(self)
+        self.custom_recipes: resources.AsyncCustomRecipes = resources.AsyncCustomRecipes(self)
         self.datasets: resources.AsyncDatasets = resources.AsyncDatasets(self)
         self.embeddings: resources.AsyncEmbeddings = resources.AsyncEmbeddings(self)
         self.evaluation: resources.AsyncEvaluation = resources.AsyncEvaluation(self)

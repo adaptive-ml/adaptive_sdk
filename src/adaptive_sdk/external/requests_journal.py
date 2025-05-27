@@ -32,7 +32,7 @@ class RequestsJournal:
                 lines = f.readlines()
 
             if len(lines) > self.max_requests_journal_size:
-                lines = lines[-self.max_requests_journal_size:]
+                lines = lines[-self.max_requests_journal_size :]
                 with open(self.journal_file_path, "w") as f:
                     f.writelines(lines)
 
@@ -41,9 +41,7 @@ class RequestsJournal:
     def add_journalling(self, app: FastAPI):
         router = APIRouter()
         router.add_api_route("/requests", self.list_requests, methods=["GET"])
-        router.add_api_route(
-            "/requests/replay_last/{n}", self.replay_last_n, methods=["POST"]
-        )
+        router.add_api_route("/requests/replay_last/{n}", self.replay_last_n, methods=["POST"])
 
         app.include_router(router=router)
 

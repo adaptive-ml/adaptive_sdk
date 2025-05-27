@@ -267,13 +267,15 @@ class AsyncTests:
             models=[self.model],
             judge_model=ext_models[0].key,
             method="context_relevancy",
-            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+            data_source="DATASET",
+            data_config={"dataset": self.async_prefix + "relevancy"},
         )
         answer_relevancy_job = await self.client.evaluation.jobs.create(
             models=[self.model],
             judge_model=ext_models[0].key,
             method="answer_relevancy",
-            data_config={"datasource": {"dataset": {"dataset": "relevancy"}}},
+            data_source="DATASET",
+            data_config={"dataset": self.async_prefix + "relevancy"},
         )
 
         while True:

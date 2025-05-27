@@ -2,6 +2,7 @@ from .abtests import ABTests, AsyncABTests
 from .chat import Chat, AsyncChat
 from .completions import Completions, AsyncCompletions
 from .compute_pools import ComputePools, AsyncComputePools  # type: ignore[attr-defined]
+from .custom_recipe import CustomRecipes, AsyncCustomRecipes
 from .datasets import Datasets, AsyncDatasets
 from .embeddings import Embeddings, AsyncEmbeddings
 from .evaluation import (
@@ -31,6 +32,7 @@ __all__ = [
     "Chat",
     "Completions",
     "ComputePools",
+    "CustomRecipes",
     "Datasets",
     "Embeddings",
     "EvalJobs",
@@ -50,6 +52,7 @@ __all__ = [
     "AsyncChat",
     "AsyncCompletions",
     "AsyncComputePools",
+    "AsyncCustomRecipes",
     "AsyncDatasets",
     "AsyncEmbeddings",
     "AsyncEvalJobs",

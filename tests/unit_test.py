@@ -1,3 +1,4 @@
+from adaptive_sdk.patch import *
 import os
 import time
 
@@ -50,7 +51,9 @@ class TestClientParamValidation:
 
         api_key_override = "new_api_key"
         client = Adaptive(valid_mock_url, api_key_override)
-        assert client.api_key == api_key_override, f"Expected {client.api_key}, but got {api_key_override}"
+        assert (
+            client.api_key == api_key_override
+        ), f"Expected {client.api_key}, but got {api_key_override}"
 
 
 @pytest.fixture()
@@ -129,7 +132,9 @@ def server():
 
 
 @pytest.mark.asyncio
-async def test_validate_metadata(scary_client: RewardClient, correct_data_list, wrong_data):
+async def test_validate_metadata(
+    scary_client: RewardClient, correct_data_list, wrong_data
+):
     response = await scary_client.validate_metadata(correct_data_list[0].metadata)
     assert response.is_valid is True
     assert response.error_message is None
@@ -140,8 +145,12 @@ async def test_validate_metadata(scary_client: RewardClient, correct_data_list, 
 
 
 @pytest.mark.asyncio
-async def test_batch_validate_metadata(scary_client: RewardClient, correct_data_list, wrong_data):
-    response = await scary_client.batch_validate_metadata([correct_data_list[0].metadata, wrong_data.metadata])
+async def test_batch_validate_metadata(
+    scary_client: RewardClient, correct_data_list, wrong_data
+):
+    response = await scary_client.batch_validate_metadata(
+        [correct_data_list[0].metadata, wrong_data.metadata]
+    )
     assert response.responses[0].is_valid is True
     assert response.responses[0].error_message is None
 

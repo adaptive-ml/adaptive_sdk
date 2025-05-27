@@ -1,13 +1,16 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import List, TYPE_CHECKING
+from typing import List, Literal, TYPE_CHECKING
 
 from adaptive_sdk.graphql_client import (
     DatasetCreate,
     Upload,
     LoadDatasetCreateDataset,
     ListDatasetsDatasets,
-    DescribeDatasetDataset,
+    DatasetData,
+    DatasetGenerate,
+    DatasetGenerationConfig,
+    RagdataGenerationConfig,
 )
 
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
@@ -52,12 +55,8 @@ class Datasets(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         )
         filename = Path(file_path).stem
         with open(file_path, "rb") as f:
-            file_upload = Upload(
-                filename=filename, content=f, content_type="application/jsonl"
-            )
-            return self._gql_client.load_dataset(
-                input=input, file=file_upload
-            ).create_dataset
+            file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
+            return self._gql_client.load_dataset(input=input, file=file_upload).create_dataset
 
     def list(
         self,
@@ -68,7 +67,7 @@ class Datasets(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         return self._gql_client.list_datasets(self.use_case_key(use_case)).datasets
 
-    def get(self, key: str) -> DescribeDatasetDataset | None:
+    def get(self, key: str) -> DatasetData | None:
         """
         Get details for dataset.
 
@@ -76,6 +75,48 @@ class Datasets(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             key: Dataset key.
         """
         return self._gql_client.describe_dataset(key).dataset
+
+    def generate(
+        self,
+        model: str,
+        file_path: str,
+        dataset_key: str,
+        dataset_type: Literal["RAG"] = "RAG",
+        chunks_per_new_sample: int = 10,
+        new_system_prompt: str | None = None,
+        name: str | None = None,
+        use_case: str | None = None,
+        compute_pool: str | None = None,
+    ) -> DatasetData:
+        """
+        Generate a dataset from a file.
+
+        Args:
+            model: Model to use for data generation.
+            file_path: Path to jsonl file.
+            dataset_key: New dataset key.
+            dataset_type: Type of dataset to generate.
+            chunks_per_new_sample: Number of document chunks that will be included in each generated sample's prompt.
+            new_system_prompt: Optional new system prompt to be prepended to all generated samples.
+            name: Optional name to render in UI; if `None`, defaults to same as `dataset_key`.
+            use_case: Use case to associate with the dataset.
+            compute_pool: Compute pool to use for generation.
+        """
+        filename = Path(file_path).stem
+        input = DatasetGenerate(
+            name=name or dataset_key,
+            key=dataset_key,
+            useCase=self.use_case_key(use_case),
+            computePool=compute_pool,
+            config=DatasetGenerationConfig(
+                rag=RagdataGenerationConfig(
+                    chunksPerQuestion=chunks_per_new_sample, model=model, systemPrompt=new_system_prompt
+                )
+            ),
+        )
+        with open(file_path, "rb") as f:
+            file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
+            return self._gql_client.generate_dataset(input=input, file=file_upload).generate_dataset
 
 
 class AsyncDatasets(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
@@ -110,12 +151,8 @@ class AsyncDatasets(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         )
         filename = Path(file_path).stem
         with open(file_path, "rb") as f:
-            file_upload = Upload(
-                filename=filename, content=f, content_type="application/jsonl"
-            )
-            upload_result = await self._gql_client.load_dataset(
-                input=input, file=file_upload
-            )
+            file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
+            upload_result = await self._gql_client.load_dataset(input=input, file=file_upload)
             return upload_result.create_dataset
 
     async def list(
@@ -128,7 +165,7 @@ class AsyncDatasets(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         results = await self._gql_client.list_datasets(self.use_case_key(use_case))
         return results.datasets
 
-    async def get(self, key: str) -> DescribeDatasetDataset | None:
+    async def get(self, key: str) -> DatasetData | None:
         """
         Get details for dataset.
 
@@ -137,3 +174,45 @@ class AsyncDatasets(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         result = await self._gql_client.describe_dataset(key)
         return result.dataset
+
+    async def generate(
+        self,
+        model: str,
+        file_path: str,
+        dataset_key: str,
+        dataset_type: Literal["RAG"] = "RAG",
+        chunks_per_new_sample: int = 10,
+        new_system_prompt: str | None = None,
+        name: str | None = None,
+        use_case: str | None = None,
+        compute_pool: str | None = None,
+    ) -> DatasetData:
+        """
+        Generate a dataset from a file.
+
+        Args:
+            model: Model to use for data generation.
+            file_path: Path to jsonl file.
+            dataset_key: New dataset key.
+            dataset_type: Type of dataset to generate.
+            chunks_per_new_sample: Number of document chunks that will be included in each generated sample's prompt.
+            new_system_prompt: Optional new system prompt to be prepended to all generated samples.
+            name: Optional name to render in UI; if `None`, defaults to same as `dataset_key`.
+            use_case: Use case to associate with the dataset.
+            compute_pool: Compute pool to use for generation.
+        """
+        filename = Path(file_path).stem
+        input = DatasetGenerate(
+            name=name or dataset_key,
+            key=dataset_key,
+            useCase=self.use_case_key(use_case),
+            computePool=compute_pool,
+            config=DatasetGenerationConfig(
+                rag=RagdataGenerationConfig(
+                    chunksPerQuestion=chunks_per_new_sample, model=model, systemPrompt=new_system_prompt
+                )
+            ),
+        )
+        with open(file_path, "rb") as f:
+            file_upload = Upload(filename=filename, content=f, content_type="application/jsonl")
+            return (await self._gql_client.generate_dataset(input=input, file=file_upload)).generate_dataset

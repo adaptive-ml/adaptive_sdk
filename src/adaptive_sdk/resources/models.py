@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Literal, Sequence, TYPE_CHECKING
+from typing import get_args, Callable, Literal, Sequence, TYPE_CHECKING
 
 from adaptive_sdk.graphql_client import (
     OpenAIModel,
@@ -44,7 +44,43 @@ provider_config = {
     },
 }
 
-SupportedHFModels = Literal["google/gemma-2-2b"]
+SupportedHFModels = Literal[
+    "google/gemma-3-4b-it",
+    "google/gemma-3-12b-it",
+    "google/gemma-3-27b-it",
+    "meta-llama/Llama-3.1-8B-Instruct",
+    "meta-llama/Llama-3.1-70B-Instruct",
+    "meta-llama/Llama-3.2-1B-Instruct",
+    "meta-llama/Llama-3.2-3B-Instruct",
+    "meta-llama/Llama-3.3-70B-Instruct",
+    "mistralai/Mistral-Small-24B-Instruct-2501",
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "Qwen/Qwen2.5-1.5B-Instruct",
+    "Qwen/Qwen2.5-3B-Instruct",
+    "Qwen/Qwen2.5-7B-Instruct",
+    "Qwen/Qwen2.5-14B-Instruct",
+    "Qwen/Qwen2.5-32B-Instruct",
+    "Qwen/Qwen2.5-72B-Instruct",
+    "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+    "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "Qwen/Qwen2.5-Coder-3B-Instruct",
+    "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "Qwen/Qwen2.5-Coder-14B-Instruct",
+    "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "Qwen/Qwen3-0.6B",
+    "Qwen/Qwen3-1.7B",
+    "Qwen/Qwen3-4B",
+    "Qwen/Qwen3-8B",
+    "Qwen/Qwen3-14B",
+    "Qwen/Qwen3-32B",
+]
+
+
+def is_supported_model(model_id: str):
+    supported_models = get_args(SupportedHFModels)
+    if model_id not in supported_models:
+        supported_models_str = "\n".join(supported_models)
+        raise ValueError(f"Model {model_id} is not supported.\n\nChoose from:\n{supported_models_str}")
 
 
 class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
@@ -59,6 +95,7 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
     def add_hf_model(
         self,
         hf_model_id: SupportedHFModels,
+        output_model_name: str,
         output_model_key: str,
         hf_token: str,
         compute_pool: str | None = None,
@@ -72,8 +109,10 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             output_model_key: The key that will identify the new model in Adaptive.
             hf_token: Your HuggingFace Token, needed to validate access to gated/restricted model.
         """
+        is_supported_model(hf_model_id)
         input = AddHFModelInput(
             modelId=hf_model_id,
+            outputModelName=output_model_name,
             outputModelKey=output_model_key,
             hfToken=hf_token,
             computePool=compute_pool,
@@ -182,7 +221,8 @@ class Models(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         Update compute config of model.
         """
         return self._gql_client.update_model_compute_config(
-            id_or_key=model, input=ModelComputeConfigInput.model_validate(compute_config)
+            id_or_key=model,
+            input=ModelComputeConfigInput.model_validate(compute_config),
         ).update_model_compute_config
 
     def update(
@@ -250,7 +290,8 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
 
     async def add_hf_model(
         self,
-        hf_model_id: str,
+        hf_model_id: SupportedHFModels,
+        output_model_name: str,
         output_model_key: str,
         hf_token: str,
         compute_pool: str | None = None,
@@ -264,8 +305,10 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
             output_model_key: The key that will identify the new model in Adaptive.
             hf_token: Your HuggingFace Token, needed to validate access to gated/restricted model.
         """
+        is_supported_model(hf_model_id)
         input = AddHFModelInput(
             modelId=hf_model_id,
+            outputModelName=output_model_name,
             outputModelKey=output_model_key,
             hfToken=hf_token,
             computePool=compute_pool,
@@ -377,7 +420,8 @@ class AsyncModels(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         return (
             await self._gql_client.update_model_compute_config(
-                id_or_key=model, input=ModelComputeConfigInput.model_validate(compute_config)
+                id_or_key=model,
+                input=ModelComputeConfigInput.model_validate(compute_config),
             )
         ).update_model_compute_config
 

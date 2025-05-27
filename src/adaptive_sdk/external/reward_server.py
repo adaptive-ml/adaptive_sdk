@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 import asyncio
 from adaptive_sdk.external.requests_journal import RequestsJournal
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, WebSocket
 from fastapi.responses import JSONResponse
 from typing import Callable, Any, Generic, Type, TypeVar
 from dataclasses import dataclass
 import threading
 from pydantic import Field
 import uvicorn
+from loguru import logger
 
 from adaptive_sdk.external.reward_types import (
     ValidatedRequest,
@@ -115,6 +116,27 @@ class RewardServer(ABC, Generic[META]):
             routes.append(Route(METADATA_SCHEMA_PATH, self.get_medata_schema, methods=["GET"]))
             return routes
 
+        async def score_task(websocket: WebSocket, msg):
+            req: ValidatedRequest = ValidatedRequest.model_validate(msg)
+            req_id = req.id
+            response = await self._score(req)
+            response.id = req_id
+            await websocket.send_text(response.model_dump_json())
+
+        async def websocket_endpoint(websocket: WebSocket):
+            await websocket.accept()
+            tasks = set()
+            while True:
+                try:
+                    json = await websocket.receive_json()
+                    task = asyncio.create_task(score_task(websocket, json))
+                    tasks.add(task)
+                    task.add_done_callback(tasks.discard)
+
+                except Exception as e:
+                    logger.error(f"{e}")
+                    break
+
         router = APIRouter()
         routes = get_routes()
 
@@ -123,6 +145,8 @@ class RewardServer(ABC, Generic[META]):
 
         app = FastAPI()
         app.include_router(router)
+
+        app.add_api_websocket_route("/", websocket_endpoint)
 
         if self.requests_journal is not None:
             self.requests_journal.add_journalling(app=app)

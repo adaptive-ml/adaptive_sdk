@@ -37,16 +37,14 @@ def _prepare_add_interactions_inputs(
         raise ValueError("One of prompt or completion must be passed, but not both")
 
     input_messages = (
-        [rest_types.ChatMessage(role=m["role"], content=m["content"]) for m in messages]
-        if messages
-        else None
+        [rest_types.ChatMessage(role=m["role"], content=m["content"]) for m in messages] if messages else None
     )
     input_feedbacks = (
         [
             rest_types.InteractionFeedback(
                 metric=i["feedback_key"],
                 value=i["value"],
-                details=i["details"],
+                details=i.get("details"),
             )
             for i in feedbacks
         ]
@@ -95,9 +93,7 @@ class Interactions(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             created_at: Timestamp of interaction creation or ingestion.
         """
 
-        input_messages, input_feedbacks = _prepare_add_interactions_inputs(
-            messages, prompt, feedbacks
-        )
+        input_messages, input_feedbacks = _prepare_add_interactions_inputs(messages, prompt, feedbacks)
 
         input = rest_types.AddInteractionsRequest(
             model_service=model,
@@ -147,9 +143,7 @@ class Interactions(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             del new_filters["timerange"]["from_"]  # type: ignore
 
         new_filters.update({"useCase": self.use_case_key(use_case)})  # type: ignore
-        order_inputs = (
-            [OrderPair.model_validate(o) for o in new_order] if new_order else UNSET
-        )
+        order_inputs = [OrderPair.model_validate(o) for o in new_order] if new_order else UNSET
         if group_by:
             return self._gql_client.list_grouped_interactions(
                 filter=ListCompletionsFilterInput.model_validate(new_filters),
@@ -175,9 +169,7 @@ class Interactions(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         Args:
             completion_id: The ID of the completion.
         """
-        return self._gql_client.describe_interaction(
-            use_case=self.use_case_key(use_case), id=completion_id
-        ).completion
+        return self._gql_client.describe_interaction(use_case=self.use_case_key(use_case), id=completion_id).completion
 
 
 class AsyncInteractions(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
@@ -216,9 +208,7 @@ class AsyncInteractions(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
             labels: Key-value pairs of interaction labels.
             created_at: Timestamp of interaction creation or ingestion.
         """
-        input_messages, input_feedbacks = _prepare_add_interactions_inputs(
-            messages, prompt, feedbacks
-        )
+        input_messages, input_feedbacks = _prepare_add_interactions_inputs(messages, prompt, feedbacks)
 
         input = rest_types.AddInteractionsRequest(
             model_service=model,
@@ -232,9 +222,7 @@ class AsyncInteractions(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
             ab_campaign=ab_campaign,
             labels=labels,
         )
-        r = await self._rest_client.post(
-            ROUTE, json=input.model_dump(exclude_none=True)
-        )
+        r = await self._rest_client.post(ROUTE, json=input.model_dump(exclude_none=True))
         rest_error_handler(r)
         return rest_types.AddInteractionsResponse.model_validate(r.json())
 
@@ -269,9 +257,7 @@ class AsyncInteractions(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
             del new_filters["timerange"]["from_"]  # type: ignore
 
         new_filters.update({"useCase": self.use_case_key(use_case)})  # type: ignore
-        order_inputs = (
-            [OrderPair.model_validate(o) for o in new_order] if new_order else UNSET
-        )
+        order_inputs = [OrderPair.model_validate(o) for o in new_order] if new_order else UNSET
         if group_by:
             result = await self._gql_client.list_grouped_interactions(
                 filter=ListCompletionsFilterInput.model_validate(new_filters),
@@ -299,7 +285,5 @@ class AsyncInteractions(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
         Args:
             completion_id: The ID of the completion.
         """
-        result = await self._gql_client.describe_interaction(
-            use_case=self.use_case_key(use_case), id=completion_id
-        )
+        result = await self._gql_client.describe_interaction(use_case=self.use_case_key(use_case), id=completion_id)
         return result.completion

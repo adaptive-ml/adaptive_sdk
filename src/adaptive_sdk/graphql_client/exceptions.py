@@ -1,11 +1,9 @@
 from typing import Any, Dict, List, Optional, Union
 import httpx
 
-
 class GraphQLClientError(Exception):
     """@private
-    Base exception."""
-
+Base exception."""
 
 class GraphQLClientHttpError(GraphQLClientError):
     """@private"""
@@ -15,8 +13,7 @@ class GraphQLClientHttpError(GraphQLClientError):
         self.response = response
 
     def __str__(self) -> str:
-        return f"HTTP status code: {self.status_code}"
-
+        return f'HTTP status code: {self.status_code}'
 
 class GraphQLClientInvalidResponseError(GraphQLClientError):
     """@private"""
@@ -25,20 +22,12 @@ class GraphQLClientInvalidResponseError(GraphQLClientError):
         self.response = response
 
     def __str__(self) -> str:
-        return "Invalid response format."
-
+        return 'Invalid response format.'
 
 class GraphQLClientGraphQLError(GraphQLClientError):
     """@private"""
 
-    def __init__(
-        self,
-        message: str,
-        locations: Optional[List[Dict[str, int]]] = None,
-        path: Optional[List[str]] = None,
-        extensions: Optional[Dict[str, object]] = None,
-        orginal: Optional[Dict[str, object]] = None,
-    ):
+    def __init__(self, message: str, locations: Optional[List[Dict[str, int]]]=None, path: Optional[List[str]]=None, extensions: Optional[Dict[str, object]]=None, orginal: Optional[Dict[str, object]]=None):
         self.message = message
         self.locations = locations
         self.path = path
@@ -49,39 +38,22 @@ class GraphQLClientGraphQLError(GraphQLClientError):
         return self.message
 
     @classmethod
-    def from_dict(cls, error: Dict[str, Any]) -> "GraphQLClientGraphQLError":
-        return cls(
-            message=error["message"],
-            locations=error.get("locations"),
-            path=error.get("path"),
-            extensions=error.get("extensions"),
-            orginal=error,
-        )
-
+    def from_dict(cls, error: Dict[str, Any]) -> 'GraphQLClientGraphQLError':
+        return cls(message=error['message'], locations=error.get('locations'), path=error.get('path'), extensions=error.get('extensions'), orginal=error)
 
 class GraphQLClientGraphQLMultiError(GraphQLClientError):
     """@private"""
 
-    def __init__(
-        self,
-        errors: List[GraphQLClientGraphQLError],
-        data: Optional[Dict[str, Any]] = None,
-    ):
+    def __init__(self, errors: List[GraphQLClientGraphQLError], data: Optional[Dict[str, Any]]=None):
         self.errors = errors
         self.data = data
 
     def __str__(self) -> str:
-        return "; ".join(str(e) for e in self.errors)
+        return '; '.join((str(e) for e in self.errors))
 
     @classmethod
-    def from_errors_dicts(
-        cls, errors_dicts: List[Dict[str, Any]], data: Optional[Dict[str, Any]] = None
-    ) -> "GraphQLClientGraphQLMultiError":
-        return cls(
-            errors=[GraphQLClientGraphQLError.from_dict(e) for e in errors_dicts],
-            data=data,
-        )
-
+    def from_errors_dicts(cls, errors_dicts: List[Dict[str, Any]], data: Optional[Dict[str, Any]]=None) -> 'GraphQLClientGraphQLMultiError':
+        return cls(errors=[GraphQLClientGraphQLError.from_dict(e) for e in errors_dicts], data=data)
 
 class GraphQLClientInvalidMessageFormat(GraphQLClientError):
     """@private"""
@@ -90,4 +62,4 @@ class GraphQLClientInvalidMessageFormat(GraphQLClientError):
         self.message = message
 
     def __str__(self) -> str:
-        return "Invalid message format."
+        return 'Invalid message format.'

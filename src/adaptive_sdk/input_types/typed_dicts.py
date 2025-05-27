@@ -10,10 +10,10 @@ class AdaptRequestConfigInput(TypedDict, total=False):
 
 
 class BaseTrainingParamsInput(TypedDict, total=True):
-    learning_rate: Required[float]
-    num_epochs: Required[int]
-    batch_size: Required[int]
-    num_validations: Required[int]
+    learning_rate: NotRequired[float]
+    num_epochs: NotRequired[int]
+    batch_size: NotRequired[int]
+    num_validations: NotRequired[int]
 
 
 class ChatMessage(TypedDict, total=True):
@@ -194,13 +194,13 @@ class ModelPlacementInput(TypedDict, total=False):
 
 
 class GrpotrainingParamsInput(TypedDict, total=True):
-    kl_div_coeff: Required[float]
-    steps: Required[int]
+    kl_div_coeff: NotRequired[float]
+    steps: NotRequired[int]
 
 
 class PpotrainingParamsInput(TypedDict, total=True):
-    kl_div_coeff: Required[float]
-    steps: Required[int]
+    kl_div_coeff: NotRequired[float]
+    steps: NotRequired[int]
 
 
 class SampleConfigInput(TypedDict, total=False):
@@ -285,3 +285,10 @@ class Order(TypedDict, total=False):
 
     field: Required[str]
     order: Required[Literal["ASC", "DESC"]]
+
+
+class GenerateParameters(TypedDict, total=False):
+    stop: NotRequired[List[str]]
+    max_tokens: NotRequired[int]
+    temperature: NotRequired[float]
+    top_p: NotRequired[float]

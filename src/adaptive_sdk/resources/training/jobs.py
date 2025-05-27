@@ -1,19 +1,18 @@
 from __future__ import annotations
-from typing import List, TYPE_CHECKING
-import humps
-
-from typing_extensions import override
+from typing import List, TYPE_CHECKING, Literal, overload
 
 from adaptive_sdk import input_types
 from adaptive_sdk.graphql_client import (
     ListTrainingJobsTrainingJobs,
     DescribeTrainingJobTrainingJob,
     TrainingJobInput,
-    AdaptRequestConfigInput,
     CreateTrainingJobCreateTrainingJob,
+    CustomRecipeTrainingJobInput,
+    CustomRecipeConfigInput,
 )
 
-from .defaults import update_training_config_with_defaults
+from .constants import SUPPORTED_ALIGNMENT_METHODS
+from .defaults import build_adapt_config
 from ..base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
 
 if TYPE_CHECKING:
@@ -29,11 +28,57 @@ class TrainingJobs(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         SyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
 
+    @overload
     def create(
         self,
         model: str,
-        config: input_types.AdaptRequestConfigInput,
-        name: str | None = None,
+        data_source: Literal["DATASET"],
+        data_config: input_types.SampleDatasourceDataset,
+        feedback_type: Literal["DIRECT", "PREFERENCE"] | None = None,
+        parameter_efficient: bool = True,
+        alignment_method: SUPPORTED_ALIGNMENT_METHODS = "PPO",
+        alignment_objective: input_types.TrainingObjectiveInput | None = None,
+        alignment_params: input_types.TrainingMetadataInputParameters | None = None,
+        base_training_params: input_types.BaseTrainingParamsInput | None = None,
+        job_name: str | None = None,
+        output_model_name: str | None = None,
+        wait: bool = False,
+        use_case: str | None = None,
+        compute_pool: str | None = None,
+    ) -> CreateTrainingJobCreateTrainingJob: ...
+
+    @overload
+    def create(
+        self,
+        model: str,
+        data_source: Literal["COMPLETIONS"],
+        data_config: input_types.SampleDatasourceCompletions,
+        feedback_type: Literal["DIRECT", "PREFERENCE"] | None = None,
+        parameter_efficient: bool = True,
+        alignment_method: SUPPORTED_ALIGNMENT_METHODS = "PPO",
+        alignment_objective: input_types.TrainingObjectiveInput | None = None,
+        alignment_params: input_types.TrainingMetadataInputParameters | None = None,
+        base_training_params: input_types.BaseTrainingParamsInput | None = None,
+        job_name: str | None = None,
+        output_model_name: str | None = None,
+        wait: bool = False,
+        use_case: str | None = None,
+        compute_pool: str | None = None,
+    ) -> CreateTrainingJobCreateTrainingJob: ...
+
+    def create(
+        self,
+        model: str,
+        data_source: Literal["DATASET", "COMPLETIONS"],
+        data_config: input_types.SampleDatasourceCompletions | input_types.SampleDatasourceDataset,
+        feedback_type: Literal["DIRECT", "PREFERENCE"] | None = None,
+        parameter_efficient: bool = True,
+        alignment_method: SUPPORTED_ALIGNMENT_METHODS = "PPO",
+        alignment_objective: input_types.TrainingObjectiveInput | None = None,
+        alignment_params: input_types.TrainingMetadataInputParameters | None = None,
+        base_training_params: input_types.BaseTrainingParamsInput | None = None,
+        job_name: str | None = None,
+        output_model_name: str | None = None,
         wait: bool = False,
         use_case: str | None = None,
         compute_pool: str | None = None,
@@ -43,29 +88,41 @@ class TrainingJobs(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
 
         Args:
             model: Model to train.
-            config: Training config.
-            name: Name for training job.
+            data_source: Source of data to train on; either an uploaded dataset, or logged completions.
+            data_config: Training data configuration.
+            feedback_type: If training on `metric` training_objective usingcompletions that have both metric
+                and preference feedback logged, you must specify which of those sets to train on.
+            parameter_efficient: If `True`, training will be parameter-efficient, and the output model
+                will be a lightweight adapter coupled to the selected backbone model.
+            aligment_method: Alignment method selection.
+            alignment_objective: Configuration for the training objective, determines the reward during training.
+            alignment_params: Alignment method-specific hyperparameter configuration.
+            base_training_params: Common training parameters.
+            job_name: Human readable training job name.
+            output_model_name: Name for resulting model.
+            wait: If True, only returns when training is finished.
+            use_case: Target use case to associate training job with.
+            compute_pool: Compute pool where training job will run.
         """
-        new_config = update_training_config_with_defaults(config)
-        if (
-            new_config.get("sample_config", {})
-            .get("datasource", {})
-            .get("completions", {})
-            .get("filter")
-            is not None
-        ):
-            new_config["sample_config"]["datasource"]["completions"][
-                "filter"
-            ].update(  # type:ignore
-                {"useCase": self.use_case_key(use_case)}  # type:ignore
-            )
-        new_config = humps.camelize(new_config)
-        config_input = AdaptRequestConfigInput.model_validate(new_config)
+
+        adapt_config = build_adapt_config(
+            model,
+            self.use_case_key(use_case),
+            data_source,
+            data_config,
+            feedback_type,
+            parameter_efficient,
+            alignment_method,
+            alignment_objective,
+            alignment_params,
+            base_training_params,
+            output_model_name,
+        )
         input = TrainingJobInput(
             model=model,
             useCase=self.use_case_key(use_case),
-            name=name,
-            config=config_input,
+            name=job_name,
+            config=adapt_config,
             wait=wait,
             computePool=compute_pool,
         )
@@ -99,11 +156,57 @@ class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
         AsyncAPIResource.__init__(self, client)
         UseCaseResource.__init__(self, client)
 
+    @overload
     async def create(
         self,
         model: str,
-        config: input_types.AdaptRequestConfigInput,
-        name: str | None = None,
+        data_source: Literal["DATASET"],
+        data_config: input_types.SampleDatasourceDataset,
+        feedback_type: Literal["DIRECT", "PREFERENCE"] | None = None,
+        parameter_efficient: bool = True,
+        alignment_method: SUPPORTED_ALIGNMENT_METHODS = "PPO",
+        alignment_objective: input_types.TrainingObjectiveInput | None = None,
+        alignment_params: input_types.TrainingMetadataInputParameters | None = None,
+        base_training_params: input_types.BaseTrainingParamsInput | None = None,
+        job_name: str | None = None,
+        output_model_name: str | None = None,
+        wait: bool = False,
+        use_case: str | None = None,
+        compute_pool: str | None = None,
+    ) -> CreateTrainingJobCreateTrainingJob: ...
+
+    @overload
+    async def create(
+        self,
+        model: str,
+        data_source: Literal["COMPLETIONS"],
+        data_config: input_types.SampleDatasourceCompletions,
+        feedback_type: Literal["DIRECT", "PREFERENCE"] | None = None,
+        parameter_efficient: bool = True,
+        alignment_method: SUPPORTED_ALIGNMENT_METHODS = "PPO",
+        alignment_objective: input_types.TrainingObjectiveInput | None = None,
+        alignment_params: input_types.TrainingMetadataInputParameters | None = None,
+        base_training_params: input_types.BaseTrainingParamsInput | None = None,
+        job_name: str | None = None,
+        output_model_name: str | None = None,
+        wait: bool = False,
+        use_case: str | None = None,
+        compute_pool: str | None = None,
+    ) -> CreateTrainingJobCreateTrainingJob: ...
+
+    async def create(
+        self,
+        model: str,
+        data_source: Literal["DATASET", "COMPLETIONS"],
+        data_config: input_types.SampleDatasourceCompletions | input_types.SampleDatasourceDataset,
+        feedback_type: Literal["DIRECT", "PREFERENCE"] | None = None,
+        parameter_efficient: bool = True,
+        alignment_method: SUPPORTED_ALIGNMENT_METHODS = "PPO",
+        alignment_objective: input_types.TrainingObjectiveInput | None = None,
+        alignment_params: input_types.TrainingMetadataInputParameters | None = None,
+        base_training_params: input_types.BaseTrainingParamsInput | None = None,
+        job_name: str | None = None,
+        output_model_name: str | None = None,
         wait: bool = False,
         use_case: str | None = None,
         compute_pool: str | None = None,
@@ -113,28 +216,41 @@ class AsyncTrainingJobs(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
 
         Args:
             model: Model to train.
-            config: Training config.
-            name: Name for training job.
+            data_source: Source of data to train on; either an uploaded dataset, or logged completions.
+            data_config: Training data configuration.
+            feedback_type: If training on `metric` training_objective usingcompletions that have both metric
+                and preference feedback logged, you must specify which of those sets to train on.
+            parameter_efficient: If `True`, training will be parameter-efficient, and the output model
+                will be a lightweight adapter coupled to the selected backbone model.
+            aligment_method: Alignment method selection.
+            alignment_objective: Configuration for the training objective, determines the reward during training.
+            alignment_params: Alignment method-specific hyperparameter configuration.
+            base_training_params: Common training parameters.
+            job_name: Human readable training job name.
+            output_model_name: Name for resulting model.
+            wait: If True, only returns when training is finished.
+            use_case: Target use case to associate training job with.
+            compute_pool: Compute pool where training job will run.
         """
-        new_config = update_training_config_with_defaults(config)
-        if (
-            new_config.get("sample_config", {})
-            .get("datasource", {})
-            .get("completions", {})
-            .get("filter")
-        ):
-            new_config["sample_config"]["datasource"]["completions"][
-                "filter"
-            ].update(  # type:ignore
-                {"useCase": self.use_case_key(use_case)}  # type:ignore
-            )
-        new_config = humps.camelize(new_config)
-        config_input = AdaptRequestConfigInput.model_validate(new_config)
+
+        adapt_config = build_adapt_config(
+            model,
+            self.use_case_key(use_case),
+            data_source,
+            data_config,
+            feedback_type,
+            parameter_efficient,
+            alignment_method,
+            alignment_objective,
+            alignment_params,
+            base_training_params,
+            output_model_name,
+        )
         input = TrainingJobInput(
             model=model,
             useCase=self.use_case_key(use_case),
-            name=name,
-            config=config_input,
+            name=job_name,
+            config=adapt_config,
             wait=wait,
             computePool=compute_pool,
         )

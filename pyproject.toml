@@ -18,21 +18,23 @@ dependencies = [
   "fastapi >= 0.115.8",
   "uvicorn >= 0.34.0",
   "jsonschema==4.23.0",
+  "websockets==15.0.1",
   "types-jsonschema==4.23.0.20241208",
-  "loguru >= 0.7.0"
+  "loguru >= 0.7.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "ariadne-codegen >= 0.14.0",
-  "datamodel-code-generator >= 0.25.8",
+  "ariadne-codegen == 0.14.0",
+  "datamodel-code-generator == 0.26.0",
   "astor >= 0.8.1",
   "pdoc >= 15.0.1",
   "toml>=0.10.2",
   "black==25.1.0",
   "pytest==8.3.5",
   "pytest-asyncio==0.26.0",
-  "mypy>=1.15.0",
+  "mypy==1.15.0",
+  "tenacity==9.1.2",
 ]
 
 [tool.ariadne-codegen]
