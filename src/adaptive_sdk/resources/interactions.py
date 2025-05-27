@@ -1,7 +1,7 @@
 from __future__ import annotations
 from copy import deepcopy
 import humps
-from typing import List, Dict, Literal, TYPE_CHECKING
+from typing import Dict, List, Literal, TYPE_CHECKING
 from uuid import UUID
 
 from adaptive_sdk import input_types
@@ -75,7 +75,7 @@ class Interactions(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         session_id: str | UUID | None = None,
         use_case: str | None = None,
         ab_campaign: str | None = None,
-        labels: dict[str, str] | None = None,
+        labels: Dict[str, str] | None = None,
         created_at: str | None = None,
     ) -> rest_types.AddInteractionsResponse:
         """
@@ -192,7 +192,7 @@ class AsyncInteractions(AsyncAPIResource, UseCaseResource):  # type: ignore[misc
         session_id: str | UUID | None = None,
         use_case: str | None = None,
         ab_campaign: str | None = None,
-        labels: dict[str, str] | None = None,
+        labels: Dict[str, str] | None = None,
     ) -> rest_types.AddInteractionsResponse:
         """
         Create/log an interaction.

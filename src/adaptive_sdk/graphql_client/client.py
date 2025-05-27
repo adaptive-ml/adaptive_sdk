@@ -15,11 +15,14 @@ from .create_ab_campaign import CreateAbCampaign
 from .create_custom_recipe_training_job import CreateCustomRecipeTrainingJob
 from .create_custom_script import CreateCustomScript
 from .create_evaluation_job import CreateEvaluationJob
+from .create_judge import CreateJudge
 from .create_metric import CreateMetric
+from .create_prebuilt_judge import CreatePrebuiltJudge
 from .create_role import CreateRole
 from .create_team import CreateTeam
 from .create_training_job import CreateTrainingJob
 from .create_use_case import CreateUseCase
+from .delete_judge import DeleteJudge
 from .deploy_model import DeployModel
 from .describe_ab_campaign import DescribeAbCampaign
 from .describe_dataset import DescribeDataset
@@ -33,7 +36,8 @@ from .describe_training_job import DescribeTrainingJob
 from .describe_use_case import DescribeUseCase
 from .enums import CompletionGroupBy
 from .generate_dataset import GenerateDataset
-from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, CustomRecipeTrainingJobInput, CustomScriptCreate, CustomScriptFilter, DatasetCreate, DatasetGenerate, EvaluationCreate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelFilter, ModelPlacementInput, OrderPair, RemoteEnvCreate, RoleCreate, TeamCreate, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate
+from .get_judge import GetJudge
+from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, CustomRecipeTrainingJobInput, CustomScriptCreate, CustomScriptFilter, DatasetCreate, DatasetGenerate, EvaluationCreate, JudgeCreate, JudgeUpdate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelFilter, ModelPlacementInput, OrderPair, PrebuiltJudgeCreate, RemoteEnvCreate, RoleCreate, TeamCreate, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate
 from .link_metric import LinkMetric
 from .list_ab_campaigns import ListAbCampaigns
 from .list_compute_pools import ListComputePools
@@ -42,6 +46,8 @@ from .list_datasets import ListDatasets
 from .list_evaluation_jobs import ListEvaluationJobs
 from .list_grouped_interactions import ListGroupedInteractions
 from .list_interactions import ListInteractions
+from .list_judge_versions import ListJudgeVersions
+from .list_judges import ListJudges
 from .list_metrics import ListMetrics
 from .list_models import ListModels
 from .list_partitions import ListPartitions
@@ -58,6 +64,7 @@ from .remove_remote_env import RemoveRemoteEnv
 from .terminate_model import TerminateModel
 from .test_remote_env import TestRemoteEnv
 from .unlink_metric import UnlinkMetric
+from .update_judge import UpdateJudge
 from .update_model import UpdateModel
 from .update_model_compute_config import UpdateModelComputeConfig
 from .update_user import UpdateUser
@@ -264,6 +271,34 @@ class GQLClient(BaseClientOpenTelemetry):
         data = self.get_data(response)
         return GenerateDataset.model_validate(data)
 
+    def create_judge(self, use_case: str, input: JudgeCreate, **kwargs: Any) -> CreateJudge:
+        query = gql('\n            mutation CreateJudge($useCase: IdOrKey!, $input: JudgeCreate!) {\n              createJudge(useCase: $useCase, input: $input) {\n                ...JudgeData\n              }\n            }\n\n            fragment JudgeData on Judge {\n              id\n              key\n              version\n              name\n              criteria\n              prebuilt\n              examples {\n                input {\n                  role\n                  content\n                }\n                output\n                pass\n                reasoning\n              }\n              capabilities\n              model {\n                ...ModelData\n              }\n              useCaseId\n              metric {\n                ...MetricData\n              }\n              createdAt\n              updatedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'input': input}
+        response = self.execute(query=query, operation_name='CreateJudge', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return CreateJudge.model_validate(data)
+
+    def create_prebuilt_judge(self, use_case: str, input: PrebuiltJudgeCreate, **kwargs: Any) -> CreatePrebuiltJudge:
+        query = gql('\n            mutation CreatePrebuiltJudge($useCase: IdOrKey!, $input: PrebuiltJudgeCreate!) {\n              createPrebuiltJudge(useCase: $useCase, input: $input) {\n                ...JudgeData\n              }\n            }\n\n            fragment JudgeData on Judge {\n              id\n              key\n              version\n              name\n              criteria\n              prebuilt\n              examples {\n                input {\n                  role\n                  content\n                }\n                output\n                pass\n                reasoning\n              }\n              capabilities\n              model {\n                ...ModelData\n              }\n              useCaseId\n              metric {\n                ...MetricData\n              }\n              createdAt\n              updatedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'input': input}
+        response = self.execute(query=query, operation_name='CreatePrebuiltJudge', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return CreatePrebuiltJudge.model_validate(data)
+
+    def update_judge(self, use_case: str, key: str, input: JudgeUpdate, **kwargs: Any) -> UpdateJudge:
+        query = gql('\n            mutation UpdateJudge($useCase: IdOrKey!, $key: String!, $input: JudgeUpdate!) {\n              updateJudge(useCase: $useCase, key: $key, input: $input) {\n                ...JudgeData\n              }\n            }\n\n            fragment JudgeData on Judge {\n              id\n              key\n              version\n              name\n              criteria\n              prebuilt\n              examples {\n                input {\n                  role\n                  content\n                }\n                output\n                pass\n                reasoning\n              }\n              capabilities\n              model {\n                ...ModelData\n              }\n              useCaseId\n              metric {\n                ...MetricData\n              }\n              createdAt\n              updatedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'key': key, 'input': input}
+        response = self.execute(query=query, operation_name='UpdateJudge', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return UpdateJudge.model_validate(data)
+
+    def delete_judge(self, use_case: str, key: str, **kwargs: Any) -> DeleteJudge:
+        query = gql('\n            mutation DeleteJudge($useCase: IdOrKey!, $key: String!) {\n              deleteJudge(useCase: $useCase, key: $key) {\n                success\n                details\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'key': key}
+        response = self.execute(query=query, operation_name='DeleteJudge', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return DeleteJudge.model_validate(data)
+
     def list_datasets(self, input: str, **kwargs: Any) -> ListDatasets:
         query = gql('\n            query ListDatasets($input: IdOrKey!) {\n              datasets(useCase: $input) {\n                ...DatasetData\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
         variables: Dict[str, object] = {'input': input}
@@ -459,6 +494,27 @@ class GQLClient(BaseClientOpenTelemetry):
         response = self.execute(query=query, operation_name='ListCustomScripts', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListCustomScripts.model_validate(data)
+
+    def get_judge(self, id: str, use_case: str, version: Union[Optional[int], UnsetType]=UNSET, **kwargs: Any) -> GetJudge:
+        query = gql('\n            query GetJudge($id: IdOrKey!, $useCase: IdOrKey!, $version: Int) {\n              judge(id: $id, useCase: $useCase, version: $version) {\n                ...JudgeData\n              }\n            }\n\n            fragment JudgeData on Judge {\n              id\n              key\n              version\n              name\n              criteria\n              prebuilt\n              examples {\n                input {\n                  role\n                  content\n                }\n                output\n                pass\n                reasoning\n              }\n              capabilities\n              model {\n                ...ModelData\n              }\n              useCaseId\n              metric {\n                ...MetricData\n              }\n              createdAt\n              updatedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'id': id, 'useCase': use_case, 'version': version}
+        response = self.execute(query=query, operation_name='GetJudge', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return GetJudge.model_validate(data)
+
+    def list_judges(self, use_case: str, **kwargs: Any) -> ListJudges:
+        query = gql('\n            query ListJudges($useCase: IdOrKey!) {\n              judges(useCase: $useCase) {\n                ...JudgeData\n              }\n            }\n\n            fragment JudgeData on Judge {\n              id\n              key\n              version\n              name\n              criteria\n              prebuilt\n              examples {\n                input {\n                  role\n                  content\n                }\n                output\n                pass\n                reasoning\n              }\n              capabilities\n              model {\n                ...ModelData\n              }\n              useCaseId\n              metric {\n                ...MetricData\n              }\n              createdAt\n              updatedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case}
+        response = self.execute(query=query, operation_name='ListJudges', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return ListJudges.model_validate(data)
+
+    def list_judge_versions(self, use_case: str, key: str, **kwargs: Any) -> ListJudgeVersions:
+        query = gql('\n            query ListJudgeVersions($useCase: IdOrKey!, $key: String!) {\n              judgeVersions(useCase: $useCase, key: $key) {\n                ...JudgeData\n              }\n            }\n\n            fragment JudgeData on Judge {\n              id\n              key\n              version\n              name\n              criteria\n              prebuilt\n              examples {\n                input {\n                  role\n                  content\n                }\n                output\n                pass\n                reasoning\n              }\n              capabilities\n              model {\n                ...ModelData\n              }\n              useCaseId\n              metric {\n                ...MetricData\n              }\n              createdAt\n              updatedAt\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n\n            fragment ModelData on Model {\n              id\n              key\n              name\n              online\n              isExternal\n              providerName\n              isAdapter\n              isTraining\n              createdAt\n              kind\n              size\n              computeConfig {\n                tp\n                kvCacheLen\n                maxSeqLen\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'key': key}
+        response = self.execute(query=query, operation_name='ListJudgeVersions', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return ListJudgeVersions.model_validate(data)
 
     async def execute_custom_operation(self, *fields: GraphQLField, operation_type: OperationType, operation_name: str) -> Dict[str, Any]:
         selections = self._build_selection_set(fields)

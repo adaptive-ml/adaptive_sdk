@@ -46,6 +46,7 @@ class CustomRecipes(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         model: str,
         recipe_key: str,
         output_name: str,
+        dataset: str | None = None,
         recipe_args: Any | None = None,
         name: str | None = None,
         wait: bool = False,
@@ -56,6 +57,7 @@ class CustomRecipes(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             recipe=recipe_key,
             args=recipe_args,
             outputName=output_name,
+            dataset=dataset,
         )
         input = CustomRecipeTrainingJobInput(
             model=model,
@@ -97,6 +99,7 @@ class AsyncCustomRecipes(AsyncAPIResource, UseCaseResource):  # type: ignore[mis
         model: str,
         recipe_key: str,
         output_name: str,
+        dataset: str | None = None,
         recipe_args: Any | None = None,
         name: str | None = None,
         wait: bool = False,
@@ -107,6 +110,7 @@ class AsyncCustomRecipes(AsyncAPIResource, UseCaseResource):  # type: ignore[mis
             recipe=recipe_key,
             args=recipe_args,
             outputName=output_name,
+            dataset=dataset,
         )
         input = CustomRecipeTrainingJobInput(
             model=model,

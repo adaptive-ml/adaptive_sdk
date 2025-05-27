@@ -13,6 +13,7 @@ from .evaluation import (
 )
 from .feedback import Feedback, AsyncFeedback
 from .interactions import Interactions, AsyncInteractions
+from .judges import Judges, AsyncJudges
 from .models import Models, AsyncModels
 from .permissions import Permissions, AsyncPermissions
 from .reward_servers import RewardServers, AsyncRewardServers
@@ -39,6 +40,7 @@ __all__ = [
     "Evaluation",
     "Feedback",
     "Interactions",
+    "Judges",
     "Models",
     "Permissions",
     "RewardServers",
@@ -59,6 +61,7 @@ __all__ = [
     "AsyncEvaluation",
     "AsyncFeedback",
     "AsyncInteractions",
+    "AsyncJudges",
     "AsyncModels",
     "AsyncPermissions",
     "AsyncRewardServers",

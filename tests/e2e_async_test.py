@@ -73,9 +73,7 @@ class AsyncTests:
     @log_function_name
     async def test_roles(self):
         _ = await self.client.permissions.list()
-        _ = await self.client.roles.create(
-            key=self.role, name=self.role, permissions=["use_case:read"]
-        )
+        _ = await self.client.roles.create(key=self.role, name=self.role, permissions=["use_case:read"])
         roles_list = await self.client.roles.list()
         assert any([role.key == self.role for role in roles_list])
 
@@ -148,9 +146,7 @@ class AsyncTests:
         for model in [open_ai_model, azure_model, google_model]:
             _ = await self.client.models.attach(model=model.id)
 
-        _ = await self.client.models.attach(
-            model=self.model, wait=True, make_default=True
-        )
+        _ = await self.client.models.attach(model=self.model, wait=True, make_default=True)
         # _ = await self.client.models.terminate(model=self.model, force=True)
         # _ = await self.client.models.detach(model=self.model)
         # _ = await self.client.models.deploy(model=self.model, wait=True)
@@ -168,9 +164,7 @@ class AsyncTests:
         return (open_ai_model, azure_model, google_model)
 
     @log_function_name
-    async def test_inference(
-        self, ext_models: Sequence[ModelData]
-    ) -> rest_types.ChatResponse:
+    async def test_inference(self, ext_models: Sequence[ModelData]) -> rest_types.ChatResponse:
         for ext in ext_models:
             _ = await self.client.chat.create(
                 model=ext.key,
@@ -208,9 +202,7 @@ class AsyncTests:
 
     @log_function_name
     async def test_interactions(self, completions: rest_types.ChatResponse):
-        metric_logged_completion = await self.client.interactions.get(
-            completions.choices[0].completion_id
-        )
+        metric_logged_completion = await self.client.interactions.get(completions.choices[0].completion_id)
         assert metric_logged_completion
         assert len(metric_logged_completion.direct_feedbacks) == 1
         assert len(metric_logged_completion.comparison_feedbacks) == 1
@@ -286,9 +278,53 @@ class AsyncTests:
             elif cr_job_status == "FAILED" or ar_job_status == "FAILED":
                 cr_job_str = pprint.pformat(context_relevancy_job.model_dump())
                 ar_job_str = pprint.pformat(answer_relevancy_job.model_dump())
-                raise RuntimeError(
-                    f"One of the evaluation jobs failed:\n\n{cr_job_str}\n\n{ar_job_str}"
-                )
+                raise RuntimeError(f"One of the evaluation jobs failed:\n\n{cr_job_str}\n\n{ar_job_str}")
+
+    @log_function_name
+    async def test_judges(self, ext_models: Sequence[ModelData]):
+        judge_key = f"e2e-judge-{int(time.time()*1000)}"
+        # prebuilt_key = f"{judge_key}-prebuilt"
+
+        # Create a custom judge
+        created = await self.client.judges.create(
+            key=judge_key,
+            name=judge_key,
+            criteria="The answer must be helpful and relevant.",
+            judge_model=ext_models[0].key,
+            examples=[
+                {
+                    "input": [{"role": "user", "content": "Hello"}],
+                    "output": "Hi",
+                    "passes": True,
+                    "reasoning": "Basic greeting passes.",
+                }
+            ],
+            feedback_key=self.feedback_key,
+        )
+        assert created.key == judge_key
+
+        # Read operations
+        assert await self.client.judges.get(key=judge_key)
+        assert any(j.key == judge_key for j in await self.client.judges.list())
+
+        # Update to create a new version
+        updated = await self.client.judges.update(key=judge_key, criteria="Updated criteria for the judge.")
+        assert updated.criteria
+        assert updated.criteria.startswith("Updated")
+        assert len(await self.client.judges.list_versions(key=judge_key)) >= 2
+
+        # Pre-built judge
+        # prebuilt = await self.client.judges.create_prebuilt(
+        #     key=prebuilt_key,
+        #     name=prebuilt_key,
+        #     judge_model=ext_models[0].key,
+        #     prebuilt_criteria="ANSWER_RELEVANCY",
+        # )
+        # assert prebuilt.key == prebuilt_key
+
+        # Clean-up
+        assert await self.client.judges.delete(key=judge_key)
+        # assert awaitself.client.judges.delete(key=prebuilt_key)
 
     async def run_all_tests(self):
         self.check_inputs()
@@ -304,6 +340,7 @@ class AsyncTests:
         await self.test_ab_tests(ext_models)
         await self.test_datasets()
         await self.test_evals(ext_models)
+        await self.test_judges(ext_models)
         # TODO:
         #   * test_evals_from_interactions, using generations from the previous step
         #   * test training, both with judge feedback provided above, and RLAIF
@@ -339,6 +376,13 @@ def test_async():
     azure_model_name = "adaptive-azure-gpt"
     ab_test = "ab-test"
 
+    assert api_key
+    assert base_url
+
+    assert open_ai_key
+    assert google_key
+    assert azure_key
+    assert azure_endpoint
     async_client = AsyncAdaptive(
         base_url=base_url,
         api_key=api_key,

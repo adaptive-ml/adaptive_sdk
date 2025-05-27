@@ -111,6 +111,13 @@ class EvaluationDatasourceCompletions(TypedDict, total=True):
     replay_interactions: bool
 
 
+class GenerateParameters(TypedDict, total=False):
+    stop: NotRequired[List[str]]
+    max_tokens: NotRequired[int]
+    temperature: NotRequired[float]
+    top_p: NotRequired[float]
+
+
 class GuidelineInput(TypedDict, total=True):
     name: Required[str]
     description: Required[str]
@@ -134,6 +141,32 @@ class InteractionFeedbackDict(TypedDict):
     feedback_key: Required[str]
     value: Required[int | float | bool]
     details: NotRequired[str]
+
+
+class JudgeExampleInput(TypedDict, total=False):
+    """
+    Example to guide an AI judge's reasoning when evaluating a completion (few-shot prompting).
+
+    Args:
+        input: Ordered list of chat messages (role/content) that form the conversation context.
+        output: Assistant completion to be evaluated.
+        passes: Boolean indicating whether the *output* satisfies the criteria.
+        reasoning: Optional free-text with the rationale behind the decision.
+    """
+
+    input: Required[List[ChatMessage]]
+    output: Required[str]
+    passes: Required[bool]
+    reasoning: Required[str]
+
+
+class JudgeTrainingInput(TypedDict, total=False):
+    key: Required[str]
+    version: NotRequired[int | None]
+
+
+class JudgeTrainingParamsInput(TypedDict, total=False):
+    judges: Required[List["JudgeTrainingInput"]]
 
 
 class ListCompletionsFilterInput(TypedDict, total=False):
@@ -269,7 +302,7 @@ class TrainingMetadataInputParameters(TypedDict, total=False):
 
 class TrainingObjectiveInput(TypedDict, total=False):
     metric: NotRequired["MetricTrainingParamsInput"]
-    guidelines: NotRequired["GuidelinesTrainingParamsInput"]
+    judges: NotRequired["JudgeTrainingParamsInput"]
     sft: NotRequired["SftTrainingParamsInput"]
     reward_server: NotRequired["RewardServerInput"]
 
@@ -285,10 +318,3 @@ class Order(TypedDict, total=False):
 
     field: Required[str]
     order: Required[Literal["ASC", "DESC"]]
-
-
-class GenerateParameters(TypedDict, total=False):
-    stop: NotRequired[List[str]]
-    max_tokens: NotRequired[int]
-    temperature: NotRequired[float]
-    top_p: NotRequired[float]

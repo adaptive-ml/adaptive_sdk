@@ -55,7 +55,7 @@ class ValidatedBatchedRequest(BaseModel, Generic[MetadataType]):
 class Response(BaseModel):
     """@public"""
 
-    reward: float | list[float]
+    reward: float
     metadata: dict[str, Any]
     id: int | None = None
 

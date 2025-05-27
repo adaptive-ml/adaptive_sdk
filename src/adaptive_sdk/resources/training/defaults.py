@@ -169,8 +169,11 @@ def build_adapt_config(
         alignment_params,
         base_training_params,
     )
+    if not output_model_name:
+        output_model_name = model + "-" + datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
+        logger.info(f"Did not specify output_model_name, will name the output model `{output_model_name}`")
     adapt_config = AdaptRequestConfigInput(
-        outputName=output_model_name or model + "-" + datetime.now().strftime("%m-%d-%Y-%H-%M-%S"),
+        outputName=output_model_name,
         sampleConfig=sample_config_input,
         trainingConfig=training_config_input,
     )

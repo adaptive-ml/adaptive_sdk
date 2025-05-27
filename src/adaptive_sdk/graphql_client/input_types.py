@@ -129,6 +129,7 @@ class CustomRecipeConfigInput(BaseModel):
     recipe: str
     args: Any
     output_name: str = Field(alias='outputName')
+    dataset: Optional[str] = None
 
 class CustomRecipeTrainingJobInput(BaseModel):
     """@private"""

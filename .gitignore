@@ -8,3 +8,4 @@ build
 
 openapi.json
 schema.graphql
+*.DS_Store

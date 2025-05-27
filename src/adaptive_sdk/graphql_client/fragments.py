@@ -1,7 +1,7 @@
 from typing import Annotated, Any, List, Literal, Optional, Union
 from pydantic import Field
 from .base_model import BaseModel
-from .enums import AbcampaignStatus, CompletionSource, CompletionSourceOutput, DatasetKind, EvaluationJobStatus, FeedbackType, FeedbackTypeOutput, JobStatusOutput, MetricKind, MetricScoringType, ModelKindFilter, ModelOnline, PartitionStatus, ProviderName, RemoteEnvStatus, ScriptKind, SelectionTypeOutput, TrainingJobStatus, TrainingMetadataOutputAlignmentMethod, TrainingMetadataOutputTrainingType
+from .enums import AbcampaignStatus, CompletionSource, CompletionSourceOutput, DatasetKind, EvaluationJobStatus, FeedbackType, FeedbackTypeOutput, JobStatusOutput, JudgeCapability, MetricKind, MetricScoringType, ModelKindFilter, ModelOnline, PartitionStatus, ProviderName, RemoteEnvStatus, ScriptKind, SelectionTypeOutput, TrainingJobStatus, TrainingMetadataOutputAlignmentMethod, TrainingMetadataOutputTrainingType
 
 class AbCampaignCreateData(BaseModel):
     """@public"""
@@ -236,53 +236,6 @@ class ModelDataComputeConfig(BaseModel):
     kv_cache_len: int = Field(alias='kvCacheLen')
     max_seq_len: int = Field(alias='maxSeqLen')
 
-class ModelServiceData(BaseModel):
-    """@public"""
-    id: Any
-    key: str
-    name: str
-    model: 'ModelServiceDataModel'
-    attached: bool
-    is_default: bool = Field(alias='isDefault')
-    desired_online: bool = Field(alias='desiredOnline')
-    created_at: int = Field(alias='createdAt')
-
-class ModelServiceDataModel(ModelData):
-    """@public"""
-    backbone: Optional['ModelServiceDataModelBackbone']
-
-class ModelServiceDataModelBackbone(ModelData):
-    """@public"""
-    pass
-
-class MetricWithContextData(BaseModel):
-    """@public"""
-    id: Any
-    key: str
-    name: str
-    kind: MetricKind
-    description: str
-    scoring_type: MetricScoringType = Field(alias='scoringType')
-    created_at: Any = Field(alias='createdAt')
-
-class UseCaseData(BaseModel):
-    """@public"""
-    id: Any
-    key: str
-    name: str
-    description: str
-    created_at: int = Field(alias='createdAt')
-    metrics: List['UseCaseDataMetrics']
-    model_services: List['UseCaseDataModelServices'] = Field(alias='modelServices')
-
-class UseCaseDataMetrics(MetricWithContextData):
-    """@public"""
-    pass
-
-class UseCaseDataModelServices(ModelServiceData):
-    """@public"""
-    pass
-
 class JobStageOutputData(BaseModel):
     """@public"""
     name: str
@@ -314,6 +267,53 @@ class JobStageOutputDataInfoBatchInferenceJobStageOutput(BaseModel):
     total_num_samples: Optional[int] = Field(alias='totalNumSamples')
     processed_num_samples: Optional[int] = Field(alias='processedNumSamples')
     monitoring_link: Optional[str] = Field(alias='monitoringLink')
+
+class MetricWithContextData(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    kind: MetricKind
+    description: str
+    scoring_type: MetricScoringType = Field(alias='scoringType')
+    created_at: Any = Field(alias='createdAt')
+
+class ModelServiceData(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    model: 'ModelServiceDataModel'
+    attached: bool
+    is_default: bool = Field(alias='isDefault')
+    desired_online: bool = Field(alias='desiredOnline')
+    created_at: int = Field(alias='createdAt')
+
+class ModelServiceDataModel(ModelData):
+    """@public"""
+    backbone: Optional['ModelServiceDataModelBackbone']
+
+class ModelServiceDataModelBackbone(ModelData):
+    """@public"""
+    pass
+
+class UseCaseData(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    description: str
+    created_at: int = Field(alias='createdAt')
+    metrics: List['UseCaseDataMetrics']
+    model_services: List['UseCaseDataModelServices'] = Field(alias='modelServices')
+
+class UseCaseDataMetrics(MetricWithContextData):
+    """@public"""
+    pass
+
+class UseCaseDataModelServices(ModelServiceData):
+    """@public"""
+    pass
 
 class EvaluationJobData(BaseModel):
     """@public"""
@@ -361,6 +361,42 @@ class EvaluationJobDataCreatedBy(BaseModel):
     id: Any
     email: str
     name: str
+
+class JudgeData(BaseModel):
+    """@public"""
+    id: str
+    key: str
+    version: int
+    name: str
+    criteria: Optional[str]
+    prebuilt: Optional[str]
+    examples: Optional[List['JudgeDataExamples']]
+    capabilities: List[JudgeCapability]
+    model: 'JudgeDataModel'
+    use_case_id: Any = Field(alias='useCaseId')
+    metric: 'JudgeDataMetric'
+    created_at: int = Field(alias='createdAt')
+    updated_at: int = Field(alias='updatedAt')
+
+class JudgeDataExamples(BaseModel):
+    """@public"""
+    input: List['JudgeDataExamplesInput']
+    output: str
+    pass_: bool = Field(alias='pass')
+    reasoning: Optional[str]
+
+class JudgeDataExamplesInput(BaseModel):
+    """@public"""
+    role: str
+    content: str
+
+class JudgeDataModel(ModelData):
+    """@public"""
+    pass
+
+class JudgeDataMetric(MetricData):
+    """@public"""
+    pass
 
 class ListCompletionsFilterOutputData(BaseModel):
     """@public"""
@@ -646,11 +682,12 @@ CompletionData.model_rebuild()
 CustomScriptData.model_rebuild()
 DatasetData.model_rebuild()
 ModelData.model_rebuild()
-ModelServiceData.model_rebuild()
-MetricWithContextData.model_rebuild()
-UseCaseData.model_rebuild()
 JobStageOutputData.model_rebuild()
+MetricWithContextData.model_rebuild()
+ModelServiceData.model_rebuild()
+UseCaseData.model_rebuild()
 EvaluationJobData.model_rebuild()
+JudgeData.model_rebuild()
 ListCompletionsFilterOutputData.model_rebuild()
 MetricDataAdmin.model_rebuild()
 ModelDataAdmin.model_rebuild()

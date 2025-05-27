@@ -64,9 +64,7 @@ class RunnerFixture:
     @log_function_name
     def test_roles(self):
         _ = self.client.permissions.list()
-        _ = self.client.roles.create(
-            key=self.role, name=self.role, permissions=["use_case:read"]
-        )
+        _ = self.client.roles.create(key=self.role, name=self.role, permissions=["use_case:read"])
         roles_list = self.client.roles.list()
         assert any([role.key == self.role for role in roles_list])
 
@@ -174,9 +172,7 @@ class RunnerFixture:
         return (open_ai_model, azure_model, google_model)
 
     @log_function_name
-    def test_inference(
-        self, ext_models: Sequence[ModelData]
-    ) -> rest_types.ChatResponse:
+    def test_inference(self, ext_models: Sequence[ModelData]) -> rest_types.ChatResponse:
         for ext in ext_models:
             _ = self.client.chat.create(
                 model=ext.key,
@@ -214,16 +210,12 @@ class RunnerFixture:
 
     @log_function_name
     def test_interactions(self, completions: rest_types.ChatResponse):
-        metric_logged_completion = self.client.interactions.get(
-            completions.choices[0].completion_id
-        )
+        metric_logged_completion = self.client.interactions.get(completions.choices[0].completion_id)
         assert metric_logged_completion
         assert len(metric_logged_completion.direct_feedbacks) == 1
         assert len(metric_logged_completion.comparison_feedbacks) == 1
 
-        _ = self.client.interactions.create(
-            completion="completion", messages=[{"role": "user", "content": "prompt"}]
-        )
+        _ = self.client.interactions.create(completion="completion", messages=[{"role": "user", "content": "prompt"}])
         _ = self.client.interactions.create(
             model=self.model,
             completion="completion",
@@ -300,11 +292,55 @@ class RunnerFixture:
                     failed_details += "\n\n"
                 if ar_job_status == "FAILED":
                     failed_details += pprint.pformat(ar_job.model_dump(), width=120)
-                raise RuntimeError(
-                    f"One of the evaluation jobs failed:\n\n{failed_details}"
-                )
+                raise RuntimeError(f"One of the evaluation jobs failed:\n\n{failed_details}")
             else:
                 time.sleep(1)
+
+    @log_function_name
+    def test_judges(self, ext_models: Sequence[ModelData]):
+        judge_key = f"e2e-judge-{int(time.time()*1000)}"
+        # prebuilt_key = f"{judge_key}-prebuilt"
+
+        # Create a custom judge
+        created = self.client.judges.create(
+            key=judge_key,
+            name=judge_key,
+            criteria="The answer must be helpful and relevant.",
+            judge_model=ext_models[0].key,
+            examples=[
+                {
+                    "input": [{"role": "user", "content": "Hello"}],
+                    "output": "Hi",
+                    "passes": True,
+                    "reasoning": "Basic greeting passes.",
+                }
+            ],
+            feedback_key=self.feedback_key,
+        )
+        assert created.key == judge_key
+
+        # Read operations
+        assert self.client.judges.get(key=judge_key)
+        assert any(j.key == judge_key for j in self.client.judges.list())
+
+        # Update to create a new version
+        updated = self.client.judges.update(key=judge_key, criteria="Updated criteria for the judge.")
+        assert updated.criteria
+        assert updated.criteria.startswith("Updated")
+        assert len(self.client.judges.list_versions(key=judge_key)) >= 2
+
+        # Pre-built judge
+        # prebuilt = self.client.judges.create_prebuilt(
+        #     key=prebuilt_key,
+        #     name=prebuilt_key,
+        #     judge_model=ext_models[0].key,
+        #     prebuilt_criteria="ANSWER_RELEVANCY",
+        # )
+        # assert prebuilt.key == prebuilt_key
+
+        # Clean-up
+        assert self.client.judges.delete(key=judge_key)
+        # assert self.client.judges.delete(key=prebuilt_key)
 
     def run_all_tests(self):
         self.test_teams()
@@ -319,6 +355,7 @@ class RunnerFixture:
         self.test_ab_tests(ext_models)
         self.test_datasets()
         self.test_evals(ext_models)
+        self.test_judges(ext_models)
         # TODO:
         #   * test_evals_from_interactions, using generations from the previous step
         #   * test training, both with judge feedback provided above, and RLAIF
