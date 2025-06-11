@@ -215,27 +215,6 @@ class DatasetDataMetricsUsageMetric(MetricData):
     """@public"""
     pass
 
-class ModelData(BaseModel):
-    """@public"""
-    id: Any
-    key: str
-    name: str
-    online: ModelOnline
-    is_external: bool = Field(alias='isExternal')
-    provider_name: ProviderName = Field(alias='providerName')
-    is_adapter: bool = Field(alias='isAdapter')
-    is_training: bool = Field(alias='isTraining')
-    created_at: int = Field(alias='createdAt')
-    kind: ModelKindFilter
-    size: Optional[str]
-    compute_config: 'ModelDataComputeConfig' = Field(alias='computeConfig')
-
-class ModelDataComputeConfig(BaseModel):
-    """@public"""
-    tp: int
-    kv_cache_len: int = Field(alias='kvCacheLen')
-    max_seq_len: int = Field(alias='maxSeqLen')
-
 class JobStageOutputData(BaseModel):
     """@public"""
     name: str
@@ -268,15 +247,26 @@ class JobStageOutputDataInfoBatchInferenceJobStageOutput(BaseModel):
     processed_num_samples: Optional[int] = Field(alias='processedNumSamples')
     monitoring_link: Optional[str] = Field(alias='monitoringLink')
 
-class MetricWithContextData(BaseModel):
+class ModelData(BaseModel):
     """@public"""
     id: Any
     key: str
     name: str
-    kind: MetricKind
-    description: str
-    scoring_type: MetricScoringType = Field(alias='scoringType')
-    created_at: Any = Field(alias='createdAt')
+    online: ModelOnline
+    is_external: bool = Field(alias='isExternal')
+    provider_name: ProviderName = Field(alias='providerName')
+    is_adapter: bool = Field(alias='isAdapter')
+    is_training: bool = Field(alias='isTraining')
+    created_at: int = Field(alias='createdAt')
+    kind: ModelKindFilter
+    size: Optional[str]
+    compute_config: Optional['ModelDataComputeConfig'] = Field(alias='computeConfig')
+
+class ModelDataComputeConfig(BaseModel):
+    """@public"""
+    tp: int
+    kv_cache_len: int = Field(alias='kvCacheLen')
+    max_seq_len: int = Field(alias='maxSeqLen')
 
 class ModelServiceData(BaseModel):
     """@public"""
@@ -296,6 +286,16 @@ class ModelServiceDataModel(ModelData):
 class ModelServiceDataModelBackbone(ModelData):
     """@public"""
     pass
+
+class MetricWithContextData(BaseModel):
+    """@public"""
+    id: Any
+    key: str
+    name: str
+    kind: MetricKind
+    description: str
+    scoring_type: MetricScoringType = Field(alias='scoringType')
+    created_at: Any = Field(alias='createdAt')
 
 class UseCaseData(BaseModel):
     """@public"""
@@ -325,7 +325,7 @@ class EvaluationJobData(BaseModel):
     ended_at: Optional[int] = Field(alias='endedAt')
     duration_ms: Optional[int] = Field(alias='durationMs')
     model_services: List['EvaluationJobDataModelServices'] = Field(alias='modelServices')
-    judge: Optional['EvaluationJobDataJudge']
+    judges: List['EvaluationJobDataJudges']
     stages: List['EvaluationJobDataStages']
     use_case: Optional['EvaluationJobDataUseCase'] = Field(alias='useCase')
     report: Optional['EvaluationJobDataReport']
@@ -336,7 +336,7 @@ class EvaluationJobDataModelServices(ModelServiceData):
     """@public"""
     pass
 
-class EvaluationJobDataJudge(ModelData):
+class EvaluationJobDataJudges(ModelData):
     """@public"""
     pass
 
@@ -578,6 +578,7 @@ class TrainingJobData(BaseModel):
     use_case: Optional['TrainingJobDataUseCase'] = Field(alias='useCase')
     config: Union['TrainingJobDataConfigAdaptBuiltinRecipeConfigOutput', 'TrainingJobDataConfigAdaptCustomRecipeConfigOutput'] = Field(discriminator='typename__')
     created_by: Optional['TrainingJobDataCreatedBy'] = Field(alias='createdBy')
+    error: Optional[str]
 
 class TrainingJobDataStages(JobStageOutputData):
     """@public"""
@@ -681,10 +682,10 @@ CompletionComparisonFeedbackData.model_rebuild()
 CompletionData.model_rebuild()
 CustomScriptData.model_rebuild()
 DatasetData.model_rebuild()
-ModelData.model_rebuild()
 JobStageOutputData.model_rebuild()
-MetricWithContextData.model_rebuild()
+ModelData.model_rebuild()
 ModelServiceData.model_rebuild()
+MetricWithContextData.model_rebuild()
 UseCaseData.model_rebuild()
 EvaluationJobData.model_rebuild()
 JudgeData.model_rebuild()

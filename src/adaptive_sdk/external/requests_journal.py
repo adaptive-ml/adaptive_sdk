@@ -41,7 +41,9 @@ class RequestsJournal:
     def add_journalling(self, app: FastAPI):
         router = APIRouter()
         router.add_api_route("/requests", self.list_requests, methods=["GET"])
-        router.add_api_route("/requests/replay_last/{n}", self.replay_last_n, methods=["POST"])
+        router.add_api_route(
+            "/requests/replay_last/{n}", self.replay_last_n, methods=["POST"]
+        )
 
         app.include_router(router=router)
 
@@ -52,7 +54,9 @@ class RequestsJournal:
         @app.middleware("http")
         async def record_requests(request, call_next):
             # don't keep track of those requests
-            if request.url.path.startswith("/requests") or request.url.path.startswith("/info"):
+            if request.url.path.startswith("/requests") or request.url.path.startswith(
+                "/info"
+            ):
                 return await call_next(request)
 
             body = await request.body()

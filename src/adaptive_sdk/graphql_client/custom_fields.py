@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional, Union
 from .base_operation import GraphQLField
-from .custom_typing_fields import AbcampaignGraphQLField, AbReportGraphQLField, AbVariantReportComparisonGraphQLField, AbVariantReportGraphQLField, ActivityGraphQLField, ActivityOutputGraphQLField, AdaptBuiltinRecipeConfigOutputGraphQLField, AdaptCustomRecipeConfigOutputGraphQLField, AdaptRequestConfigOutputUnion, ApiKeyGraphQLField, AuthProviderGraphQLField, BaseTrainingParamsOutputGraphQLField, BatchInferenceJobStageOutputGraphQLField, ChatMessageGraphQLField, ComparisonFeedbackGraphQLField, CompletionConnectionGraphQLField, CompletionEdgeGraphQLField, CompletionFeedbackFilterOutputGraphQLField, CompletionGraphQLField, CompletionGroupDataConnectionGraphQLField, CompletionGroupDataEdgeGraphQLField, CompletionGroupDataGraphQLField, CompletionGroupFeedbackStatsGraphQLField, CompletionHistoryEntryOuputGraphQLField, CompletionLabelFilterOutputGraphQLField, CompletionLabelGraphQLField, CompletionMetadataGraphQLField, ComputePoolGraphQLField, CustomScriptGraphQLField, DatasetGraphQLField, DatasetMetricUsageGraphQLField, DatasetValidationOutputGraphQLField, DeleteConfirmGraphQLField, DirectFeedbackGraphQLField, DpotrainingParamsOutputGraphQLField, EmojiGraphQLField, EvalJobStageOutputGraphQLField, EvaluationAnswerRelevancyRecipeGraphQLField, EvaluationContextRelevancyRecipeGraphQLField, EvaluationCustomRecipeGraphQLField, EvaluationFaithfulnessRecipeGraphQLField, EvaluationJobGraphQLField, EvaluationRecipeUnion, GrpotrainingParamsOutputGraphQLField, GuidelineGraphQLField, GuidelinesTrainingParamsOutputGraphQLField, InteractionOutputGraphQLField, IntervalGraphQLField, JobStageInfoOutputUnion, JobStageOutputGraphQLField, JudgeExampleGraphQLField, JudgeGraphQLField, JudgeTrainingParamsOutputGraphQLField, LabelKeyUsageGraphQLField, LabelUsageGraphQLField, LabelValueUsageGraphQLField, ListCompletionsFilterOutputGraphQLField, MetaObjectGraphQLField, MetricActivityGraphQLField, MetricGraphQLField, MetricTrainingParamsMetadataOutputUnion, MetricTrainingParamsOutputGraphQLField, MetricWithContextGraphQLField, ModelComputeConfigOutputGraphQLField, ModelGraphQLField, ModelPlacementOutputGraphQLField, ModelServiceGraphQLField, PageInfoGraphQLField, PartitionGraphQLField, PpotrainingParamsOutputGraphQLField, PrebuiltCriteriaGraphQLField, ProviderListGraphQLField, RemoteEnvGraphQLField, RemoteEnvTestOfflineGraphQLField, RemoteEnvTestOnlineGraphQLField, RewardServerTrainingParamsOutputGraphQLField, RoleGraphQLField, SampleConfigOutputGraphQLField, SampleDatasourceCompletionsOutputGraphQLField, SampleDatasourceDatasetOutputGraphQLField, SampleDatasourceOutputUnion, ScalarMetricConfigOutputGraphQLField, SessionGraphQLField, SettingsGraphQLField, SfttrainingParamsOutputGraphQLField, ShareGraphQLField, SystemPromptTemplateGraphQLField, TeamGraphQLField, TeamMemberGraphQLField, TeamWithroleGraphQLField, TimeRangeOutputGraphQLField, TimeseriesGraphQLField, TrainingConfigOutputGraphQLField, TrainingJobGraphQLField, TrainingJobStageOutputGraphQLField, TrainingMetadataOutputGraphQLField, TrainingMetadataOutputParametersUnion, TrainingObjectiveOutputUnion, TrendResultGraphQLField, UnitConfigGraphQLField, UsageAggregateItemGraphQLField, UsageAggregatePerUseCaseItemGraphQLField, UsageGraphQLField, UseCaseGraphQLField, UseCaseItemGraphQLField, UseCaseMetadataGraphQLField, UserGraphQLField, WidgetGraphQLField
+from .custom_typing_fields import AbcampaignGraphQLField, AbReportGraphQLField, AbVariantReportComparisonGraphQLField, AbVariantReportGraphQLField, ActivityGraphQLField, ActivityOutputGraphQLField, AdaptBuiltinRecipeConfigOutputGraphQLField, AdaptCustomRecipeConfigOutputGraphQLField, AdaptRequestConfigOutputUnion, ApiKeyGraphQLField, AuthProviderGraphQLField, BaseTrainingParamsOutputGraphQLField, BatchInferenceJobStageOutputGraphQLField, ChatMessageGraphQLField, ComparisonFeedbackGraphQLField, CompletionConnectionGraphQLField, CompletionEdgeGraphQLField, CompletionFeedbackFilterOutputGraphQLField, CompletionGraphQLField, CompletionGroupDataConnectionGraphQLField, CompletionGroupDataEdgeGraphQLField, CompletionGroupDataGraphQLField, CompletionGroupFeedbackStatsGraphQLField, CompletionHistoryEntryOuputGraphQLField, CompletionLabelFilterOutputGraphQLField, CompletionLabelGraphQLField, CompletionMetadataGraphQLField, ComputePoolGraphQLField, CustomScriptGraphQLField, DatasetGraphQLField, DatasetMetricUsageGraphQLField, DatasetValidationOutputGraphQLField, DeleteConfirmGraphQLField, DirectFeedbackGraphQLField, DpotrainingParamsOutputGraphQLField, EmojiGraphQLField, EvalJobStageOutputGraphQLField, EvaluationAnswerRelevancyRecipeGraphQLField, EvaluationContextRelevancyRecipeGraphQLField, EvaluationCustomRecipeGraphQLField, EvaluationFaithfulnessRecipeGraphQLField, EvaluationJobGraphQLField, EvaluationRecipeUnion, GraderConfigUnion, GraderGraphQLField, GrpotrainingParamsOutputGraphQLField, GuidelineGraphQLField, GuidelinesTrainingParamsOutputGraphQLField, InteractionOutputGraphQLField, IntervalGraphQLField, JobStageInfoOutputUnion, JobStageOutputGraphQLField, JudgeConfigOutputGraphQLField, JudgeExampleGraphQLField, JudgeGraphQLField, JudgeTrainingParamsOutputGraphQLField, LabelKeyUsageGraphQLField, LabelUsageGraphQLField, LabelValueUsageGraphQLField, ListCompletionsFilterOutputGraphQLField, MetaObjectGraphQLField, MetricActivityGraphQLField, MetricGraphQLField, MetricTrainingParamsMetadataOutputUnion, MetricTrainingParamsOutputGraphQLField, MetricWithContextGraphQLField, ModelComputeConfigOutputGraphQLField, ModelGraphQLField, ModelPlacementOutputGraphQLField, ModelServiceGraphQLField, PageInfoGraphQLField, PartitionGraphQLField, PpotrainingParamsOutputGraphQLField, PrebuiltConfigDefinitionGraphQLField, PrebuiltConfigOutputGraphQLField, PrebuiltCriteriaGraphQLField, ProviderListGraphQLField, RemoteEnvGraphQLField, RemoteEnvTestOfflineGraphQLField, RemoteEnvTestOnlineGraphQLField, RewardServerTrainingParamsOutputGraphQLField, RoleGraphQLField, SampleConfigOutputGraphQLField, SampleDatasourceCompletionsOutputGraphQLField, SampleDatasourceDatasetOutputGraphQLField, SampleDatasourceOutputUnion, ScalarMetricConfigOutputGraphQLField, SessionGraphQLField, SettingsGraphQLField, SfttrainingParamsOutputGraphQLField, ShareGraphQLField, SystemPromptTemplateGraphQLField, TeamGraphQLField, TeamMemberGraphQLField, TeamWithroleGraphQLField, TimeRangeOutputGraphQLField, TimeseriesGraphQLField, TrainingConfigOutputGraphQLField, TrainingJobGraphQLField, TrainingJobStageOutputGraphQLField, TrainingMetadataOutputGraphQLField, TrainingMetadataOutputParametersUnion, TrainingObjectiveOutputUnion, TrendResultGraphQLField, UnitConfigGraphQLField, UsageAggregateItemGraphQLField, UsageAggregatePerUseCaseItemGraphQLField, UsageGraphQLField, UseCaseGraphQLField, UseCaseItemGraphQLField, UseCaseMetadataGraphQLField, UserGraphQLField, WidgetGraphQLField
 from .input_types import AbCampaignFilter, CursorPageInput, FeedbackFilterInput, ListCompletionsFilterInput, MetricTrendInput, ModelServiceFilter, OrderPair, TimeRange, TimeseriesInput, UseCaseFilter
 
 class AbReportFields(GraphQLField):
@@ -834,8 +834,12 @@ class EvaluationJobFields(GraphQLField):
         return ModelServiceFields('model_services')
 
     @classmethod
-    def judge(cls) -> 'ModelFields':
-        return ModelFields('judge')
+    def graders(cls) -> 'GraderFields':
+        return GraderFields('graders')
+
+    @classmethod
+    def judges(cls) -> 'ModelFields':
+        return ModelFields('judges')
 
     @classmethod
     def use_case(cls) -> 'UseCaseFields':
@@ -862,17 +866,46 @@ class EvaluationJobFields(GraphQLField):
         return SampleConfigOutputFields('sample_config')
 
     @classmethod
-    def metric(cls) -> 'MetricFields':
-        return MetricFields('metric')
+    def metrics(cls) -> 'MetricFields':
+        return MetricFields('metrics')
     eval_type: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField('evalType')
     recipe: 'EvaluationRecipeUnion' = EvaluationRecipeUnion('recipe')
+    error: 'EvaluationJobGraphQLField' = EvaluationJobGraphQLField('error')
 
-    def fields(self, *subfields: Union[EvaluationJobGraphQLField, 'AbReportFields', 'DatasetFields', 'EvaluationRecipeUnion', 'JobStageOutputFields', 'MetricFields', 'ModelFields', 'ModelServiceFields', 'SampleConfigOutputFields', 'UseCaseFields', 'UserFields']) -> 'EvaluationJobFields':
+    def fields(self, *subfields: Union[EvaluationJobGraphQLField, 'AbReportFields', 'DatasetFields', 'EvaluationRecipeUnion', 'GraderFields', 'JobStageOutputFields', 'MetricFields', 'ModelFields', 'ModelServiceFields', 'SampleConfigOutputFields', 'UseCaseFields', 'UserFields']) -> 'EvaluationJobFields':
         """Subfields should come from the EvaluationJobFields class"""
         self._subfields.extend(subfields)
         return self
 
     def alias(self, alias: str) -> 'EvaluationJobFields':
+        self._alias = alias
+        return self
+
+class GraderFields(GraphQLField):
+    """@private"""
+    id: 'GraderGraphQLField' = GraderGraphQLField('id')
+    name: 'GraderGraphQLField' = GraderGraphQLField('name')
+    key: 'GraderGraphQLField' = GraderGraphQLField('key')
+    locked: 'GraderGraphQLField' = GraderGraphQLField('locked')
+    grader_type: 'GraderGraphQLField' = GraderGraphQLField('graderType')
+    grader_config: 'GraderConfigUnion' = GraderConfigUnion('graderConfig')
+
+    @classmethod
+    def use_case(cls) -> 'UseCaseFields':
+        return UseCaseFields('use_case')
+
+    @classmethod
+    def metric(cls) -> 'MetricFields':
+        return MetricFields('metric')
+    created_at: 'GraderGraphQLField' = GraderGraphQLField('createdAt')
+    updated_at: 'GraderGraphQLField' = GraderGraphQLField('updatedAt')
+
+    def fields(self, *subfields: Union[GraderGraphQLField, 'GraderConfigUnion', 'MetricFields', 'UseCaseFields']) -> 'GraderFields':
+        """Subfields should come from the GraderFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> 'GraderFields':
         self._alias = alias
         return self
 
@@ -1002,6 +1035,27 @@ class JudgeFields(GraphQLField):
         return self
 
     def alias(self, alias: str) -> 'JudgeFields':
+        self._alias = alias
+        return self
+
+class JudgeConfigOutputFields(GraphQLField):
+    """@private"""
+    criteria: 'JudgeConfigOutputGraphQLField' = JudgeConfigOutputGraphQLField('criteria')
+
+    @classmethod
+    def examples(cls) -> 'JudgeExampleFields':
+        return JudgeExampleFields('examples')
+
+    @classmethod
+    def model(cls) -> 'ModelFields':
+        return ModelFields('model')
+
+    def fields(self, *subfields: Union[JudgeConfigOutputGraphQLField, 'JudgeExampleFields', 'ModelFields']) -> 'JudgeConfigOutputFields':
+        """Subfields should come from the JudgeConfigOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> 'JudgeConfigOutputFields':
         self._alias = alias
         return self
 
@@ -1440,6 +1494,42 @@ class PpotrainingParamsOutputFields(GraphQLField):
         self._alias = alias
         return self
 
+class PrebuiltConfigDefinitionFields(GraphQLField):
+    """@private"""
+    key: 'PrebuiltConfigDefinitionGraphQLField' = PrebuiltConfigDefinitionGraphQLField('key')
+    name: 'PrebuiltConfigDefinitionGraphQLField' = PrebuiltConfigDefinitionGraphQLField('name')
+    feedback_key: 'PrebuiltConfigDefinitionGraphQLField' = PrebuiltConfigDefinitionGraphQLField('feedbackKey')
+    description: 'PrebuiltConfigDefinitionGraphQLField' = PrebuiltConfigDefinitionGraphQLField('description')
+
+    def fields(self, *subfields: PrebuiltConfigDefinitionGraphQLField) -> 'PrebuiltConfigDefinitionFields':
+        """Subfields should come from the PrebuiltConfigDefinitionFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> 'PrebuiltConfigDefinitionFields':
+        self._alias = alias
+        return self
+
+class PrebuiltConfigOutputFields(GraphQLField):
+    """@private"""
+
+    @classmethod
+    def criteria(cls) -> 'PrebuiltConfigDefinitionFields':
+        return PrebuiltConfigDefinitionFields('criteria')
+
+    @classmethod
+    def model(cls) -> 'ModelFields':
+        return ModelFields('model')
+
+    def fields(self, *subfields: Union[PrebuiltConfigOutputGraphQLField, 'ModelFields', 'PrebuiltConfigDefinitionFields']) -> 'PrebuiltConfigOutputFields':
+        """Subfields should come from the PrebuiltConfigOutputFields class"""
+        self._subfields.extend(subfields)
+        return self
+
+    def alias(self, alias: str) -> 'PrebuiltConfigOutputFields':
+        self._alias = alias
+        return self
+
 class PrebuiltCriteriaFields(GraphQLField):
     """@private"""
     key: 'PrebuiltCriteriaGraphQLField' = PrebuiltCriteriaGraphQLField('key')
@@ -1842,6 +1932,7 @@ class TrainingJobFields(GraphQLField):
     def use_case(cls) -> 'UseCaseFields':
         return UseCaseFields('use_case')
     config: 'AdaptRequestConfigOutputUnion' = AdaptRequestConfigOutputUnion('config')
+    error: 'TrainingJobGraphQLField' = TrainingJobGraphQLField('error')
 
     @classmethod
     def created_by(cls) -> 'UserFields':

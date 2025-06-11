@@ -67,14 +67,14 @@ class Datasets(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         return self._gql_client.list_datasets(self.use_case_key(use_case)).datasets
 
-    def get(self, key: str) -> DatasetData | None:
+    def get(self, key: str, use_case: str | None = None) -> DatasetData | None:
         """
         Get details for dataset.
 
         Args:
             key: Dataset key.
         """
-        return self._gql_client.describe_dataset(key).dataset
+        return self._gql_client.describe_dataset(key, self.use_case_key(use_case)).dataset
 
     def generate(
         self,
@@ -110,7 +110,9 @@ class Datasets(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
             computePool=compute_pool,
             config=DatasetGenerationConfig(
                 rag=RagdataGenerationConfig(
-                    chunksPerQuestion=chunks_per_new_sample, model=model, systemPrompt=new_system_prompt
+                    chunksPerQuestion=chunks_per_new_sample,
+                    model=model,
+                    systemPrompt=new_system_prompt,
                 )
             ),
         )
@@ -165,14 +167,14 @@ class AsyncDatasets(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         results = await self._gql_client.list_datasets(self.use_case_key(use_case))
         return results.datasets
 
-    async def get(self, key: str) -> DatasetData | None:
+    async def get(self, key: str, use_case: str | None = None) -> DatasetData | None:
         """
         Get details for dataset.
 
         Args:
             key: Dataset key.
         """
-        result = await self._gql_client.describe_dataset(key)
+        result = await self._gql_client.describe_dataset(key, self.use_case_key(use_case))
         return result.dataset
 
     async def generate(
@@ -209,7 +211,9 @@ class AsyncDatasets(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
             computePool=compute_pool,
             config=DatasetGenerationConfig(
                 rag=RagdataGenerationConfig(
-                    chunksPerQuestion=chunks_per_new_sample, model=model, systemPrompt=new_system_prompt
+                    chunksPerQuestion=chunks_per_new_sample,
+                    model=model,
+                    systemPrompt=new_system_prompt,
                 )
             ),
         )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+from loguru import logger
 from uuid import UUID
 from typing import (
     Dict,
@@ -141,21 +142,23 @@ class Chat(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         rest_error_handler(r)
         return rest_types.ChatResponse.model_validate(r.json())
 
-    def _stream(
-        self, input: rest_types.ChatInput
-    ) -> Generator[rest_types.ChatResponseChunk, None, None]:
-        with self._rest_client.stream(
-            "POST", ROUTE, json=input.model_dump(exclude_none=True)
-        ) as r:
+    def _stream(self, input: rest_types.ChatInput) -> Generator[rest_types.ChatResponseChunk, None, None]:
+        with self._rest_client.stream("POST", ROUTE, json=input.model_dump(exclude_none=True)) as r:
             rest_error_handler(r)
             for chunk in r.iter_lines():
                 if chunk:
                     chunk_data = chunk[6:]
                     if chunk_data == "[DONE]":
                         break
-                    yield rest_types.ChatResponseChunk.model_validate(
-                        json.loads(chunk_data)
-                    )
+                    try:
+                        chunk_content = json.loads(chunk_data)
+                    except Exception as e:
+                        logger.warning(f"Error with json in chunk: {chunk}")
+                        continue
+                    if any(key in chunk_content for key in ("TTFT", "finish_reason", "TotalRequestDuration")):
+                        continue
+                    else:
+                        yield rest_types.ChatResponseChunk.model_validate(chunk_content)
 
 
 class AsyncChat(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
@@ -270,24 +273,24 @@ class AsyncChat(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         )
         if input.stream:
             return self._stream(input)
-        r = await self._rest_client.post(
-            ROUTE, json=input.model_dump(exclude_none=True)
-        )
+        r = await self._rest_client.post(ROUTE, json=input.model_dump(exclude_none=True))
         rest_error_handler(r)
         return rest_types.ChatResponse.model_validate(r.json())
 
-    async def _stream(
-        self, input: rest_types.ChatInput
-    ) -> AsyncGenerator[rest_types.ChatResponseChunk, None]:
-        async with self._rest_client.stream(
-            "POST", ROUTE, json=input.model_dump(exclude_none=True)
-        ) as r:
+    async def _stream(self, input: rest_types.ChatInput) -> AsyncGenerator[rest_types.ChatResponseChunk, None]:
+        async with self._rest_client.stream("POST", ROUTE, json=input.model_dump(exclude_none=True)) as r:
             rest_error_handler(r)
-            async for line in r.aiter_lines():
-                if line:
-                    chunk_data = line[6:]
+            async for chunk in r.aiter_lines():
+                if chunk:
+                    chunk_data = chunk[6:]
                     if chunk_data == "[DONE]":
                         break
-                    yield rest_types.ChatResponseChunk.model_validate(
-                        json.loads(chunk_data)
-                    )
+                    try:
+                        chunk_content = json.loads(chunk_data)
+                    except Exception as e:
+                        logger.warning(f"Error with json in chunk: {chunk}")
+                        continue
+                    if any(key in chunk_content for key in ("TTFT", "finish_reason", "TotalRequestDuration")):
+                        continue
+                    else:
+                        yield rest_types.ChatResponseChunk.model_validate(chunk_content)

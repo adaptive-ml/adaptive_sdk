@@ -1,8 +1,8 @@
 from typing import Any, Dict, Optional
 from .base_model import Upload
-from .custom_fields import AbcampaignFields, ApiKeyFields, CompletionFields, CustomScriptFields, DatasetFields, DatasetValidationOutputFields, DeleteConfirmFields, DirectFeedbackFields, EvaluationJobFields, JudgeFields, MetricFields, MetricWithContextFields, ModelFields, ModelServiceFields, RemoteEnvFields, RoleFields, SystemPromptTemplateFields, TeamFields, TeamMemberFields, TrainingJobFields, UseCaseFields, UserFields
+from .custom_fields import AbcampaignFields, ApiKeyFields, CompletionFields, CustomScriptFields, DatasetFields, DatasetValidationOutputFields, DeleteConfirmFields, DirectFeedbackFields, EvaluationJobFields, GraderFields, JudgeFields, MetricFields, MetricWithContextFields, ModelFields, ModelServiceFields, RemoteEnvFields, RoleFields, SystemPromptTemplateFields, TeamFields, TeamMemberFields, TrainingJobFields, UseCaseFields, UserFields
 from .custom_typing_fields import GraphQLField, RemoteEnvTestUnion
-from .input_types import AbcampaignCreate, AddExternalModelInput, AddHFModelInput, AddModelInput, ApiKeyCreate, AttachModel, CustomRecipeTrainingJobInput, CustomScriptCreate, DatasetCreate, DatasetGenerate, EvaluationCreate, FeedbackAddInput, FeedbackUpdateInput, JudgeCreate, JudgeUpdate, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelPlacementInput, ModelServiceDisconnect, PrebuiltJudgeCreate, RemoteEnvCreate, RoleCreate, SystemPromptTemplateCreate, SystemPromptTemplateUpdate, TeamCreate, TeamMemberRemove, TeamMemberSet, TrainingJobInput, UpdateCompletion, UpdateModelService, UseCaseCreate, UseCaseShares, UseCaseUpdate
+from .input_types import AbcampaignCreate, AddExternalModelInput, AddHFModelInput, AddModelInput, ApiKeyCreate, AttachModel, CustomRecipeTrainingJobInput, CustomScriptCreate, DatasetCreate, DatasetGenerate, EvaluationCreate, EvaluationV2CreateInput, FeedbackAddInput, FeedbackUpdateInput, GraderCreateInput, GraderUpdateInput, JudgeCreate, JudgeUpdate, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelPlacementInput, ModelServiceDisconnect, PrebuiltJudgeCreate, RemoteEnvCreate, RoleCreate, SystemPromptTemplateCreate, SystemPromptTemplateUpdate, TeamCreate, TeamMemberRemove, TeamMemberSet, TrainingJobInput, UpdateCompletion, UpdateModelService, UseCaseCreate, UseCaseShares, UseCaseUpdate
 
 class Mutation:
     """@private"""
@@ -36,6 +36,12 @@ class Mutation:
         arguments: Dict[str, Dict[str, Any]] = {'input': {'type': 'DatasetGenerate!', 'value': input}, 'file': {'type': 'Upload!', 'value': file}}
         cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
         return DatasetFields(field_name='generateDataset', arguments=cleared_arguments)
+
+    @classmethod
+    def create_evaluation_job_graders(cls, use_case: str, input: EvaluationV2CreateInput) -> EvaluationJobFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'input': {'type': 'EvaluationV2CreateInput!', 'value': input}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return EvaluationJobFields(field_name='createEvaluationJobGraders', arguments=cleared_arguments)
 
     @classmethod
     def create_evaluation_job(cls, input: EvaluationCreate) -> EvaluationJobFields:
@@ -158,8 +164,8 @@ class Mutation:
         return RemoteEnvTestUnion(field_name='testRemoteEnv', arguments=cleared_arguments)
 
     @classmethod
-    def validate_dataset_schema(cls, remote_env: str, dataset: str) -> DatasetValidationOutputFields:
-        arguments: Dict[str, Dict[str, Any]] = {'remoteEnv': {'type': 'IdOrKey!', 'value': remote_env}, 'dataset': {'type': 'IdOrKey!', 'value': dataset}}
+    def validate_dataset_schema(cls, remote_env: str, dataset: str, usecase: str) -> DatasetValidationOutputFields:
+        arguments: Dict[str, Dict[str, Any]] = {'remoteEnv': {'type': 'IdOrKey!', 'value': remote_env}, 'dataset': {'type': 'IdOrKey!', 'value': dataset}, 'usecase': {'type': 'IdOrKey!', 'value': usecase}}
         cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
         return DatasetValidationOutputFields(field_name='validateDatasetSchema', arguments=cleared_arguments)
 
@@ -264,3 +270,27 @@ class Mutation:
         arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'key': {'type': 'String!', 'value': key}}
         cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
         return DeleteConfirmFields(field_name='deleteJudge', arguments=cleared_arguments)
+
+    @classmethod
+    def create_grader(cls, use_case: str, input: GraderCreateInput) -> GraderFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'input': {'type': 'GraderCreateInput!', 'value': input}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return GraderFields(field_name='createGrader', arguments=cleared_arguments)
+
+    @classmethod
+    def update_grader(cls, use_case: str, id: str, input: GraderUpdateInput) -> GraderFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'id': {'type': 'IdOrKey!', 'value': id}, 'input': {'type': 'GraderUpdateInput!', 'value': input}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return GraderFields(field_name='updateGrader', arguments=cleared_arguments)
+
+    @classmethod
+    def delete_grader(cls, use_case: str, id: str) -> DeleteConfirmFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'id': {'type': 'IdOrKey!', 'value': id}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return DeleteConfirmFields(field_name='deleteGrader', arguments=cleared_arguments)
+
+    @classmethod
+    def lock_grader(cls, use_case: str, id: str, locked: bool) -> GraderFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'id': {'type': 'IdOrKey!', 'value': id}, 'locked': {'type': 'Boolean!', 'value': locked}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return GraderFields(field_name='lockGrader', arguments=cleared_arguments)

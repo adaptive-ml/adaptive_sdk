@@ -70,6 +70,8 @@ class EvaluationType(str, Enum):
     """@public"""
     AI_JUDGE = 'AI_JUDGE'
     REMOTE_ENV = 'REMOTE_ENV'
+    GRADERS = 'GRADERS'
+    MULTI_AI_JUDGES = 'MULTI_AI_JUDGES'
 
 class ExternalModelProviderName(str, Enum):
     """@public"""
@@ -93,6 +95,11 @@ class FeedbackTypeOutput(str, Enum):
     """@public"""
     DIRECT = 'DIRECT'
     PREFERENCE = 'PREFERENCE'
+
+class GraderTypeEnum(str, Enum):
+    """@public"""
+    JUDGE = 'JUDGE'
+    PREBUILT = 'PREBUILT'
 
 class JobStatusOutput(str, Enum):
     """@public"""

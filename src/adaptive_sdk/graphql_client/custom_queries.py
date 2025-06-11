@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 from . import CompletionGroupBy
-from .custom_fields import AbcampaignFields, CompletionConnectionFields, CompletionFields, CompletionGroupDataConnectionFields, ComputePoolFields, CustomScriptFields, DatasetFields, EvaluationJobFields, JudgeFields, MetaObjectFields, MetricFields, ModelFields, PartitionFields, PrebuiltCriteriaFields, RemoteEnvFields, RoleFields, SystemPromptTemplateFields, TeamFields, TrainingJobFields, UsageAggregateItemFields, UsageAggregatePerUseCaseItemFields, UseCaseFields, UserFields
+from .custom_fields import AbcampaignFields, CompletionConnectionFields, CompletionFields, CompletionGroupDataConnectionFields, ComputePoolFields, CustomScriptFields, DatasetFields, EvaluationJobFields, GraderFields, JudgeFields, MetaObjectFields, MetricFields, ModelFields, PartitionFields, PrebuiltConfigDefinitionFields, PrebuiltCriteriaFields, RemoteEnvFields, RoleFields, SystemPromptTemplateFields, TeamFields, TrainingJobFields, UsageAggregateItemFields, UsageAggregatePerUseCaseItemFields, UseCaseFields, UserFields
 from .custom_typing_fields import GraphQLField
 from .input_types import AbCampaignFilter, CursorPageInput, CustomScriptFilter, FeedbackFilterInput, ListCompletionsFilterInput, ModelFilter, OrderPair, UsageFilterInput, UsagePerUseCaseFilterInput, UseCaseFilter
 
@@ -38,8 +38,8 @@ class Query:
         return DatasetFields(field_name='datasets', arguments=cleared_arguments)
 
     @classmethod
-    def dataset(cls, id_or_key: str) -> DatasetFields:
-        arguments: Dict[str, Dict[str, Any]] = {'idOrKey': {'type': 'IdOrKey!', 'value': id_or_key}}
+    def dataset(cls, id_or_key: str, use_case: str) -> DatasetFields:
+        arguments: Dict[str, Dict[str, Any]] = {'idOrKey': {'type': 'IdOrKey!', 'value': id_or_key}, 'useCase': {'type': 'IdOrKey!', 'value': use_case}}
         cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
         return DatasetFields(field_name='dataset', arguments=cleared_arguments)
 
@@ -198,6 +198,22 @@ class Query:
     @classmethod
     def prebuilt_criteria(cls) -> PrebuiltCriteriaFields:
         return PrebuiltCriteriaFields(field_name='prebuiltCriteria')
+
+    @classmethod
+    def grader(cls, id: str, use_case: str) -> GraderFields:
+        arguments: Dict[str, Dict[str, Any]] = {'id': {'type': 'IdOrKey!', 'value': id}, 'useCase': {'type': 'IdOrKey!', 'value': use_case}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return GraderFields(field_name='grader', arguments=cleared_arguments)
+
+    @classmethod
+    def graders(cls, use_case: str) -> GraderFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return GraderFields(field_name='graders', arguments=cleared_arguments)
+
+    @classmethod
+    def prebuilt_configs(cls) -> PrebuiltConfigDefinitionFields:
+        return PrebuiltConfigDefinitionFields(field_name='prebuiltConfigs')
 
     @classmethod
     def meta(cls) -> MetaObjectFields:

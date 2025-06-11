@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 from pydantic import Field
 from .base_model import BaseModel
-from .enums import AbcampaignStatus, CompletionSource, DatasetSource, DateBucketUnit, ExternalModelProviderName, FeedbackType, FeedbackTypeInput, MetricAggregation, MetricKind, MetricScoringType, ModelKindFilter, ModelOnline, OpenAIModel, PrebuiltCriteriaKey, ScriptKind, SelectionTypeInput, SortDirection, TimeseriesInterval, TrainingMetadataInputAlignmentMethod, TrainingMetadataInputTrainingType, UnitPosition
+from .enums import AbcampaignStatus, CompletionSource, DatasetSource, DateBucketUnit, ExternalModelProviderName, FeedbackType, FeedbackTypeInput, GraderTypeEnum, MetricAggregation, MetricKind, MetricScoringType, ModelKindFilter, ModelOnline, OpenAIModel, PrebuiltCriteriaKey, ScriptKind, SelectionTypeInput, SortDirection, TimeseriesInterval, TrainingMetadataInputAlignmentMethod, TrainingMetadataInputTrainingType, UnitPosition
 
 class AbCampaignFilter(BaseModel):
     """@private"""
@@ -197,6 +197,19 @@ class EvaluationRecipeInput(BaseModel):
     context_relevancy: Optional['ContextRelevancyRecipe'] = Field(alias='contextRelevancy', default=None)
     answer_relevancy: Optional['AnswerRelevancyRecipe'] = Field(alias='answerRelevancy', default=None)
 
+class EvaluationV2CreateInput(BaseModel):
+    """@private"""
+    name: Optional[str] = None
+    model_services: List['ModelServiceWithParams'] = Field(alias='modelServices')
+    evaluators: 'EvaluatorsInput'
+    datasource: 'SampleConfigInput'
+    compute_pool: Optional[str] = Field(alias='computePool', default=None)
+
+class EvaluatorsInput(BaseModel):
+    """@private"""
+    graders: Optional[List[str]] = None
+    judges: Optional[List[str]] = None
+
 class FaithfulnessRecipe(BaseModel):
     """@private"""
     misc: Optional[str] = None
@@ -229,6 +242,25 @@ class GoogleProviderDataInput(BaseModel):
     api_key: str = Field(alias='apiKey')
     external_model_id: str = Field(alias='externalModelId')
 
+class GraderConfigInput(BaseModel):
+    """@private"""
+    judge: Optional['JudgeConfigInput'] = None
+    prebuilt: Optional['PrebuiltConfigInput'] = None
+
+class GraderCreateInput(BaseModel):
+    """@private"""
+    name: str
+    key: Optional[str] = None
+    grader_type: GraderTypeEnum = Field(alias='graderType')
+    grader_config: 'GraderConfigInput' = Field(alias='graderConfig')
+    metric: 'MetricGetOrCreate'
+
+class GraderUpdateInput(BaseModel):
+    """@private"""
+    name: Optional[str] = None
+    grader_type: Optional[GraderTypeEnum] = Field(alias='graderType', default=None)
+    grader_config: Optional['GraderConfigInput'] = Field(alias='graderConfig', default=None)
+
 class GrpotrainingParamsInput(BaseModel):
     """@private"""
     kl_div_coeff: float = Field(alias='klDivCoeff')
@@ -239,12 +271,18 @@ class GuidelineInput(BaseModel):
     name: str
     description: str
 
+class JudgeConfigInput(BaseModel):
+    """@private"""
+    model: str
+    criteria: str
+    examples: List['JudgeExampleInput']
+
 class JudgeCreate(BaseModel):
     """@private"""
     key: Optional[str] = None
     name: str
     criteria: str
-    examples: List['JudgeExampleInput']
+    examples: List['JudgeExampleInput'] = Field(default_factory=lambda : [])
     model: str
     metric: Optional[str] = None
 
@@ -395,6 +433,11 @@ class PpotrainingParamsInput(BaseModel):
     """@private"""
     kl_div_coeff: float = Field(alias='klDivCoeff')
     steps: int = 100
+
+class PrebuiltConfigInput(BaseModel):
+    """@private"""
+    key: str
+    model: str
 
 class PrebuiltJudgeCreate(BaseModel):
     """@private"""
@@ -629,7 +672,12 @@ DatasetGenerationConfig.model_rebuild()
 EvaluationCreate.model_rebuild()
 EvaluationKind.model_rebuild()
 EvaluationRecipeInput.model_rebuild()
+EvaluationV2CreateInput.model_rebuild()
 FeedbackFilterInput.model_rebuild()
+GraderConfigInput.model_rebuild()
+GraderCreateInput.model_rebuild()
+GraderUpdateInput.model_rebuild()
+JudgeConfigInput.model_rebuild()
 JudgeCreate.model_rebuild()
 JudgeExampleInput.model_rebuild()
 JudgeTrainingParamsInput.model_rebuild()

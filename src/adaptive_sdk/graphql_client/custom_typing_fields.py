@@ -309,6 +309,24 @@ class EvaluationRecipeUnion(GraphQLField):
         self._alias = alias
         return self
 
+class GraderGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> 'GraderGraphQLField':
+        self._alias = alias
+        return self
+
+class GraderConfigUnion(GraphQLField):
+    """@private"""
+
+    def on(self, type_name: str, *subfields: GraphQLField) -> 'GraderConfigUnion':
+        self._inline_fragments[type_name] = subfields
+        return self
+
+    def alias(self, alias: str) -> 'GraderConfigUnion':
+        self._alias = alias
+        return self
+
 class GrpotrainingParamsOutputGraphQLField(GraphQLField):
     """@private"""
 
@@ -366,6 +384,13 @@ class JudgeGraphQLField(GraphQLField):
     """@private"""
 
     def alias(self, alias: str) -> 'JudgeGraphQLField':
+        self._alias = alias
+        return self
+
+class JudgeConfigOutputGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> 'JudgeConfigOutputGraphQLField':
         self._alias = alias
         return self
 
@@ -510,6 +535,20 @@ class PpotrainingParamsOutputGraphQLField(GraphQLField):
     """@private"""
 
     def alias(self, alias: str) -> 'PpotrainingParamsOutputGraphQLField':
+        self._alias = alias
+        return self
+
+class PrebuiltConfigDefinitionGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> 'PrebuiltConfigDefinitionGraphQLField':
+        self._alias = alias
+        return self
+
+class PrebuiltConfigOutputGraphQLField(GraphQLField):
+    """@private"""
+
+    def alias(self, alias: str) -> 'PrebuiltConfigOutputGraphQLField':
         self._alias = alias
         return self
 

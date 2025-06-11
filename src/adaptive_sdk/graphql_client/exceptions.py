@@ -27,19 +27,19 @@ class GraphQLClientInvalidResponseError(GraphQLClientError):
 class GraphQLClientGraphQLError(GraphQLClientError):
     """@private"""
 
-    def __init__(self, message: str, locations: Optional[List[Dict[str, int]]]=None, path: Optional[List[str]]=None, extensions: Optional[Dict[str, object]]=None, orginal: Optional[Dict[str, object]]=None):
+    def __init__(self, message: str, locations: Optional[List[Dict[str, int]]]=None, path: Optional[List[str]]=None, extensions: Optional[Dict[str, object]]=None, original: Optional[Dict[str, object]]=None):
         self.message = message
         self.locations = locations
         self.path = path
         self.extensions = extensions
-        self.orginal = orginal
+        self.original = original
 
     def __str__(self) -> str:
         return self.message
 
     @classmethod
     def from_dict(cls, error: Dict[str, Any]) -> 'GraphQLClientGraphQLError':
-        return cls(message=error['message'], locations=error.get('locations'), path=error.get('path'), extensions=error.get('extensions'), orginal=error)
+        return cls(message=error['message'], locations=error.get('locations'), path=error.get('path'), extensions=error.get('extensions'), original=error)
 
 class GraphQLClientGraphQLMultiError(GraphQLClientError):
     """@private"""

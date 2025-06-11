@@ -10,7 +10,6 @@ from adaptive_sdk.graphql_client import (
     TrainingMetadataInputAlignmentMethod,
     AdaptRequestConfigInput,
     TrainingMetadataInputParameters,
-    TrainingMetadataInputParameters,
     SampleConfigInput,
     TrainingConfigInput,
     TrainingObjectiveInput,
@@ -111,7 +110,7 @@ def build_training_config(
             feedback_type = None
             logger.info("SFT training does not support feedback_type, ignoring input")
         if alignment_objective:
-            alignment_objective = None
+            alignment_objective = {"sft": {}}
             logger.info("SFT training does not support aligment_objective, ignoring input")
         if alignment_params:
             alignment_params = None
@@ -122,8 +121,8 @@ def build_training_config(
             logger.info("feedback_type is only relevant when training on a metric, ignoring input")
 
     # make sure that feedback_type is set when training on metric
-    training_objective_dict = alignment_objective or {"sft": {}}
-    if training_objective_dict.get("metric") is not None:
+    assert alignment_objective
+    if alignment_objective.get("metric") is not None:
         assert (
             feedback_type is not None
         ), "Must specify a feedback_type when training_objective is training on a metric."
@@ -135,13 +134,13 @@ def build_training_config(
             else TrainingMetadataInputTrainingType.FULL_WEIGHTS
         ),
         alignmentMethod=TrainingMetadataInputAlignmentMethod(alignment_method),
-        parameters=TrainingMetadataInputParameters.model_validate(alignment_params) if alignment_params else {},  # type: ignore
+        parameters=TrainingMetadataInputParameters.model_validate(alignment_params) if alignment_params else None,  # type: ignore
     )
 
     return TrainingConfigInput(
         baseTrainingParams=BaseTrainingParamsInput.model_validate(base_train_params),
         trainingMetadata=training_metadata,
-        trainingObjective=TrainingObjectiveInput.model_validate(training_objective_dict),
+        trainingObjective=TrainingObjectiveInput.model_validate(alignment_objective),
     )
 
 
