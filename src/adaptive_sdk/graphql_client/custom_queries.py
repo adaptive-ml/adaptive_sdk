@@ -20,14 +20,14 @@ class Query:
         return AbcampaignFields(field_name='abCampaign', arguments=cleared_arguments)
 
     @classmethod
-    def custom_scripts(cls, filter: CustomScriptFilter) -> CustomScriptFields:
-        arguments: Dict[str, Dict[str, Any]] = {'filter': {'type': 'CustomScriptFilter!', 'value': filter}}
+    def custom_scripts(cls, use_case: str, filter: CustomScriptFilter) -> CustomScriptFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'filter': {'type': 'CustomScriptFilter!', 'value': filter}}
         cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
         return CustomScriptFields(field_name='customScripts', arguments=cleared_arguments)
 
     @classmethod
-    def custom_script(cls, id_or_key: str) -> CustomScriptFields:
-        arguments: Dict[str, Dict[str, Any]] = {'idOrKey': {'type': 'IdOrKey!', 'value': id_or_key}}
+    def custom_script(cls, id_or_key: str, use_case: str) -> CustomScriptFields:
+        arguments: Dict[str, Dict[str, Any]] = {'idOrKey': {'type': 'IdOrKey!', 'value': id_or_key}, 'useCase': {'type': 'IdOrKey!', 'value': use_case}}
         cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
         return CustomScriptFields(field_name='customScript', arguments=cleared_arguments)
 

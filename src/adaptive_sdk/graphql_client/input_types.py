@@ -144,10 +144,16 @@ class CustomScriptCreate(BaseModel):
     """@private"""
     name: Optional[str] = None
     key: Optional[str] = None
+    description: Optional[str] = None
 
 class CustomScriptFilter(BaseModel):
     """@private"""
     kind: Optional[List[ScriptKind]] = None
+
+class CustomScriptUpdate(BaseModel):
+    """@private"""
+    name: Optional[str] = None
+    description: Optional[str] = None
 
 class DatasetCreate(BaseModel):
     """@private"""
@@ -236,6 +242,7 @@ class GenerateParameters(BaseModel):
     max_tokens: Optional[int] = Field(alias='maxTokens', default=None)
     temperature: Optional[float] = None
     top_p: Optional[float] = Field(alias='topP', default=None)
+    max_ttft_ms: Optional[int] = Field(alias='maxTtftMs', default=None)
 
 class GoogleProviderDataInput(BaseModel):
     """@private"""

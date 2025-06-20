@@ -608,6 +608,9 @@ class CustomScriptFields(GraphQLField):
     created_at: 'CustomScriptGraphQLField' = CustomScriptGraphQLField('createdAt')
     kind: 'CustomScriptGraphQLField' = CustomScriptGraphQLField('kind')
     content: 'CustomScriptGraphQLField' = CustomScriptGraphQLField('content')
+    content_hash: 'CustomScriptGraphQLField' = CustomScriptGraphQLField('contentHash')
+    description: 'CustomScriptGraphQLField' = CustomScriptGraphQLField('description')
+    updated_at: 'CustomScriptGraphQLField' = CustomScriptGraphQLField('updatedAt')
 
     def fields(self, *subfields: CustomScriptGraphQLField) -> 'CustomScriptFields':
         """Subfields should come from the CustomScriptFields class"""

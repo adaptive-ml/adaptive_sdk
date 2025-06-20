@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional
 from .base_model import Upload
 from .custom_fields import AbcampaignFields, ApiKeyFields, CompletionFields, CustomScriptFields, DatasetFields, DatasetValidationOutputFields, DeleteConfirmFields, DirectFeedbackFields, EvaluationJobFields, GraderFields, JudgeFields, MetricFields, MetricWithContextFields, ModelFields, ModelServiceFields, RemoteEnvFields, RoleFields, SystemPromptTemplateFields, TeamFields, TeamMemberFields, TrainingJobFields, UseCaseFields, UserFields
 from .custom_typing_fields import GraphQLField, RemoteEnvTestUnion
-from .input_types import AbcampaignCreate, AddExternalModelInput, AddHFModelInput, AddModelInput, ApiKeyCreate, AttachModel, CustomRecipeTrainingJobInput, CustomScriptCreate, DatasetCreate, DatasetGenerate, EvaluationCreate, EvaluationV2CreateInput, FeedbackAddInput, FeedbackUpdateInput, GraderCreateInput, GraderUpdateInput, JudgeCreate, JudgeUpdate, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelPlacementInput, ModelServiceDisconnect, PrebuiltJudgeCreate, RemoteEnvCreate, RoleCreate, SystemPromptTemplateCreate, SystemPromptTemplateUpdate, TeamCreate, TeamMemberRemove, TeamMemberSet, TrainingJobInput, UpdateCompletion, UpdateModelService, UseCaseCreate, UseCaseShares, UseCaseUpdate
+from .input_types import AbcampaignCreate, AddExternalModelInput, AddHFModelInput, AddModelInput, ApiKeyCreate, AttachModel, CustomRecipeTrainingJobInput, CustomScriptCreate, CustomScriptUpdate, DatasetCreate, DatasetGenerate, EvaluationCreate, EvaluationV2CreateInput, FeedbackAddInput, FeedbackUpdateInput, GraderCreateInput, GraderUpdateInput, JudgeCreate, JudgeUpdate, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelPlacementInput, ModelServiceDisconnect, PrebuiltJudgeCreate, RemoteEnvCreate, RoleCreate, SystemPromptTemplateCreate, SystemPromptTemplateUpdate, TeamCreate, TeamMemberRemove, TeamMemberSet, TrainingJobInput, UpdateCompletion, UpdateModelService, UseCaseCreate, UseCaseShares, UseCaseUpdate
 
 class Mutation:
     """@private"""
@@ -20,10 +20,16 @@ class Mutation:
         return GraphQLField(field_name='cancelAbCampaign', arguments=cleared_arguments)
 
     @classmethod
-    def create_custom_script(cls, input: CustomScriptCreate, file: Upload) -> CustomScriptFields:
-        arguments: Dict[str, Dict[str, Any]] = {'input': {'type': 'CustomScriptCreate!', 'value': input}, 'file': {'type': 'Upload!', 'value': file}}
+    def create_custom_script(cls, use_case: str, input: CustomScriptCreate, file: Upload) -> CustomScriptFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'input': {'type': 'CustomScriptCreate!', 'value': input}, 'file': {'type': 'Upload!', 'value': file}}
         cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
         return CustomScriptFields(field_name='createCustomScript', arguments=cleared_arguments)
+
+    @classmethod
+    def update_custom_script(cls, use_case: str, id: str, input: CustomScriptUpdate, *, file: Optional[Upload]=None) -> CustomScriptFields:
+        arguments: Dict[str, Dict[str, Any]] = {'useCase': {'type': 'IdOrKey!', 'value': use_case}, 'id': {'type': 'IdOrKey!', 'value': id}, 'input': {'type': 'CustomScriptUpdate!', 'value': input}, 'file': {'type': 'Upload', 'value': file}}
+        cleared_arguments = {key: value for (key, value) in arguments.items() if value['value'] is not None}
+        return CustomScriptFields(field_name='updateCustomScript', arguments=cleared_arguments)
 
     @classmethod
     def create_dataset(cls, input: DatasetCreate, file: Upload) -> DatasetFields:

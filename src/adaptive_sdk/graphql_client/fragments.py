@@ -192,8 +192,10 @@ class CustomScriptData(BaseModel):
     key: str
     name: str
     content: str
+    content_hash: str = Field(alias='contentHash')
     kind: ScriptKind
     created_at: int = Field(alias='createdAt')
+    updated_at: Optional[int] = Field(alias='updatedAt')
 
 class DatasetData(BaseModel):
     """@public"""

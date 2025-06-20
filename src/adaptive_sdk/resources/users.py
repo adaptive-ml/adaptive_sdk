@@ -5,7 +5,7 @@ from adaptive_sdk.graphql_client import (
     UserData,
     TeamMemberSet,
     UpdateUserSetTeamMember,
-    ListTeamsTeams,
+    TeamMemberRemove,
 )
 
 from .base_resource import SyncAPIResource, AsyncAPIResource, UseCaseResource
@@ -35,7 +35,7 @@ class Users(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         return self._gql_client.list_users().users
 
-    def update(self, email: str, team: str, role: str) -> UpdateUserSetTeamMember:
+    def add_to_team(self, email: str, team: str, role: str) -> UpdateUserSetTeamMember:
         """
         Update team and role for user.
 
@@ -47,6 +47,17 @@ class Users(SyncAPIResource, UseCaseResource):  # type: ignore[misc]
         """
         input = TeamMemberSet(user=email, team=team, role=role)
         return self._gql_client.update_user(input).set_team_member
+
+    def remove_from_team(self, email: str, team: str) -> UserData:
+        """
+        Remove user from team.
+
+        Args:
+            email: User email.
+            team: Key of team to remove user from.
+        """
+        input = TeamMemberRemove(user=email, team=team)
+        return self._gql_client.remove_team_member(input).remove_team_member
 
 
 class AsyncUsers(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
@@ -72,7 +83,7 @@ class AsyncUsers(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         result = await self._gql_client.list_users()
         return result.users
 
-    async def update(self, email: str, team: str, role: str) -> UpdateUserSetTeamMember:
+    async def add_to_team(self, email: str, team: str, role: str) -> UpdateUserSetTeamMember:
         """
         Update team and role for user.
 
@@ -85,3 +96,14 @@ class AsyncUsers(AsyncAPIResource, UseCaseResource):  # type: ignore[misc]
         input = TeamMemberSet(user=email, team=team, role=role)
         result = await self._gql_client.update_user(input)
         return result.set_team_member
+
+    async def remove_from_team(self, email: str, team: str) -> UserData:
+        """
+        Remove user from team.
+
+        Args:
+            email: User email.
+            team: Key of team to remove user from.
+        """
+        input = TeamMemberRemove(user=email, team=team)
+        return (await self._gql_client.remove_team_member(input)).remove_team_member

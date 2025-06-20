@@ -37,7 +37,7 @@ from .describe_use_case import DescribeUseCase
 from .enums import CompletionGroupBy
 from .generate_dataset import GenerateDataset
 from .get_judge import GetJudge
-from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, CustomRecipeTrainingJobInput, CustomScriptCreate, CustomScriptFilter, DatasetCreate, DatasetGenerate, EvaluationCreate, JudgeCreate, JudgeUpdate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelFilter, ModelPlacementInput, OrderPair, PrebuiltJudgeCreate, RemoteEnvCreate, RoleCreate, TeamCreate, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate
+from .input_types import AbcampaignCreate, AbCampaignFilter, AddExternalModelInput, AddHFModelInput, AddModelInput, AttachModel, CursorPageInput, CustomRecipeTrainingJobInput, CustomScriptCreate, CustomScriptFilter, DatasetCreate, DatasetGenerate, EvaluationCreate, JudgeCreate, JudgeUpdate, ListCompletionsFilterInput, MetricCreate, MetricLink, MetricUnlink, ModelComputeConfigInput, ModelFilter, ModelPlacementInput, OrderPair, PrebuiltJudgeCreate, RemoteEnvCreate, RoleCreate, TeamCreate, TeamMemberRemove, TeamMemberSet, TrainingJobInput, UpdateModelService, UseCaseCreate
 from .link_metric import LinkMetric
 from .list_ab_campaigns import ListAbCampaigns
 from .list_compute_pools import ListComputePools
@@ -61,6 +61,7 @@ from .list_users import ListUsers
 from .load_dataset import LoadDataset
 from .me import Me
 from .remove_remote_env import RemoveRemoteEnv
+from .remove_team_member import RemoveTeamMember
 from .terminate_model import TerminateModel
 from .test_remote_env import TestRemoteEnv
 from .unlink_metric import UnlinkMetric
@@ -257,9 +258,9 @@ class GQLClient(BaseClientOpenTelemetry):
         data = self.get_data(response)
         return TestRemoteEnv.model_validate(data)
 
-    def create_custom_script(self, input: CustomScriptCreate, file: Upload, **kwargs: Any) -> CreateCustomScript:
-        query = gql('\n            mutation CreateCustomScript($input: CustomScriptCreate!, $file: Upload!) {\n              createCustomScript(input: $input, file: $file) {\n                ...CustomScriptData\n              }\n            }\n\n            fragment CustomScriptData on CustomScript {\n              id\n              key\n              name\n              content\n              kind\n              createdAt\n            }\n            ')
-        variables: Dict[str, object] = {'input': input, 'file': file}
+    def create_custom_script(self, use_case: str, input: CustomScriptCreate, file: Upload, **kwargs: Any) -> CreateCustomScript:
+        query = gql('\n            mutation CreateCustomScript($useCase: IdOrKey!, $input: CustomScriptCreate!, $file: Upload!) {\n              createCustomScript(useCase: $useCase, input: $input, file: $file) {\n                ...CustomScriptData\n              }\n            }\n\n            fragment CustomScriptData on CustomScript {\n              id\n              key\n              name\n              content\n              contentHash\n              kind\n              createdAt\n              updatedAt\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'input': input, 'file': file}
         response = self.execute(query=query, operation_name='CreateCustomScript', variables=variables, **kwargs)
         data = self.get_data(response)
         return CreateCustomScript.model_validate(data)
@@ -298,6 +299,13 @@ class GQLClient(BaseClientOpenTelemetry):
         response = self.execute(query=query, operation_name='DeleteJudge', variables=variables, **kwargs)
         data = self.get_data(response)
         return DeleteJudge.model_validate(data)
+
+    def remove_team_member(self, input: TeamMemberRemove, **kwargs: Any) -> RemoveTeamMember:
+        query = gql('\n            mutation RemoveTeamMember($input: TeamMemberRemove!) {\n              removeTeamMember(input: $input) {\n                ...UserData\n              }\n            }\n\n            fragment UserData on User {\n              id\n              email\n              name\n              createdAt\n              teams {\n                team {\n                  id\n                  key\n                  name\n                  createdAt\n                }\n                role {\n                  id\n                  key\n                  name\n                  createdAt\n                  permissions\n                }\n              }\n            }\n            ')
+        variables: Dict[str, object] = {'input': input}
+        response = self.execute(query=query, operation_name='RemoveTeamMember', variables=variables, **kwargs)
+        data = self.get_data(response)
+        return RemoveTeamMember.model_validate(data)
 
     def list_datasets(self, input: str, **kwargs: Any) -> ListDatasets:
         query = gql('\n            query ListDatasets($input: IdOrKey!) {\n              datasets(useCase: $input) {\n                ...DatasetData\n              }\n            }\n\n            fragment DatasetData on Dataset {\n              id\n              key\n              name\n              createdAt\n              kind\n              records\n              metricsUsage {\n                feedbackCount\n                comparisonCount\n                metric {\n                  ...MetricData\n                }\n              }\n            }\n\n            fragment MetricData on Metric {\n              id\n              key\n              name\n              kind\n              description\n              scoringType\n              createdAt\n              hasDirectFeedbacks\n              hasComparisonFeedbacks\n            }\n            ')
@@ -488,9 +496,9 @@ class GQLClient(BaseClientOpenTelemetry):
         data = self.get_data(response)
         return ListRemoteEnvs.model_validate(data)
 
-    def list_custom_scripts(self, filter: CustomScriptFilter, **kwargs: Any) -> ListCustomScripts:
-        query = gql('\n            query ListCustomScripts($filter: CustomScriptFilter!) {\n              customScripts(filter: $filter) {\n                ...CustomScriptData\n              }\n            }\n\n            fragment CustomScriptData on CustomScript {\n              id\n              key\n              name\n              content\n              kind\n              createdAt\n            }\n            ')
-        variables: Dict[str, object] = {'filter': filter}
+    def list_custom_scripts(self, use_case: str, filter: CustomScriptFilter, **kwargs: Any) -> ListCustomScripts:
+        query = gql('\n            query ListCustomScripts($useCase: IdOrKey!, $filter: CustomScriptFilter!) {\n              customScripts(useCase: $useCase, filter: $filter) {\n                ...CustomScriptData\n              }\n            }\n\n            fragment CustomScriptData on CustomScript {\n              id\n              key\n              name\n              content\n              contentHash\n              kind\n              createdAt\n              updatedAt\n            }\n            ')
+        variables: Dict[str, object] = {'useCase': use_case, 'filter': filter}
         response = self.execute(query=query, operation_name='ListCustomScripts', variables=variables, **kwargs)
         data = self.get_data(response)
         return ListCustomScripts.model_validate(data)
